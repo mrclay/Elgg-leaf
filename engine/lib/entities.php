@@ -602,15 +602,11 @@ function entity_row_to_elggstar($row) {
 	$new_entity = false;
 
 	// Create a memcache cache if we can
-	static $newentity_cache;
-	if ((!$newentity_cache) && (is_memcache_available())) {
-		$newentity_cache = new ElggMemcache('new_entity_cache');
-	}
-	if ($newentity_cache) {
+	if ($newentity_cache = ElggMemcache::getInstance('new_entity_cache')) {
 		$new_entity = $newentity_cache->load($row->guid);
-	}
-	if ($new_entity) {
-		return $new_entity;
+		if ($new_entity) {
+			return $new_entity;
+		}
 	}
 
 	// load class for entity if one is registered
