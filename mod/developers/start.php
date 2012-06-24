@@ -20,8 +20,7 @@ function developers_init() {
 	elgg_register_action('developers/settings', "$action_base/settings.php", 'admin');
 	elgg_register_action('developers/inspect', "$action_base/inspect.php", 'admin');
 
-	elgg_register_js('jquery.jstree', 'mod/developers/vendors/jsTree/jquery.jstree.js', 'footer');
-	elgg_register_css('jquery.jstree', 'mod/developers/vendors/jsTree/themes/default/style.css');
+	elgg_register_js('jit.spacetree', 'mod/developers/vendors/jit/jit.spacetree.js', 'footer');
 
 	elgg_load_js('jquery.form');
 

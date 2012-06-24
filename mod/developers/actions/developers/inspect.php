@@ -10,7 +10,8 @@ $method = 'get' . str_replace(' ', '', $inspect_type);
 $inspector = new ElggInspector();
 if ($inspector && method_exists($inspector, $method)) {
 	$tree = $inspector->$method();
-	echo elgg_view('developers/tree', array('tree' => $tree));
+	$tree->prepare();
+	echo json_encode($tree);
 } else {
 	echo 'error';
 }
