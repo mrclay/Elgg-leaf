@@ -9,19 +9,23 @@ class ElggInspector {
 	/**
 	 * Get Elgg event information
 	 *
-	 * returns [event,type] => array(handlers)
+	 * 1st level: event names
+	 * 2nd level: handlers with data: priority
 	 */
 	public function getEvents() {
 		global $CONFIG;
 
-		$tree = array();
+		$tree = new ElggInspectorNode('events');
 		foreach ($CONFIG->events as $event => $types) {
 			foreach ($types as $type => $handlers) {
-				$tree[$event . ',' . $type] = array_values($handlers);
+				$node = new ElggInspectorNode($event . ',' . $type, array(), 'priority');
+				foreach ($handlers as $priority => $handler) {
+					$data = array('priority' => $priority);
+					$node->addChild(new ElggInspectorNode($handler, $data));
+				}
+				$tree->addChild($node);
 			}
 		}
-
-		ksort($tree);
 
 		return $tree;
 	}
@@ -29,19 +33,23 @@ class ElggInspector {
 	/**
 	 * Get Elgg plugin hooks information
 	 *
-	 * returns [hook,type] => array(handlers)
+	 * 1st level: hook names
+	 * 2nd level: handlers with data: priority
 	 */
 	public function getPluginHooks() {
 		global $CONFIG;
 
-		$tree = array();
+		$tree = new ElggInspectorNode('hooks');
 		foreach ($CONFIG->hooks as $hook => $types) {
 			foreach ($types as $type => $handlers) {
-				$tree[$hook . ',' . $type] = array_values($handlers);
+				$node = new ElggInspectorNode($hook . ',' . $type, array(), 'priority');
+				foreach ($handlers as $priority => $handler) {
+					$data = array('priority' => $priority);
+					$node->addChild(new ElggInspectorNode($handler, $data));
+				}
+				$tree->addChild($node);
 			}
 		}
-
-		ksort($tree);
 
 		return $tree;
 	}
@@ -49,59 +57,47 @@ class ElggInspector {
 	/**
 	 * Get Elgg view information
 	 *
-	 * returns [view] => array(view location and extensions)
+	 * Directory structure of views
 	 */
 	public function getViews() {
-		global $CONFIG;
 
-		$coreViews = $this->recurseFileTree($CONFIG->viewpath . "default/");
+		$views = $this->findViews();
+		$tree = new ElggInspectorNode('views');
 
-		// remove base path and php extension
-		array_walk($coreViews, create_function('&$v,$k', 'global $CONFIG; $v = substr($v, strlen($CONFIG->viewpath . "default/"), -4);'));
-
-		// setup views array before adding extensions and plugin views
-		$views = array();
-		foreach ($coreViews as $view) {
-			$views[$view] = array($CONFIG->viewpath . "default/" . $view . ".php");
-		}
-
-		// add plugins and handle overrides
-		foreach ($CONFIG->views->locations['default'] as $view => $location) {
-			$views[$view] = array($location . $view . ".php");
-		}
-
-		// now extensions
-		foreach ($CONFIG->views->extensions as $view => $extensions) {
-			$view_list = array();
-			foreach ($extensions as $priority => $ext_view) {
-				if (isset($views[$ext_view])) {
-					$view_list[] = $views[$ext_view][0];
+		// create the directory structure based on individual view names and
+		// store the view locations  on a node when appropriate
+		$nodes = array('/' => $tree);
+		foreach ($views as $name => $locations) {
+			$dirs = explode("/", $name);
+			$parent = '/';
+			$current = '/';
+			foreach ($dirs as $dir) {
+				$current .= $dir . '/';
+				if (!isset($nodes[$current])) {
+					$nodes[$current] = new ElggInspectorNode($dir);
+					$nodes[$parent]->addChild($nodes[$current]);
 				}
+				$parent .= $dir . '/';
 			}
-			if (count($view_list) > 0) {
-				$views[$view] = $view_list;
-			}
+			$nodes[$current]->data = $locations;
 		}
 
-		ksort($views);
-
-		return $views;
+		return $tree;
 	}
 
 	/**
 	 * Get Elgg widget information
 	 *
-	 * returns [widget] => array(name, contexts)
+	 * 1st level: widget handler with data: name, description, contexts, allow multiple
 	 */
 	public function getWidgets() {
 		global $CONFIG;
 
-		$tree = array();
-		foreach ($CONFIG->widgets->handlers as $handler => $handler_obj) {
-			$tree[$handler] = array($handler_obj->name, implode(',', array_values($handler_obj->context)));
+		$tree = new ElggInspectorNode('widgets');
+		foreach ($CONFIG->widgets->handlers as $handler => $widget) {
+			$node = new ElggInspectorNode($handler, (array)$widget);
+			$tree->addChild($node);
 		}
-
-		ksort($tree);
 
 		return $tree;
 	}
@@ -110,17 +106,16 @@ class ElggInspector {
 	/**
 	 * Get Elgg actions information
 	 *
-	 * returns [action] => array(file, public, admin)
+	 * 1st level: actions names with data: file, public, admin
 	 */
 	public function getActions() {
 		global $CONFIG;
 
-		$tree = array();
+		$tree = new ElggInspectorNode('actions');
 		foreach ($CONFIG->actions as $action => $info) {
-			$tree[$action] = array($info['file'], ($info['public']) ? 'public' : 'logged in only', ($info['admin']) ? 'admin only' : 'non-admin');
+			$node = new ElggInspectorNode($action, $info);
+			$tree->addChild($node);
 		}
-
-		ksort($tree);
 
 		return $tree;
 	}
@@ -128,17 +123,16 @@ class ElggInspector {
 	/**
 	 * Get simplecache information
 	 *
-	 * returns [views]
+	 * 1st level: view name
 	 */
 	public function getSimpleCache() {
 		global $CONFIG;
 
-		$tree = array();
+		$tree = new ElggInspectorNode('simple cache');
 		foreach ($CONFIG->views->simplecache as $view) {
-			$tree[$view] = "";
+			$node = new ElggInspectorNode($view);
+			$tree->addChild($node);
 		}
-
-		ksort($tree);
 
 		return $tree;
 	}
@@ -146,27 +140,17 @@ class ElggInspector {
 	/**
 	 * Get Elgg web services API methods
 	 *
-	 * returns [method] => array(function, parameters, call_method, api auth, user auth)
+	 * 1st level: method with data: function, parameters, call_method, api auth, user auth
 	 */
 	public function getWebServices() {
 		global $API_METHODS;
 
-		$tree = array();
+		$tree = new ElggInspectorNode('actions');
 		foreach ($API_METHODS as $method => $info) {
-			$params = implode(', ', array_keys($info['parameters']));
-			if (!$params) {
-				$params = 'none';
-			}
-			$tree[$method] = array(
-				$info['function'],
-				"params: $params",
-				$info['call_method'],
-				($info['require_api_auth']) ? 'API authentication required' : 'No API authentication required',
-			 	($info['require_user_auth']) ? 'User authentication required' : 'No user authentication required',
-			);
+			$info['parameters'] = array_keys($info['parameters']);
+			$node = new ElggInspectorNode($method, $info);
+			$tree->addChild($node);
 		}
-
-		ksort($tree);
 
 		return $tree;
 	}
@@ -198,4 +182,48 @@ class ElggInspector {
 		return $view_list;
 	}
 
+	/**
+	 * Find all views that are registered with Elgg
+	 *
+	 * Core views are assumed rather than registered so we much manually load these.
+	 * Views that have been overridden do not appear. We would have to crawl all
+	 * the plugin directories to show all overridden views.
+	 *
+	 * @return array
+	 */
+	protected function findViews() {
+		global $CONFIG;
+
+		$coreViews = $this->recurseFileTree($CONFIG->viewpath . "default/");
+
+		// remove base path and php extension
+		array_walk($coreViews, create_function('&$v,$k', 'global $CONFIG; $v = substr($v, strlen($CONFIG->viewpath . "default/"), -4);'));
+
+		// setup views array before adding extensions and plugin views
+		$views = array();
+		foreach ($coreViews as $view) {
+			$views[$view] = array(500 => $CONFIG->viewpath . "default/" . $view . ".php");
+		}
+
+		// add plugins and handle overrides
+		foreach ($CONFIG->views->locations['default'] as $view => $location) {
+			$views[$view] = array(500 => $location . $view . ".php");
+		}
+
+		// now extensions
+		foreach ($CONFIG->views->extensions as $view => $extensions) {
+			$view_list = array();
+			foreach ($extensions as $priority => $ext_view) {
+				if (isset($views[$ext_view])) {
+					$view_list[$priority] = $views[$ext_view][500];
+				}
+			}
+			if (count($view_list) > 0) {
+				$views[$view] = $view_list;
+			}
+		}
+
+		ksort($views);
+		return $views;
+	}
 }
