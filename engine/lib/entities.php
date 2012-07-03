@@ -840,19 +840,20 @@ function elgg_get_entities(array $options = array()) {
 	$singulars = array('type', 'subtype', 'guid', 'owner_guid', 'container_guid', 'site_guid', 'collection');
 	$options = elgg_normalise_plural_options_array($options, $singulars);
 
-	// allow altering $options via plugin hook
-	$hook_params = array(
-		'function' => 'elgg_get_entities',
-		'options' => $options,
-		'query_name' => $options['query_name'],
-	);
-	$hook_type = empty($options['query_name']) ? 'all' : $options['query_name'];
-	$options = elgg_trigger_plugin_hook('query:entities:before', $hook_type, $hook_params, $options);
-	if (! $options) {
-		// a handler cancelled the query
-		return $options['count'] ? 0 : array();
+	// if query has name, allow altering $options['collections'] via plugin hook
+	if (!empty($options['query_name'])) {
+		$hook_params = array(
+			'function' => 'elgg_get_entities',
+			'options' => $options,
+			'query_name' => $options['query_name'],
+		);
+		$result = elgg_trigger_plugin_hook('query:entities:before', $options['query_name'], $hook_params, $options);
+		if (!empty($result['collections'])) {
+			$options['collections'] = $result['collections'];
+		}
 	}
 
+	// apply collections (adds JOINs, ORDER BYs, WHEREs)
 	if (!empty($options['collections'])) {
 		ElggCollectionQueryModifier::applyToOptions($options);
 	}
