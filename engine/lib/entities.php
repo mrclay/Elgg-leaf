@@ -804,7 +804,7 @@ function elgg_get_entities(array $options = array()) {
 		'site_guids'			=>	$CONFIG->site_guid,
 
 		'collections'           =>  ELGG_ENTITIES_ANY_VALUE,
-		'query_name'            =>  ELGG_ENTITIES_ANY_VALUE,
+		'query_name'            =>  '',
 
 		'modified_time_lower'	=>	ELGG_ENTITIES_ANY_VALUE,
 		'modified_time_upper'	=>	ELGG_ENTITIES_ANY_VALUE,
@@ -824,14 +824,17 @@ function elgg_get_entities(array $options = array()) {
 		'callback'				=> 'entity_row_to_elggstar',
 	);
 
-	// allow altering $options of named queries
-	if (!empty($options['query_name']) && is_string($options['query_name'])) {
-		$params = array(
-			'function' => 'elgg_get_entities',
-			'options' => $options,
-			'query_name' => $options['query_name'],
-		);
-		$options = elgg_trigger_plugin_hook('query:entities:before', 'all', $params, $options);
+	// allow altering $options via plugin hook
+	$hook_params = array(
+		'function' => 'elgg_get_entities',
+		'options' => $options,
+		'query_name' => $options['query_name'],
+	);
+	$hook_type = empty($options['query_name']) ? 'all' : $options['query_name'];
+	$options = elgg_trigger_plugin_hook('query:entities:before', $hook_type, $hook_params, $options);
+	if (! $options) {
+		// a handler cancelled the query
+		return $options['count'] ? 0 : array();
 	}
 
 	$options = array_merge($defaults, $options);
