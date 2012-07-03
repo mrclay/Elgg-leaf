@@ -826,19 +826,6 @@ function elgg_get_entities(array $options = array()) {
 
 	$options = array_merge($defaults, $options);
 
-	// allow altering $options via plugin hook
-	$hook_params = array(
-		'function' => 'elgg_get_entities',
-		'options' => $options,
-		'query_name' => $options['query_name'],
-	);
-	$hook_type = empty($options['query_name']) ? 'all' : $options['query_name'];
-	$options = elgg_trigger_plugin_hook('query:entities:before', $hook_type, $hook_params, $options);
-	if (! $options) {
-		// a handler cancelled the query
-		return $options['count'] ? 0 : array();
-	}
-
 	// can't use helper function with type_subtype_pair because
 	// it's already an array...just need to merge it
 	if (isset($options['type_subtype_pair'])) {
@@ -852,6 +839,19 @@ function elgg_get_entities(array $options = array()) {
 
 	$singulars = array('type', 'subtype', 'guid', 'owner_guid', 'container_guid', 'site_guid', 'collection');
 	$options = elgg_normalise_plural_options_array($options, $singulars);
+
+	// allow altering $options via plugin hook
+	$hook_params = array(
+		'function' => 'elgg_get_entities',
+		'options' => $options,
+		'query_name' => $options['query_name'],
+	);
+	$hook_type = empty($options['query_name']) ? 'all' : $options['query_name'];
+	$options = elgg_trigger_plugin_hook('query:entities:before', $hook_type, $hook_params, $options);
+	if (! $options) {
+		// a handler cancelled the query
+		return $options['count'] ? 0 : array();
+	}
 
 	if (!empty($options['collections'])) {
 		ElggCollectionQueryModifier::applyToOptions($options);
