@@ -803,6 +803,9 @@ function elgg_get_entities(array $options = array()) {
 		'container_guids'		=>	ELGG_ENTITIES_ANY_VALUE,
 		'site_guids'			=>	$CONFIG->site_guid,
 
+		'collections'           =>  ELGG_ENTITIES_ANY_VALUE,
+		'query_name'            =>  ELGG_ENTITIES_ANY_VALUE,
+
 		'modified_time_lower'	=>	ELGG_ENTITIES_ANY_VALUE,
 		'modified_time_upper'	=>	ELGG_ENTITIES_ANY_VALUE,
 		'created_time_lower'	=>	ELGG_ENTITIES_ANY_VALUE,
@@ -821,6 +824,16 @@ function elgg_get_entities(array $options = array()) {
 		'callback'				=> 'entity_row_to_elggstar',
 	);
 
+	// allow altering $options of named queries
+	if (!empty($options['query_name']) && is_string($options['query_name'])) {
+		$params = array(
+			'function' => 'elgg_get_entities',
+			'options' => $options,
+			'query_name' => $options['query_name'],
+		);
+		$options = elgg_trigger_plugin_hook('query:entities:before', 'all', $params, $options);
+	}
+
 	$options = array_merge($defaults, $options);
 
 	// can't use helper function with type_subtype_pair because
@@ -834,8 +847,12 @@ function elgg_get_entities(array $options = array()) {
 		}
 	}
 
-	$singulars = array('type', 'subtype', 'guid', 'owner_guid', 'container_guid', 'site_guid');
+	$singulars = array('type', 'subtype', 'guid', 'owner_guid', 'container_guid', 'site_guid', 'collection');
 	$options = elgg_normalise_plural_options_array($options, $singulars);
+
+	if (!empty($options['collections'])) {
+		ElggCollectionQueryModifier::applyToOptions($options);
+	}
 
 	// evaluate where clauses
 	if (!is_array($options['wheres'])) {
