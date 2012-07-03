@@ -824,6 +824,8 @@ function elgg_get_entities(array $options = array()) {
 		'callback'				=> 'entity_row_to_elggstar',
 	);
 
+	$options = array_merge($defaults, $options);
+
 	// allow altering $options via plugin hook
 	$hook_params = array(
 		'function' => 'elgg_get_entities',
@@ -836,8 +838,6 @@ function elgg_get_entities(array $options = array()) {
 		// a handler cancelled the query
 		return $options['count'] ? 0 : array();
 	}
-
-	$options = array_merge($defaults, $options);
 
 	// can't use helper function with type_subtype_pair because
 	// it's already an array...just need to merge it
