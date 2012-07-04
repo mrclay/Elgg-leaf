@@ -97,6 +97,8 @@ class ElggCollection {
 	}
 
 	/**
+	 * Get the name of the relationship binding entities to the collection
+	 *
 	 * @return string
 	 *
 	 * @access private
@@ -106,6 +108,8 @@ class ElggCollection {
 	}
 
 	/**
+	 * Get the GUID of the entity to which the collection is attached
+	 *
 	 * @return int
 	 */
 	public function getEntityGuid() {
@@ -113,6 +117,8 @@ class ElggCollection {
 	}
 
 	/**
+	 * Get the name under which the collection is found on its attached entity
+	 *
 	 * @return string
 	 */
 	public function getName() {
@@ -140,11 +146,9 @@ class ElggCollection {
 		return false;
 	}
 
-	protected function markUndeleted() {
-		$this->is_deleted = false;
-	}
-
 	/**
+	 * Allow getting some metadata properties
+	 *
 	 * @param string $name
 	 * @return mixed
 	 */
@@ -165,6 +169,8 @@ class ElggCollection {
 	}
 
 	/**
+	 * Allow setting some metadata properties
+	 *
 	 * @param string $name
 	 * @param int $value
 	 */
@@ -183,39 +189,8 @@ class ElggCollection {
 	}
 
 	/**
-	 * Get entities in the collection
-	 *
-	 * @param bool $inverse
-	 * @param int $limit
-	 * @param int $offset
-	 * @return array of ElggEntity
+	 * READING ITEMS
 	 */
-	public function getEntities($inverse = false, $limit = 50, $offset = 0) {
-		$modifier = new ElggCollectionQueryModifier($this);
-		$modifier->isReversed = $inverse;
-		return elgg_get_entities(array(
-			'limit' => $limit,
-			'offset' => $offset,
-			'collections' => array($modifier)
-		));
-	}
-
-	/**
-	 * ITEMS
-	 */
-
-	/**
-	 * Add item(s) to the end of the collection
-	 *
-	 * @param array|int|ElggEntity $items
-	 * @return bool
-	 */
-	public function push($items) {
-		// note: this is a separate function because pushMultiple may eventually
-		// serve for unshifting as well
-		return $this->pushMultiple($items);
-	}
-
 
 	/**
 	 * Get number of items
@@ -227,13 +202,38 @@ class ElggCollection {
 	}
 
 	/**
-	 * Similar behavior as array_slice (w/o the first param)
+	 * Get the index of an item
+	 *
+	 * @param int|ElggEntity $item
+	 * @return bool|int
+	 */
+	public function indexOf($item) {
+		$item = $this->castPositiveInt($item);
+		$row = get_data_row($this->preprocessSql("
+			SELECT COUNT(*) AS cnt
+			FROM {TABLE}
+			WHERE {IN_COLLECTION}
+			  AND {PRIORITY} <=
+				(SELECT {PRIORITY} FROM {TABLE}
+				WHERE {IN_COLLECTION} AND {ITEM} = $item
+				ORDER BY {PRIORITY}
+				LIMIT 1)
+			ORDER BY {PRIORITY}
+		"));
+		return ($row->cnt == 0) ? false : (int)$row->cnt - 1;
+	}
+
+	/**
+	 * Return any contiguous sequence of items in the collection, like array_slice().
 	 *
 	 * Note: the large numbers in these queries is to make up for MySQL's lack of
 	 * support for offset without limit: http://stackoverflow.com/a/271650/3779
 	 *
-	 * @param int $offset
-	 * @param int|null $length
+	 * @link http://php.net/array-slice The $offset and $length arguments
+	 * operate like the 2nd and 3rd arguments of array_slice.
+	 *
+	 * @param int $offset See the 2nd argument of http://php.net/array-slice
+	 * @param int|null $length See the 3rd argument of http://php.net/array-slice
 	 * @return array
 	 */
 	public function slice($offset = 0, $length = null) {
@@ -312,108 +312,70 @@ class ElggCollection {
 		return $items;
 	}
 
-	/**
-	 * @return int|bool
+//	/**
+//	 * Get an item at a particular index
+//	 *
+//	 * @param int $index
+//	 * @return int|null
+//	 */
+//	public function get($index) {
+//		$item = $this->fetchItems(true, '', $index, 1);
+//		return $item ? array_pop($item) : null;
+//	}
+//
+//	/**
+//	 * Do any of the provided items appear in the collection?
+//	 *
+//	 * @param array|int|ElggEntity $items
+//	 * @return bool
+//	 */
+//	public function hasAnyOf($items) {
+//		return (bool) $this->intersect($items);
+//	}
+
+	/*
+	 * MODIFYING ITEMS
 	 */
-	public function removeAll() {
-		if (! $this->canEdit()) {
-			return false;
-		}
-		return delete_data($this->preprocessSql("
-			DELETE FROM {TABLE}
-			WHERE {IN_COLLECTION}
-		"));
-	}
 
 	/**
-	 * Remove items
-	 *
-	 * @param array|int|ElggEntity $items
-	 * @return int|bool
-	 */
-	public function remove($items) {
-		if (! $this->canEdit()) {
-			return false;
-		}
-		if (! $items) {
-			return true;
-		}
-		$items = $this->castPositiveInt($this->castArray($items));
-		return delete_data($this->preprocessSql("
-			DELETE FROM {TABLE}
-			WHERE {IN_COLLECTION} AND {ITEM} IN (" . implode(',', $items) . ")
-		"));
-	}
-
-	/**
-	 * Remove items by priority
-	 *
-	 * @param array $priorities
-	 * @return int|bool
-	 * @access private
-	 */
-	public function removeByPriority($priorities) {
-		if (! $this->canEdit()) {
-			return false;
-		}
-		if (! $priorities) {
-			return true;
-		}
-		$priorities = $this->castPositiveInt((array)$priorities);
-		return delete_data($this->preprocessSql("
-			DELETE FROM {TABLE}
-			WHERE {IN_COLLECTION}
-			  AND {PRIORITY} IN (" . implode(',', $priorities) . ")
-		"));
-	}
-
-	/**
-	 * Remove item(s) from the beginning.
-	 *
-	 * @param int $num
-	 * @return int|bool num rows removed
-	 */
-	public function removeFromBeginning($num = 1) {
-		return $this->removeMultipleFrom($num, true);
-	}
-
-	/**
-	 * Remove item(s) from the end.
-	 *
-	 * @param int $num
-	 * @return int|bool num rows removed
-	 */
-	public function removeFromEnd($num = 1) {
-		return $this->removeMultipleFrom($num, false);
-	}
-
-	/**
-	 * Do any of the provided items appear in the collection?
+	 * Add item(s) to the end of the collection
 	 *
 	 * @param array|int|ElggEntity $items
 	 * @return bool
 	 */
-	public function hasAnyOf($items) {
-		return (bool) $this->intersect($items);
-	}
-
-	/**
-	 * Return only items that also appear in the collection (and in the order they
-	 * appear in the collection)
-	 *
-	 * @param array|int|ElggEntity $items
-	 * @return array
-	 */
-	public function intersect($items) {
+	public function push($items) {
+		if (! $this->canEdit()) {
+			return false;
+		}
 		if (! $items) {
-			return array();
+			return true;
 		}
 		$items = $this->castPositiveInt($this->castArray($items));
-		return $this->fetchItems(true, '{ITEM} IN (' . implode(',', $items) . ')');
+
+		// remove existing from new list
+		$existing_items = $this->intersect($items);
+		$items = array_diff($items, $existing_items);
+
+		$rows = array();
+		$time = time();
+		$key = sanitise_string($this->relationship_key);
+		if ($items) {
+			foreach ($items as $item) {
+				$rows[] = "($item, '$key', $this->entity_guid, $time)";
+			}
+			insert_data($this->preprocessSql("
+				INSERT INTO {TABLE}
+				({ITEM}, {KEY}, {ENTITY_GUID}, time_created)
+				VALUES " . implode(', ', $rows) . "
+			"));
+		}
+		return true;
 	}
 
 	/**
-	 * Swap the position of two items (the first instance of each)
+	 * Swap the position of two items
+	 *
+	 * @example A user re-orders the list via drag and drop
 	 *
 	 * @param int|ElggEntity $item1
 	 * @param int|ElggEntity $item2
@@ -448,94 +410,122 @@ class ElggCollection {
 	}
 
 	/**
-	 * Get an item by index (can be negative!)
+	 * Remove items
 	 *
-	 * @param int $index
-	 * @return int|null
+	 * @param array|int|ElggEntity $items
+	 * @return int|bool
 	 */
-	public function get($index) {
-		$item = $this->fetchItems(true, '', $index, 1);
-		return $item ? array_pop($item) : null;
-	}
-
-	/**
-	 * @param int|ElggEntity $item
-	 * @return bool|int
-	 *
-	 * @access private
-	 */
-	public function indexOf($item) {
-		$item = $this->castPositiveInt($item);
-		$row = get_data_row($this->preprocessSql("
-			SELECT COUNT(*) AS cnt
-			FROM {TABLE}
-			WHERE {IN_COLLECTION}
-			  AND {PRIORITY} <=
-				(SELECT {PRIORITY} FROM {TABLE}
-				WHERE {IN_COLLECTION} AND {ITEM} = $item
-				ORDER BY {PRIORITY}
-				LIMIT 1)
-			ORDER BY {PRIORITY}
-		"));
-		return ($row->cnt == 0) ? false : (int)$row->cnt - 1;
-	}
-
-	/**
-	 * @param int|ElggEntity $item
-	 * @return int|bool false if not found
-	 *
-	 * @access private
-	 */
-	public function priorityOf($item) {
-		$item = $this->castPositiveInt($item);
-		$rows = get_data($this->preprocessSql("
-			SELECT {PRIORITY} FROM {TABLE}
-			WHERE {IN_COLLECTION} AND {ITEM} = $item
-			ORDER BY {PRIORITY}
-			LIMIT 1
-		"));
-		return $rows ? $rows[0]->{self::COL_PRIORITY} : false;
-	}
-
-
-
-	/**
-	 * Add item(s) to the end of the collection. Already existing items are not added/moved.
-	 *
-	 * @param array|int|ElggEntity $new_items
-	 * @return bool success
-	 */
-	protected function pushMultiple($new_items) {
+	public function remove($items) {
 		if (! $this->canEdit()) {
 			return false;
 		}
-		if (! $new_items) {
+		if (! $items) {
 			return true;
 		}
-		$new_items = $this->castPositiveInt($this->castArray($new_items));
-
-		// remove existing from new list
-		$existing_items = $this->intersect($new_items);
-		$new_items = array_diff($new_items, $existing_items);
-
-		$rows = array();
-		$time = time();
-		$key = sanitise_string($this->relationship_key);
-		if ($new_items) {
-			foreach ($new_items as $item) {
-				$rows[] = "($item, '$key', $this->entity_guid, $time)";
-			}
-			insert_data($this->preprocessSql("
-				INSERT INTO {TABLE}
-				({ITEM}, {KEY}, {ENTITY_GUID}, time_created)
-				VALUES " . implode(', ', $rows) . "
-			"));
-		}
-		return true;
+		$items = $this->castPositiveInt($this->castArray($items));
+		return delete_data($this->preprocessSql("
+			DELETE FROM {TABLE}
+			WHERE {IN_COLLECTION} AND {ITEM} IN (" . implode(',', $items) . ")
+		"));
 	}
 
 	/**
-	 * Fetch items by query
+	 * @return int|bool
+	 */
+	public function removeAll() {
+		if (! $this->canEdit()) {
+			return false;
+		}
+		return delete_data($this->preprocessSql("
+			DELETE FROM {TABLE}
+			WHERE {IN_COLLECTION}
+		"));
+	}
+
+	/**
+//
+//	/**
+//	 * Remove items by priority
+//	 *
+//	 * @param array $priorities
+//	 * @return int|bool
+//	 * @access private
+//	 */
+//	public function removeByPriority($priorities) {
+//		if (! $this->canEdit()) {
+//			return false;
+//		}
+//		if (! $priorities) {
+//			return true;
+//		}
+//		$priorities = $this->castPositiveInt((array)$priorities);
+//		return delete_data($this->preprocessSql("
+//			DELETE FROM {TABLE}
+//			WHERE {IN_COLLECTION}
+//			  AND {PRIORITY} IN (" . implode(',', $priorities) . ")
+//		"));
+//	}
+//
+//	/**
+//	 * Remove item(s) from the beginning.
+//	 *
+//	 * @param int $num
+//	 * @return int|bool num rows removed
+//	 */
+//	public function removeFromBeginning($num = 1) {
+//		return $this->removeMultipleFrom($num, true);
+//	}
+//
+//	/**
+//	 * Remove item(s) from the end.
+//	 *
+//	 * @param int $num
+//	 * @return int|bool num rows removed
+//	 */
+//	public function removeFromEnd($num = 1) {
+//		return $this->removeMultipleFrom($num, false);
+//	}
+//
+//	/**
+//	 * Remove several from the beginning/end
+//	 *
+//	 * @param int $num
+//	 * @param bool $from_beginning remove from the beginning of the collection?
+//	 * @return int|bool num rows removed
+//	 */
+//	protected function removeMultipleFrom($num, $from_beginning) {
+//		if (! $this->canEdit()) {
+//			return false;
+//		}
+//		$num = (int)max($num, 0);
+//		$order_direction = $from_beginning ? 'ASC' : 'DESC';
+//		return delete_data($this->preprocessSql("
+//			DELETE FROM {TABLE}
+//			WHERE {IN_COLLECTION}
+//			ORDER BY {PRIORITY} $order_direction
+//			LIMIT $num
+//		"));
+//	}
+//
+//	/**
+//	 * @param int|ElggEntity $item
+//	 * @return int|bool false if not found
+//	 *
+//	 * @access private
+//	 */
+//	public function priorityOf($item) {
+//		$item = $this->castPositiveInt($item);
+//		$rows = get_data($this->preprocessSql("
+//			SELECT {PRIORITY} FROM {TABLE}
+//			WHERE {IN_COLLECTION} AND {ITEM} = $item
+//			ORDER BY {PRIORITY}
+//			LIMIT 1
+//		"));
+//		return $rows ? $rows[0]->{self::COL_PRIORITY} : false;
+//	}
+
+	/**
+	 * Helper function for fetching items
 	 *
 	 * @param bool $ascending
 	 * @param string $where
@@ -586,24 +576,18 @@ class ElggCollection {
 	}
 
 	/**
-	 * Remove several from the beginning/end
+	 * Return only items that also appear in the collection (and in the order they
+	 * appear in the collection)
 	 *
-	 * @param int $num
-	 * @param bool $from_beginning remove from the beginning of the collection?
-	 * @return int|bool num rows removed
+	 * @param array|int|ElggEntity $items
+	 * @return array
 	 */
-	protected function removeMultipleFrom($num, $from_beginning) {
-		if (! $this->canEdit()) {
-			return false;
+	protected function intersect($items) {
+		if (! $items) {
+			return array();
 		}
-		$num = (int)max($num, 0);
-		$order_direction = $from_beginning ? 'ASC' : 'DESC';
-		return delete_data($this->preprocessSql("
-			DELETE FROM {TABLE}
-			WHERE {IN_COLLECTION}
-			ORDER BY {PRIORITY} $order_direction
-			LIMIT $num
-		"));
+		$items = $this->castPositiveInt($this->castArray($items));
+		return $this->fetchItems(true, '{ITEM} IN (' . implode(',', $items) . ')');
 	}
 
 	/**
@@ -660,6 +644,13 @@ class ElggCollection {
 			'{IN_COLLECTION}' => "(" . self::COL_ENTITY_GUID . " = $this->entity_guid "
 								. "AND " . self::COL_KEY . " = '$key')",
 		));
+	}
+
+	/**
+	 * If this instance was deleted, call this to re-enable it during the same request.
+	 */
+	protected function markUndeleted() {
+		$this->is_deleted = false;
 	}
 
 	/**

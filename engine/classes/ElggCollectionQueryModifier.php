@@ -3,27 +3,32 @@
 /**
  * Specifies how an ElggCollection should affect the results of queries like elgg_get_entities()
  *
- * @access private
+ * By default, result sets return only items within the collection and in collection
+ * order, but you can use the public properties and/or methods to change this behavior.
  */
 class ElggCollectionQueryModifier {
 
 	/**
-	 * @var bool If true, the results may contain items in the collection
+	 * If true, the results may contain items in the collection
+	 * @var bool
 	 */
 	public $includeCollection = true;
 
 	/**
-	 * @var bool If true, the results may contain items not in the collection
+	 * If true, the results may contain items not in the collection
+	 * @var bool
 	 */
 	public $includeOthers = false;
 
 	/**
-	 * @var bool If true, items at the end of the collection will appear first
+	 * If true, items at the end of the collection will appear first
+	 * @var bool
 	 */
 	public $isReversed = false;
 
 	/**
-	 * @var bool If true, items in the collection will appear first in the results
+	 * If true, items in the collection will appear first in the results
+	 * @var bool
 	 */
 	public $collectionItemsFirst = true;
 
@@ -65,6 +70,8 @@ class ElggCollectionQueryModifier {
 	}
 
 	/**
+	 * Specify that all collection items should be returned at the top of the results.
+	 *
 	 * @return ElggCollectionQueryModifier
 	 */
 	public function useStickyModel() {
@@ -74,6 +81,8 @@ class ElggCollectionQueryModifier {
 	}
 
 	/**
+	 * Specify that all collection items should be removed from the results
+	 *
 	 * @return ElggCollectionQueryModifier
 	 */
 	public function useAsFilter() {
