@@ -1424,29 +1424,6 @@ abstract class ElggEntity extends ElggData implements
 	}
 
 	/*
-	 * COLLECTIONS
-	 */
-
-	/**
-	 * Get a collection, if it exists
-	 *
-	 * @param string $name
-	 * @param bool $auto_create Create the collection if it does not exist (and you have permission)
-	 * @return ElggCollection|null
-	 */
-	public function getCollection($name, $auto_create = false) {
-		return ElggCollection::fetch($this, $name, $auto_create);
-	}
-
-	/**
-	 * @param string $name
-	 * @return bool
-	 */
-	public function collectionExists($name) {
-		return ElggCollection::exists($this, $name);
-	}
-
-	/*
 	 * LOCATABLE INTERFACE
 	 */
 
