@@ -128,8 +128,6 @@ class ElggCollection {
 	/**
 	 * Delete the collection (and its items)
 	 *
-	 * @todo how to allow
-	 *
 	 * @return bool
 	 */
 	public function delete() {
@@ -151,6 +149,8 @@ class ElggCollection {
 	 *
 	 * @param string $name
 	 * @return mixed
+	 *
+	 * @access private
 	 */
 	public function __get($name) {
 		if (in_array($name, array('owner_guid', 'access_id'))) {
@@ -173,6 +173,8 @@ class ElggCollection {
 	 *
 	 * @param string $name
 	 * @param int $value
+	 *
+	 * @access private
 	 */
 	public function __set($name, $value) {
 		$value = (int)$value;
@@ -195,10 +197,10 @@ class ElggCollection {
 	/**
 	 * Get number of items
 	 *
-	 * @return int|bool
+	 * @return int
 	 */
 	public function count() {
-		return $this->fetchItems(true, '', 0, null, true);
+		return (int) $this->fetchItems(true, '', 0, null, true);
 	}
 
 	/**
@@ -226,7 +228,7 @@ class ElggCollection {
 	/**
 	 * Return any contiguous sequence of items in the collection, like array_slice().
 	 *
-	 * Note: the large numbers in these queries is to make up for MySQL's lack of
+	 * @note The large numbers in these queries is to make up for MySQL's lack of
 	 * support for offset without limit: http://stackoverflow.com/a/271650/3779
 	 *
 	 * @link http://php.net/array-slice The $offset and $length arguments
@@ -338,6 +340,52 @@ class ElggCollection {
 	 */
 
 	/**
+	 * Insert item(s) at the beginning of the collection
+	 *
+	 * @note This method is slow and query intensive. If you use this method frequently,
+	 * it may be better to use push() and reverse the order that the collection is returned.
+	 *
+	 * @param array|int|ElggEntity $new_items
+	 * @return bool
+	 */
+	public function unshift($new_items) {
+		$new_items = $this->castPositiveInt($this->castArray($new_items));
+		$moving_items = $this->fetchItems();
+		array_splice($moving_items, 0, 0, $new_items);
+		$this->removeAll();
+		$this->push($moving_items);
+		return true;
+	}
+
+	/**
+	 * Insert items before an existing item
+	 *
+	 * @note This method is slow and query intensive. Avoid it if you can!
+	 *
+	 * @param array|int|ElggEntity $new_items
+	 * @param int|ElggEntity|null $reference_item
+	 * @return bool
+	 */
+	public function insertBefore($new_items, $reference_item = null) {
+		if (!$reference_item) {
+			return $this->push($new_items);
+		}
+		$priority = $this->priorityOf($reference_item);
+		if (!$priority) {
+			return false;
+		}
+		$new_items = $this->castPositiveInt($this->castArray($new_items));
+		$moving_items = $this->fetchItems(true, "{PRIORITY} >= $priority");
+		array_splice($moving_items, 0, 0, $new_items);
+		delete_data($this->preprocessSql("
+			DELETE FROM {TABLE}
+			WHERE {IN_COLLECTION} AND {PRIORITY} >= $priority
+		"));
+		$this->push($moving_items);
+		return true;
+	}
+
+	/**
 	 * Add item(s) to the end of the collection
 	 *
 	 * @param array|int|ElggEntity $items
@@ -356,18 +404,20 @@ class ElggCollection {
 		$existing_items = $this->intersect($items);
 		$items = array_diff($items, $existing_items);
 
-		$rows = array();
 		$time = time();
 		$key = sanitise_string($this->relationship_key);
 		if ($items) {
-			foreach ($items as $item) {
-				$rows[] = "($item, '$key', $this->entity_guid, $time)";
+			foreach (array_chunk($items, 100) as $chunk) {
+				$rows = array();
+				foreach ($chunk as $item) {
+					$rows[] = "($item, '$key', $this->entity_guid, $time)";
+				}
+				insert_data($this->preprocessSql("
+					INSERT INTO {TABLE}
+					({ITEM}, {KEY}, {ENTITY_GUID}, time_created)
+					VALUES " . implode(', ', $rows) . "
+				"));
 			}
-			insert_data($this->preprocessSql("
-				INSERT INTO {TABLE}
-				({ITEM}, {KEY}, {ENTITY_GUID}, time_created)
-				VALUES " . implode(', ', $rows) . "
-			"));
 		}
 		return true;
 	}
@@ -410,10 +460,10 @@ class ElggCollection {
 	}
 
 	/**
-	 * Remove items
+	 * Remove particular items
 	 *
 	 * @param array|int|ElggEntity $items
-	 * @return int|bool
+	 * @return bool
 	 */
 	public function remove($items) {
 		if (! $this->canEdit()) {
@@ -423,20 +473,23 @@ class ElggCollection {
 			return true;
 		}
 		$items = $this->castPositiveInt($this->castArray($items));
-		return delete_data($this->preprocessSql("
-			DELETE FROM {TABLE}
-			WHERE {IN_COLLECTION} AND {ITEM} IN (" . implode(',', $items) . ")
-		"));
+		foreach (array_chunk($items, 200) as $chunk) {
+			delete_data($this->preprocessSql("
+				DELETE FROM {TABLE}
+				WHERE {IN_COLLECTION} AND {ITEM} IN (" . implode(',', $chunk) . ")
+			"));
+		}
+		return true;
 	}
 
 	/**
-	 * @return int|bool
+	 * @return bool
 	 */
 	public function removeAll() {
 		if (! $this->canEdit()) {
 			return false;
 		}
-		return delete_data($this->preprocessSql("
+		return (bool) delete_data($this->preprocessSql("
 			DELETE FROM {TABLE}
 			WHERE {IN_COLLECTION}
 		"));
@@ -506,23 +559,19 @@ class ElggCollection {
 //			LIMIT $num
 //		"));
 //	}
-//
-//	/**
-//	 * @param int|ElggEntity $item
-//	 * @return int|bool false if not found
-//	 *
-//	 * @access private
-//	 */
-//	public function priorityOf($item) {
-//		$item = $this->castPositiveInt($item);
-//		$rows = get_data($this->preprocessSql("
-//			SELECT {PRIORITY} FROM {TABLE}
-//			WHERE {IN_COLLECTION} AND {ITEM} = $item
-//			ORDER BY {PRIORITY}
-//			LIMIT 1
-//		"));
-//		return $rows ? $rows[0]->{self::COL_PRIORITY} : false;
-//	}
+
+	/**
+	 * @param int|ElggEntity $item
+	 * @return int|bool false if not found
+	 */
+	protected function priorityOf($item) {
+		$item = $this->castPositiveInt($item);
+		$row = get_data_row($this->preprocessSql("
+			SELECT {PRIORITY} FROM {TABLE}
+			WHERE {IN_COLLECTION} AND {ITEM} = $item
+		"));
+		return $row ? $row->{self::COL_PRIORITY} : false;
+	}
 
 	/**
 	 * Helper function for fetching items
@@ -536,7 +585,7 @@ class ElggCollection {
 	 */
 	protected function fetchItems($ascending = true, $where = '', $offset = 0,
 								  $limit = null, $count_only = false) {
-		$where_clause = "WHERE {ENTITY_GUID} = $this->entity_guid";
+		$where_clause = "WHERE {IN_COLLECTION}";
 		if (! empty($where)) {
 			$where_clause .= " AND ($where)";
 		}
@@ -587,7 +636,12 @@ class ElggCollection {
 			return array();
 		}
 		$items = $this->castPositiveInt($this->castArray($items));
-		return $this->fetchItems(true, '{ITEM} IN (' . implode(',', $items) . ')');
+		$ret = array();
+		foreach (array_chunk($items, 200) as $chunk) {
+			$fetched = $this->fetchItems(true, '{ITEM} IN (' . implode(',', $chunk) . ')');
+			array_splice($ret, count($ret), 0, $fetched);
+		}
+		return $ret;
 	}
 
 	/**
