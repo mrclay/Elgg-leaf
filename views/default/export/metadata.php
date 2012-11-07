@@ -8,7 +8,17 @@
  */
 
 $m = $vars['metadata'];
+/* @var ElggMetadata $m */
 $e = get_entity($m->entity_guid);
+
+$link = "GUID:{$m->entity_guid}";
+if ($e) {
+	$url = htmlspecialchars($e->getURL(), ENT_QUOTES, 'UTF-8');
+	$link = "<a href=\"$url\">$link</a>";
+}
+
+$n = htmlspecialchars($m->name, ENT_QUOTES, 'UTF-8');
+$v = htmlspecialchars($m->value, ENT_QUOTES, 'UTF-8');
+
 ?>
-<p class="margin-none"><?php if ($e) echo "<a href=\"" . $e->getURL() . "\">GUID:{$m->entity_guid}</a>"; else echo "GUID:".$m->entity_guid;
-?>: <b><?php echo $m->name; ?></b> <?php echo $m->value; ?></p>
+<p class="margin-none"><?php echo $link; ?>: <b><?php echo $n; ?></b> <?php echo $v; ?></p>

@@ -8,14 +8,23 @@
  */
 
 $r = $vars['relationship'];
+/* @var ElggRelationship $r */
 
 $e1 = get_entity($r->guid_one);
+$link1 = "GUID:{$r->guid_one}";
+if ($e1) {
+	$url = htmlspecialchars($e1->getURL(), ENT_QUOTES, 'UTF-8');
+	$link1 = "<a href=\"$url\">$link1</a>";
+}
+
 $e2 = get_entity($r->guid_two);
+$link2 = "GUID:{$r->guid_two}";
+if ($e2) {
+	$url = htmlspecialchars($e2->getURL(), ENT_QUOTES, 'UTF-8');
+	$link2 = "<a href=\"$url\">$link2</a>";
+}
+
+$name = htmlspecialchars($r->relationship, ENT_QUOTES, 'UTF-8');
+
 ?>
-<p class="margin-none"><?php
-	if ($e1) echo "<a href=\"" . $e1->getURL() . "\">GUID:" . $r->guid_one . "</a>"; else echo "GUID:".$r->guid_one;
-?>
-<b><?php echo $r->relationship; ?></b>
-<?php
-	if ($e2) echo "<a href=\"" . $e2->getURL() . "\">GUID:" . $r->guid_two . "</a>"; else echo "GUID:".$r->guid_two;
-?></p>
+<p class="margin-none"><?php echo $link1; ?><b><?php echo $name; ?></b><?php echo $link2; ?></p>
