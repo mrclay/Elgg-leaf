@@ -31,30 +31,24 @@ $guid = elgg_extract('guid', $vars, null);
 	<label><?php echo elgg_echo('tags'); ?></label>
 	<?php echo elgg_view('input/tags', array('name' => 'tags', 'value' => $tags)); ?>
 </div>
+
 <?php
+echo elgg_view('input/categories', $vars);
 
-$categories = elgg_view('input/categories', $vars);
-if ($categories) {
-	echo $categories;
-}
-
-if (!$container_guid) {
-	elgg_load_library('elgg:bookmarks');
-	$container_label = elgg_echo('bookmarks:container');
-	$container_dropdown = elgg_view('input/dropdown', array(
-		'name' => 'container_guid',
-		'options_values' => bookmarks_prepare_container_options_values(),
-		'value' => elgg_get_logged_in_user_guid(),
+if ($container_guid) {
+	echo elgg_view('input/hidden', array('name' => 'container_guid', 'value' => $container_guid));
+} else {
+	$container_selector = elgg_view('bookmarks/input/container', array(
+		'type' => 'object',
+		'subtype' => 'bookmarks',
 	));
-	echo <<<HTML
+	?>
 <div>
-	<label>$container_label</label><br />
-	$container_dropdown;
+	<label><?php echo elgg_echo('bookmarks:container'); ?></label><br />
+	<?php echo $container_selector; ?>
 </div>
-HTML;
+<?php } ?>
 
-}
-?>
 <div>
 	<label><?php echo elgg_echo('access'); ?></label><br />
 	<?php echo elgg_view('input/access', array('name' => 'access_id', 'value' => $access_id)); ?>
