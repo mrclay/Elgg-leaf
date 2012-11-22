@@ -3,16 +3,15 @@
  * Elgg developer tools
  */
 
+// @todo remove in 1.9
+$classes = dirname(__FILE__) . '/classes';
+elgg_register_class('Elgg_Developers_QueryProfiler', "$classes/Elgg/Developers/QueryProfiler.php");
+elgg_register_class('Elgg_Developers_QueryProfiler_Period', "$classes/Elgg/Developers/QueryProfiler/Period.php");
+
 // we want to run this as soon as possible - other plugins should not need to do this
 developers_process_settings();
 
 elgg_register_event_handler('init', 'system', 'developers_init');
-
-if (elgg_get_plugin_setting('query_count', 'developers') == 1) {
-	elgg_register_event_handler('plugins_boot', 'system', 'developers_query_count_collect', 1000);
-	elgg_register_event_handler('init', 'system', 'developers_query_count_collect', 1000);
-	elgg_register_event_handler('ready', 'system', 'developers_query_count_collect', 1000);
-}
 
 function developers_init() {
 	elgg_register_event_handler('pagesetup', 'system', 'developers_setup_menu');
@@ -36,6 +35,14 @@ function developers_init() {
 }
 
 function developers_process_settings() {
+	if (elgg_get_plugin_setting('query_count', 'developers')) {
+		foreach (array('plugins_boot', 'init', 'ready', 'pagesetup') as $hook) {
+			elgg_register_event_handler($hook, 'system', 'developers_query_count_collect', 1000);
+		}
+		elgg_register_plugin_hook_handler('view', 'page/default', 'developers_filter_page', 1000);
+		elgg_register_plugin_hook_handler('view', 'page/admin',   'developers_filter_page', 1000);
+	}
+
 	if (elgg_get_plugin_setting('display_errors', 'developers') == 1) {
 		ini_set('display_errors', 1);
 	} else {
@@ -65,26 +72,50 @@ function developers_process_settings() {
 	}
 }
 
-function developers_query_count_collect($name) {
-	global $DEVELOPERS_QUERY_DATA, $dbcalls, $DB_DELAYED_QUERIES;
-	static $lastCount = 0;
-	if (!is_array($DEVELOPERS_QUERY_DATA)) {
-		$DEVELOPERS_QUERY_DATA = array();
+/**
+ * @return Elgg_Developers_QueryProfiler
+ */
+function developers_get_profiler() {
+	static $inst;
+	if (null === $inst) {
+		global $START_MICROTIME;
+		$inst = new Elgg_Developers_QueryProfiler($START_MICROTIME);
 	}
-	$DEVELOPERS_QUERY_DATA[$name] = array($dbcalls, $dbcalls - $lastCount, count($DB_DELAYED_QUERIES));
-	$lastCount = $dbcalls;
+	return $inst;
 }
 
-function developers_query_count_display() {
-	global $dbcalls, $DEVELOPERS_QUERY_DATA, $START_MICROTIME;
-	developers_query_count_collect('shutdown');
-	// we break markup here by outputting after </html> tag, but being accurate is more important
-	echo '<pre>';
-	foreach ($DEVELOPERS_QUERY_DATA as $name => $data) {
-		echo elgg_echo('developers:query_count:output', array_merge(array($name), (array)$data))."\n";
-	}
-	echo elgg_echo('developers:total_time:output', array(microtime(true) - $START_MICROTIME));
-	echo '</pre>';
+/**
+ * Event handler that simply records queries performed
+ *
+ * @param string $event
+ * @param string $type
+ * @param mixed $object
+ */
+function developers_query_count_collect($event, $type = '', $object = null) {
+	global $dbcalls, $DB_DELAYED_QUERIES;
+	developers_get_profiler()->recordPeriod($event, $dbcalls, count($DB_DELAYED_QUERIES));
+}
+
+/**
+ * @param string $hook
+ * @param string $type
+ * @param string $return_value
+ * @param array $params
+ * @return mixed
+ */
+function developers_filter_page($hook, $type, $return_value, $params) {
+	developers_query_count_collect('page_draw');
+
+	global $dbcalls, $DB_DELAYED_QUERIES, $START_MICROTIME;
+	$data = array(
+		'periods' => developers_get_profiler()->getPeriods(),
+		'time' => round(microtime(true) - $START_MICROTIME, 4),
+		'queriesPerformed' => $dbcalls,
+		'queriesQueued' => count($DB_DELAYED_QUERIES),
+	);
+	$report = elgg_view('js/developers/profile', array('data' => $data));
+	$return_value = str_replace('</html>', "$report</html>", $return_value);
+	return $return_value;
 }
 
 function developers_setup_menu() {
@@ -101,11 +132,6 @@ function developers_setup_menu() {
 			'priority' => 10,
 			'section' => 'develop'
 		));
-	}
-	
-	// we output data only in HTML pages
-	if (elgg_get_plugin_setting('query_count', 'developers') == 1) {
-		elgg_register_event_handler('shutdown', 'system', 'developers_query_count_display', 1000);
 	}
 }
 

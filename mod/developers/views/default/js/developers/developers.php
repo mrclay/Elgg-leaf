@@ -2,12 +2,17 @@
 /**
  * Elgg developers tool JavaScript
  */
+if (0) { ?><script><?php }
 ?>
 
 elgg.provide('elgg.dev');
 
 elgg.dev.init = function() {
 	$('.developers-form-inspect').live('submit', elgg.dev.inspectSubmit);
+	if (elgg.dev.profileData) {
+		var $div = $('<div />').text(JSON.stringify(elgg.dev.profileData));
+		$(document.body).append($div);
+	}
 };
 
 /**
