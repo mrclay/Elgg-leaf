@@ -48,11 +48,11 @@ function elgg_collection_exists($entity, $name = '__default') {
  * )));
  * </code>
  *
- * @param ElggEntity|int $entity entity or GUID
+ * @param ElggEntity $entity entity
  * @param string $name
  * @return Elgg_Collection_QueryModifier
  */
-function elgg_get_collection_query_modifier($entity, $name = '__default') {
+function elgg_get_collection_query_modifier(ElggEntity $entity, $name = '__default') {
 	$coll = _elgg_services()->collections->fetch($entity, $name);
 	return new Elgg_Collection_QueryModifier($coll);
 }
