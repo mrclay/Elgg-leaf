@@ -9,8 +9,11 @@
 
 /**
  * Cache entities in memory once loaded.
+ * 
+ * Note: We don't want to use ElggStaticVariableCache here because a LRU cache would remove the
+ * site and plugin entities first: Probably not what we want.
  *
- * @global array $ENTITY_CACHE
+ * @global ElggEntity[] $ENTITY_CACHE
  * @access private
  */
 global $ENTITY_CACHE;
@@ -68,8 +71,16 @@ function cache_entity(ElggEntity $entity) {
 	// Don't store too many or we'll have memory problems
 	// TODO(evan): Pick a less arbitrary limit
 	if (count($ENTITY_CACHE) > 256) {
-		$random_guid = array_rand($ENTITY_CACHE);
-
+		
+		// try to avoid removing the site & plugins entities from the cache
+		for ($i = 0; $i < 5; $i++) {
+			$random_guid = array_rand($ENTITY_CACHE);
+			if (!($ENTITY_CACHE[$random_guid] instanceof ElggSite)
+				&& !($ENTITY_CACHE[$random_guid] instanceof ElggPlugin)) {
+				break;
+			}
+		}
+		
 		unset($ENTITY_CACHE[$random_guid]);
 
 		// Purge separate metadata cache. Original idea was to do in entity destructor, but that would
