@@ -16,17 +16,27 @@ class ElggStaticVariableCache extends ElggSharedMemoryCache {
 	private static $__cache;
 
 	/**
+	 * Maximum size of cache
+	 * 
+	 * @var int
+	 */
+	private $max_size = 0;
+
+	/**
 	 * Create the variable cache.
 	 *
 	 * This function creates a variable cache in a static variable in
 	 * memory, optionally with a given namespace (to avoid overlap).
 	 *
 	 * @param string $namespace The namespace for this cache to write to.
+	 * @param int    $max_size maximum size of cache. If given, the least recently loaded key will be 
+	 *                         deleted to keep the size under the limit.
 	 * @warning namespaces of the same name are shared!
 	 */
-	function __construct($namespace = 'default') {
+	function __construct($namespace = 'default', $max_size = 0) {
 		$this->setNamespace($namespace);
 		$this->clear();
+		$this->max_size = (int)$max_size;
 	}
 
 	/**
@@ -41,6 +51,13 @@ class ElggStaticVariableCache extends ElggSharedMemoryCache {
 		$namespace = $this->getNamespace();
 
 		ElggStaticVariableCache::$__cache[$namespace][$key] = $data;
+		
+		if ($this->max_size && count(ElggStaticVariableCache::$__cache[$namespace]) > $this->max_size) {
+			// remove least recently used key
+			reset(ElggStaticVariableCache::$__cache[$namespace]);
+			$least_recently_used_key = key(ElggStaticVariableCache::$__cache[$namespace]);
+			unset(ElggStaticVariableCache::$__cache[$namespace][$least_recently_used_key]);
+		}
 
 		return true;
 	}
@@ -58,7 +75,15 @@ class ElggStaticVariableCache extends ElggSharedMemoryCache {
 		$namespace = $this->getNamespace();
 
 		if (isset(ElggStaticVariableCache::$__cache[$namespace][$key])) {
-			return ElggStaticVariableCache::$__cache[$namespace][$key];
+			$value = ElggStaticVariableCache::$__cache[$namespace][$key];
+			
+			if ($this->max_size) {
+				// move this key to the end of the array (most recently used)
+				unset(ElggStaticVariableCache::$__cache[$namespace][$key]);
+				ElggStaticVariableCache::$__cache[$namespace][$key] = $value;
+			}
+			
+			return $value;
 		}
 
 		return false;

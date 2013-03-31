@@ -67,7 +67,7 @@ class ElggCoreAccessCollectionsTest extends ElggCoreUnitTest {
 		$this->assertEqual($acl->id, $acl_id);
 
 		if ($acl) {
-			$DB_QUERY_CACHE = array();
+			_elgg_invalidate_query_cache();
 			
 			$this->assertEqual($acl->name, $acl_name);
 

@@ -17,7 +17,8 @@ $q = "SELECT e.* FROM {$db_prefix}entities e
 $users = get_data($q);
 
 while ($users) {
-	$DB_QUERY_CACHE = $DB_PROFILE = $ENTITY_CACHE = array();
+	$DB_PROFILE = $ENTITY_CACHE = array();
+	_elgg_invalidate_query_cache();
 
 	// do manually to not trigger any events because these aren't new users.
 	foreach ($users as $user) {

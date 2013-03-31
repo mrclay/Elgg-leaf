@@ -17,7 +17,7 @@ $options = array(
 $batch = new ElggBatch('elgg_get_entities', $options);
 
 foreach ($batch as $entity) {
-	$DB_QUERY_CACHE = array();
+	_elgg_invalidate_query_cache();
 	
 	if (is_array($entity->location)) {
 		$entity->location = implode(', ', $entity->location);
