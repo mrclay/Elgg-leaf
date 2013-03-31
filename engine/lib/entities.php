@@ -106,35 +106,8 @@ function cache_entity(ElggEntity $entity) {
 function retrieve_cached_entity($guid) {
 	global $ENTITY_CACHE;
 
-	if (isset($ENTITY_CACHE[$guid])) {
-		if ($ENTITY_CACHE[$guid]->isFullyLoaded()) {
-			return $ENTITY_CACHE[$guid];
-		}
-	}
-
-	return false;
-}
-
-/**
- * As retrieve_cached_entity, but returns the result as a stdClass
- * (compatible with load functions that expect a database row.)
- *
- * @param int $guid The guid
- *
- * @return mixed
- * @todo unused
- * @access private
- */
-function retrieve_cached_entity_row($guid) {
-	$obj = retrieve_cached_entity($guid);
-	if ($obj) {
-		$tmp = new stdClass;
-
-		foreach ($obj as $k => $v) {
-			$tmp->$k = $v;
-		}
-
-		return $tmp;
+	if (isset($ENTITY_CACHE[$guid]) && $ENTITY_CACHE[$guid]->isFullyLoaded()) {
+		return $ENTITY_CACHE[$guid];
 	}
 
 	return false;
