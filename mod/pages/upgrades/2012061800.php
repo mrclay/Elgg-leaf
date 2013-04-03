@@ -13,6 +13,8 @@
  * Update subtype
  *
  * @param ElggObject $page
+ * 
+ * @return true
  */
 function pages_2012061800($page) {
 	$dbprefix = elgg_get_config('dbprefix');
