@@ -306,7 +306,8 @@ class ElggGroup extends ElggEntity
 	 * @param array $options Options array. See elgg_get_entities_from_relationships
 	 *                       for a complete list. Common ones are 'limit', 'offset',
 	 *                       and 'count'. Options set automatically are 'relationship',
-	 *                       'relationship_guid', 'inverse_relationship', and 'type'.
+	 *                       'relationship_guid', 'inverse_relationship', and 'type'. This argument
+	 *                       used to set the limit (deprecated usage)
 	 * @param int   $offset  Offset (deprecated)
 	 * @param bool  $count   Count (deprecated)
 	 *
@@ -320,7 +321,7 @@ class ElggGroup extends ElggEntity
 				'relationship_guid' => $this->getGUID(),
 				'inverse_relationship' => true,
 				'type' => 'user',
-				'limit' => $limit,
+				'limit' => $options,
 				'offset' => $offset,
 				'count' => $count,
 			);
