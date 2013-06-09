@@ -1004,8 +1004,8 @@ $allow_multiple_emails = false, $friend_guid = 0, $invitecode = '') {
  * @return string Invite code
  */
 function generate_invite_code($username) {
-	$secret = datalist_get('__site_secret__');
-	return md5($username . $secret);
+	$mac = hash_hmac('md5', $username, get_site_secret(), true);
+	return ElggCrypto::base64url_encode($mac);
 }
 
 /**
