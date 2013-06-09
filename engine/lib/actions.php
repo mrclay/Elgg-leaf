@@ -356,8 +356,9 @@ function generate_action_token($timestamp) {
 	// Session token
 	$st = $_SESSION['__elgg_session'];
 
-	if (($site_secret) && ($session_id)) {
-		return md5($site_secret . $timestamp . $session_id . $st);
+	if ($site_secret && $session_id) {
+		$hmac_key = $site_secret . $session_id . $st;
+		return hash_hmac('md5', $timestamp, $hmac_key);
 	}
 
 	return FALSE;
