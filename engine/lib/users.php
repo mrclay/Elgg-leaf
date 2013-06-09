@@ -586,6 +586,11 @@ function get_user_by_username($username) {
 function get_user_by_code($code) {
 	global $CONFIG, $CODE_TO_GUID_MAP_CACHE;
 
+	// in case a user's code has been set to "", do not allow this to match
+	if (!$code) {
+		return false;
+	}
+
 	$code = sanitise_string($code);
 
 	$access = get_access_sql_suffix('e');
