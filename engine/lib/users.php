@@ -709,7 +709,7 @@ function force_user_password_reset($user_guid, $password) {
 	if ($user instanceof ElggUser) {
 		$ia = elgg_set_ignore_access();
 
-		$user->salt = generate_random_cleartext_password();
+		$user->salt = _elgg_generate_user_salt();
 		$hash = generate_user_password($user, $password);		
 		$user->password = $hash;
 		$result = (bool)$user->save();
@@ -759,15 +759,26 @@ function execute_new_password_request($user_guid, $conf_code) {
 }
 
 /**
+ * Return a 48-bit salt in base64 for use in $user->salt
+ *
+ * @return string
+ *
+ * @access private
+ */
+function _elgg_generate_user_salt() {
+	return ElggCrypto::getRandomString(8);
+}
+
+/**
  * Simple function that will generate a random clear text password
- * suitable for feeding into generate_user_password().
+ * suitable for a temporary user password.
  *
  * @see generate_user_password
  *
  * @return string
  */
 function generate_random_cleartext_password() {
-	return substr(md5(microtime() . rand()), 0, 8);
+	return ElggCrypto::getRandomString(10, ElggCrypto::CHARS_PASSWORD);
 }
 
 /**
@@ -952,7 +963,7 @@ $allow_multiple_emails = false, $friend_guid = 0, $invitecode = '') {
 	$user->email = $email;
 	$user->name = $name;
 	$user->access_id = ACCESS_PUBLIC;
-	$user->salt = generate_random_cleartext_password(); // Note salt generated before password!
+	$user->salt = _elgg_generate_user_salt(); // Note salt generated before password!
 	$user->password = generate_user_password($user, $password);
 	$user->owner_guid = 0; // Users aren't owned by anyone, even if they are admin created.
 	$user->container_guid = 0; // Users aren't contained by anyone, even if they are admin created.
