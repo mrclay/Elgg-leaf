@@ -782,12 +782,13 @@ function generate_random_cleartext_password() {
 }
 
 /**
- * Generate a password for a user, currently uses MD5.
+ * Generate a password hash for a user, currently uses MD5(pwd + salt).
  *
  * @param ElggUser $user     The user this is being generated for.
  * @param string   $password Password in clear text
  *
  * @return string
+ * @todo use PhPass in 1.9
  */
 function generate_user_password(ElggUser $user, $password) {
 	return md5($password . $user->salt);
