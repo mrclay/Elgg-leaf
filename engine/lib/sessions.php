@@ -302,8 +302,7 @@ function login(ElggUser $user, $persistent = false) {
 		$code = ElggCrypto::getRandomString(32);
 		$_SESSION['code'] = $code;
 
-		// @todo remove the needless MD5 here, and in _elgg_session_boot(). It does not add security and
-		// makes the system less clear.
+		// @todo remove needless hash to improve system clarity. Likewise in _elgg_session_boot()
 		$user->code = md5($code);
 
 		setcookie("elggperm", $code, (time() + (86400 * 30)), "/");
@@ -415,6 +414,8 @@ function _elgg_session_boot() {
 		if (isset($_COOKIE['elggperm'])) {
 			// we have a cookie, so try to log the user in
 			$code = $_COOKIE['elggperm'];
+
+			// @todo remove needless hash to improve system clarity. Likewise in login()
 			$code = md5($code);
 			if ($user = get_user_by_code($code)) {
 				// we have a user, log him in
