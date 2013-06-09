@@ -298,10 +298,14 @@ function login(ElggUser $user, $persistent = false) {
 	$_SESSION['name'] = $user->name;
 
 	// if remember me checked, set cookie with token and store token on user
-	if (($persistent)) {
-		$code = (md5($user->name . $user->username . time() . rand()));
+	if ($persistent) {
+		$code = ElggCrypto::getRandomString(32);
 		$_SESSION['code'] = $code;
+
+		// @todo remove the needless MD5 here, and in _elgg_session_boot(). It does not add security and
+		// makes the system less clear.
 		$user->code = md5($code);
+
 		setcookie("elggperm", $code, (time() + (86400 * 30)), "/");
 	}
 
@@ -395,7 +399,7 @@ function _elgg_session_boot() {
 
 	// Generate a simple token (private from potentially public session id)
 	if (!isset($_SESSION['__elgg_session'])) {
-		$_SESSION['__elgg_session'] = md5(microtime() . rand());
+		$_SESSION['__elgg_session'] = ElggCrypto::getRandomString(12);
 	}
 
 	// test whether we have a user session

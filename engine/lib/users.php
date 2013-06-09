@@ -678,7 +678,7 @@ function send_new_password_request($user_guid) {
 	$user = get_entity($user_guid);
 	if ($user instanceof ElggUser) {
 		// generate code
-		$code = generate_random_cleartext_password();
+		$code = ElggCrypto::getRandomString(16);
 		$user->setPrivateSetting('passwd_conf_code', $code);
 
 		// generate link

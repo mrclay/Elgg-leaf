@@ -364,7 +364,7 @@ function generate_action_token($timestamp) {
 }
 
 /**
- * Initialise the site secret hash.
+ * Initialise the site secret (192-bit key in Base64Url).
  *
  * Used during installation and saves as a datalist.
  *
@@ -373,7 +373,7 @@ function generate_action_token($timestamp) {
  * @todo Move to better file.
  */
 function init_site_secret() {
-	$secret = md5(rand() . microtime());
+	$secret = ElggCrypto::getRandomString(32);
 	if (datalist_set('__site_secret__', $secret)) {
 		return $secret;
 	}
