@@ -351,33 +351,37 @@ function action_gatekeeper($action) {
  * @access private
  */
 function generate_action_token($timestamp) {
-	$site_secret = get_site_secret();
-	$session_id = session_id();
-	// Session token
-	$st = $_SESSION['__elgg_session'];
+	// generate a binary key from site secret, session_id(), and session token
+	$raw_site_secret = get_site_secret(true);
 
-	if ($site_secret && $session_id) {
-		$hmac_key = $site_secret . $session_id . $st;
-		return hash_hmac('md5', $timestamp, $hmac_key);
+	$session_id = session_id();
+	if (!$session_id) {
+		return false;
 	}
 
-	return FALSE;
+	$raw_session_id = _elgg_base64_decode($session_id, ',-');
+	$raw_session_token = _elgg_base64_decode($_SESSION['__elgg_session']);
+
+	$hmac_key = $raw_site_secret . $raw_session_id . $raw_session_token;
+
+	// produce Base 64 URL encoded MAC of timestamp
+	$mac = hash_hmac('sha1', $timestamp, $hmac_key, true);
+	return _elgg_base64_encode($mac);
 }
 
 /**
- * Initialise the site secret (192-bit key in Base64Url).
+ * Initialise the site secret (32 bytes: "z" to indicate format + 186-bit key in Base64 URL).
  *
  * Used during installation and saves as a datalist.
+ *
+ * Note: Old secrets were hex encoded.
  *
  * @return mixed The site secret hash or false
  * @access private
  * @todo Move to better file.
  */
 function init_site_secret() {
-	$secret = ElggCrypto::getRandomString(32);
-
-	// to indicate stronger key
-	$secret[0] = 'z';
+	$secret = 'z' . ElggCrypto::getRandomString(31);
 
 	if (datalist_set('__site_secret__', $secret)) {
 		return $secret;
@@ -391,17 +395,60 @@ function init_site_secret() {
  *
  * Used to generate difficult to guess hashes for sessions and action tokens.
  *
+ * @param bool $raw_output If true, key will be returned as a binary string
+ *
  * @return string Site secret.
  * @access private
  * @todo Move to better file.
  */
-function get_site_secret() {
+function get_site_secret($raw_output = false) {
 	$secret = datalist_get('__site_secret__');
 	if (!$secret) {
 		$secret = init_site_secret();
 	}
 
+	if ($raw_output) {
+		if ($secret[0] === 'z') {
+			return _elgg_base64_decode($secret);
+		}
+		// older secrets are hex-encoded. hex2bin() is PHP 5.4+
+		return pack("H*" , $secret);
+	}
+
 	return $secret;
+}
+
+/**
+ * Encode data in Base 64 URL
+ *
+ * @link http://tools.ietf.org/html/rfc4648#section-5
+ *
+ * @param string $bytes                   Data to encode
+ * @param string $plus_slash_replacements Characters "+/" will be translated to these in output
+ * @param bool   $trim_padding            Remove trailing "=" characters
+ *
+ * @return string Base 64 encoded data
+ * @access private
+ */
+function _elgg_base64_encode($bytes, $plus_slash_replacements = '-_', $trim_padding = true) {
+	$string = base64_encode($bytes);
+	if ($trim_padding) {
+		$string = rtrim($string, '=');
+	}
+	return strtr($string, '+/', $plus_slash_replacements);
+}
+
+/**
+ * Decode data in Base 64 (handles Base 64 URL by default)
+ *
+ * @param string $string                  Base 64 encoded data
+ * @param string $plus_slash_replacements Characters to translate to "+/" before decoding
+ *
+ * @return string Binary data
+ */
+function _elgg_base64_decode($string, $plus_slash_replacements = '-_') {
+	$string = strtr($string, $plus_slash_replacements, '+/');
+	return base64_decode($string);
 }
 
 /**

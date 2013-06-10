@@ -131,21 +131,4 @@ class ElggCrypto {
 
 		return $result;
 	}
-
-	/**
-	 * Encode data in base 64 as specified in RFC 4648 section 5
-	 *
-	 * @link http://tools.ietf.org/html/rfc4648#section-5
-	 *
-	 * @param string $bytes       Data to encode
-	 * @param bool   $trim_equals Trim any trailing padding "="
-	 * @return string
-	 */
-	public static function base64url_encode($bytes, $trim_equals = true) {
-		$string = base64_encode($bytes);
-		if ($trim_equals) {
-			$string = rtrim($string, '=');
-		}
-		return strtr($string, '+/', '-_');
-	}
 }
