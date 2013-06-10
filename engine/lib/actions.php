@@ -375,6 +375,10 @@ function generate_action_token($timestamp) {
  */
 function init_site_secret() {
 	$secret = ElggCrypto::getRandomString(32);
+
+	// to indicate stronger key
+	$secret[0] = 'z';
+
 	if (datalist_set('__site_secret__', $secret)) {
 		return $secret;
 	}
@@ -398,6 +402,26 @@ function get_site_secret() {
 	}
 
 	return $secret;
+}
+
+/**
+ * Get the strength of the site secret
+ *
+ * @return string "strong", "moderate", or "weak"
+ * @access private
+ */
+function _elgg_get_site_secret_strength() {
+	$secret = get_site_secret();
+	if ($secret[0] !== 'z') {
+		$rand_max = getrandmax();
+		if ($rand_max < pow(2, 16)) {
+			return 'weak';
+		}
+		if ($rand_max < pow(2, 32)) {
+			return 'moderate';
+		}
+	}
+	return 'strong';
 }
 
 /**
