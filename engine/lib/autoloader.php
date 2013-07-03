@@ -49,6 +49,10 @@ function _elgg_create_service_provider() {
 	$loader->register();
 	$manager = new Elgg_AutoloadManager($loader);
 
+	// setup autoloading for vendors
+	$loader->addFallback(dirname(dirname(dirname(__FILE__))) . '/vendors/minify/lib');
+	$loader->addFallback(dirname(dirname(dirname(__FILE__))) . '/vendors/ehough_stash/src/main/php');
+
 	return new Elgg_ServiceProvider($manager);
 }
 

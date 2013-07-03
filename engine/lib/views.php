@@ -1311,13 +1311,6 @@ function autoregister_views($view_base, $folder, $base_location_path, $viewtype)
  * @access private
  */
 function _elgg_views_minify($hook, $type, $content, $params) {
-	static $autoload_registered;
-	if (!$autoload_registered) {
-		$path = elgg_get_root_path() . 'vendors/minify/lib';
-		elgg_get_class_loader()->addFallback($path);
-		$autoload_registered = true;
-	}
-
 	if ($type == 'js') {
 		if (elgg_get_config('simplecache_minify_js')) {
 			return JSMin::minify($content);
