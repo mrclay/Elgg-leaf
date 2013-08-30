@@ -51,12 +51,17 @@ function delete_relationship($id) {
 	$id = (int)$id;
 
 	$relationship = get_relationship($id);
-
-	if (elgg_trigger_event('delete', 'relationship', $relationship)) {
-		return delete_data("DELETE FROM {$CONFIG->dbprefix}entity_relationships WHERE id = $id");
+	if (!$relationship) {
+		return false;
 	}
 
-	return false;
+	if (!elgg_trigger_event('delete', 'relationship', $relationship)) {
+		return false;
+	}
+
+	delete_data("DELETE FROM {$CONFIG->dbprefix}entity_relationships WHERE id = $id");
+
+	return true;
 }
 
 /**
@@ -166,16 +171,19 @@ function remove_entity_relationship($guid_one, $relationship, $guid_two) {
 	$result_old = elgg_trigger_event('delete', $relationship, $obj);
 
 	$result = elgg_trigger_event('delete', 'relationship', $obj);
-	if ($result && $result_old) {
-		$query = "DELETE FROM {$CONFIG->dbprefix}entity_relationships
-			WHERE guid_one = $guid_one
-			AND relationship = '$relationship'
-			AND guid_two = $guid_two";
 
-		return (bool)delete_data($query);
-	} else {
+	if (!$result || !$result_old) {
 		return false;
 	}
+
+	delete_data("
+		DELETE FROM {$CONFIG->dbprefix}entity_relationships
+		WHERE guid_one = $guid_one
+		  AND relationship = '$relationship'
+		  AND guid_two = $guid_two
+	");
+
+	return true;
 }
 
 /**
