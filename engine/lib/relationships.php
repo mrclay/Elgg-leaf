@@ -77,7 +77,7 @@ function add_entity_relationship($guid_one, $relationship, $guid_two) {
 
 	if (strlen($relationship) > ElggRelationship::RELATIONSHIP_LIMIT) {
 		$msg = "relationship name cannot be longer than " . ElggRelationship::RELATIONSHIP_LIMIT;
-		throw InvalidArgumentException($msg);
+		throw new InvalidArgumentException($msg);
 	}
 
 	$guid_one = (int)$guid_one;
@@ -158,7 +158,7 @@ function remove_entity_relationship($guid_one, $relationship, $guid_two) {
 	$guid_two = (int)$guid_two;
 
 	$obj = check_entity_relationship($guid_one, $relationship, $guid_two);
-	if ($obj == false) {
+	if (!$obj) {
 		return false;
 	}
 
@@ -238,11 +238,11 @@ function get_entity_relationships($guid, $inverse_relationship = false) {
 
 	$guid = (int)$guid;
 
-	$where = ($inverse_relationship ? "guid_two='$guid'" : "guid_one='$guid'");
+	$where = ($inverse_relationship ? "guid_two = '$guid'" : "guid_one = '$guid'");
 
-	$query = "SELECT * from {$CONFIG->dbprefix}entity_relationships where {$where}";
+	$sql = "SELECT * FROM {$CONFIG->dbprefix}entity_relationships WHERE {$where}";
 
-	return get_data($query, "row_to_elggrelationship");
+	return get_data($sql, "row_to_elggrelationship");
 }
 
 /**
@@ -371,8 +371,8 @@ $relationship_guid = null, $inverse_relationship = false) {
 		}
 	}
 
-	if ($where_str = implode(' AND ', $wheres)) {
-
+	$where_str = implode(' AND ', $wheres);
+	if ($where_str) {
 		return array('wheres' => array("($where_str)"), 'joins' => $joins);
 	}
 
@@ -404,7 +404,7 @@ function elgg_list_entities_from_relationship(array $options = array()) {
  * @since 1.8.0
  */
 function elgg_get_entities_from_relationship_count(array $options = array()) {
-	$options['selects'][] = "COUNT(e.guid) as total";
+	$options['selects'][] = "COUNT(e.guid) AS total";
 	$options['group_by'] = 'r.guid_two';
 	$options['order_by'] = 'total desc';
 	return elgg_get_entities_from_relationship($options);

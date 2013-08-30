@@ -151,7 +151,6 @@ class ElggRelationship extends ElggData implements
 		if ($this->id) {
 			global $CONFIG;
 
-			$guid = $this->guid_one;
 			$subtype = $this->getSubtype();
 
 			$function = "";
