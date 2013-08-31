@@ -93,38 +93,37 @@ function get_relationship_url($id) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use ElggRelationship::getURL()', 1.9);
 	global $CONFIG;
 
-	$id = (int)$id;
-
-	if ($relationship = get_relationship($id)) {
-		$view = elgg_get_viewtype();
-
-		$guid = $relationship->guid_one;
-		$type = $relationship->relationship;
-
-		$url = "";
-
-		$function = "";
-		if (isset($CONFIG->relationship_url_handler[$type])) {
-			$function = $CONFIG->relationship_url_handler[$type];
-		}
-		if (isset($CONFIG->relationship_url_handler['all'])) {
-			$function = $CONFIG->relationship_url_handler['all'];
-		}
-
-		if (is_callable($function)) {
-			$url = call_user_func($function, $relationship);
-		}
-
-		if ($url == "") {
-			$nameid = $relationship->id;
-
-			$url = elgg_get_site_url()  . "export/$view/$guid/relationship/$nameid/";
-		}
-
-		return $url;
+	$relationship = get_relationship($id);
+	if (!$relationship) {
+		return false;
 	}
 
-	return false;
+	$view = elgg_get_viewtype();
+
+	$guid = $relationship->guid_one;
+	$type = $relationship->relationship;
+
+	$url = "";
+
+	$function = "";
+	if (isset($CONFIG->relationship_url_handler[$type])) {
+		$function = $CONFIG->relationship_url_handler[$type];
+	}
+	if (isset($CONFIG->relationship_url_handler['all'])) {
+		$function = $CONFIG->relationship_url_handler['all'];
+	}
+
+	if (is_callable($function)) {
+		$url = call_user_func($function, $relationship);
+	}
+
+	if ($url == "") {
+		$nameid = $relationship->id;
+
+		$url = elgg_get_site_url()  . "export/$view/$guid/relationship/$nameid/";
+	}
+
+	return $url;
 }
 
 /**

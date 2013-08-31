@@ -95,25 +95,31 @@ function add_entity_relationship($guid_one, $relationship, $guid_two) {
 		return false;
 	}
 
-	$id = insert_data("INSERT INTO {$CONFIG->dbprefix}entity_relationships
-		(guid_one, relationship, guid_two, time_created)
-		VALUES ($guid_one, '$relationship', $guid_two, $time)");
-
-	if ($id !== false) {
-		$obj = get_relationship($id);
-
-		// this event has been deprecated in 1.9. Use 'create', 'relationship'
-		$result_old = elgg_trigger_event('create', $relationship, $obj);
-
-		$result = elgg_trigger_event('create', 'relationship', $obj);
-		if ($result && $result_old) {
-			return true;
-		} else {
-			delete_relationship($result);
-		}
+	$id = insert_data("
+		INSERT INTO {$CONFIG->dbprefix}entity_relationships
+		       (guid_one, relationship, guid_two, time_created)
+		VALUES ($guid_one, '$relationship', $guid_two, $time)
+	");
+	if (!$id) {
+		return false;
 	}
 
-	return false;
+	$obj = get_relationship($id);
+	if (!$obj) {
+		return false;
+	}
+
+	// this event has been deprecated in 1.9. Use 'create', 'relationship'
+	$result_old = elgg_trigger_event('create', $relationship, $obj);
+
+	$result = elgg_trigger_event('create', 'relationship', $obj);
+
+	if (!$result || !$result_old) {
+		delete_relationship($id);
+		return false;
+	}
+
+	return true;
 }
 
 /**
@@ -133,17 +139,18 @@ function check_entity_relationship($guid_one, $relationship, $guid_two) {
 	$relationship = sanitise_string($relationship);
 	$guid_two = (int)$guid_two;
 
-	$query = "SELECT * FROM {$CONFIG->dbprefix}entity_relationships
-		WHERE guid_one=$guid_one
-			AND relationship='$relationship'
-			AND guid_two=$guid_two limit 1";
-
-	$row = row_to_elggrelationship(get_data_row($query));
-	if ($row) {
-		return $row;
+	$row = get_data_row("
+		SELECT * FROM {$CONFIG->dbprefix}entity_relationships
+		WHERE guid_one = $guid_one
+		  AND relationship = '$relationship'
+		  AND guid_two = $guid_two
+		LIMIT 1
+	");
+	if (!$row) {
+		return false;
 	}
 
-	return false;
+	return row_to_elggrelationship($row);
 }
 
 /**
