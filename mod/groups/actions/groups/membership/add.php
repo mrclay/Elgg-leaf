@@ -6,37 +6,38 @@
  */
 $logged_in_user = elgg_get_logged_in_user_entity();
 
-$user_guid = get_input('user_guid');
-if (!is_array($user_guid)) {
-	$user_guid = array($user_guid);
-}
+$user_guids = (array)get_input('user_guid');
+
 $group_guid = get_input('group_guid');
 $group = get_entity($group_guid);
 /* @var ElggGroup $group */
 
-if (sizeof($user_guid)) {
-	foreach ($user_guid as $u_guid) {
-		$user = get_user($u_guid);
+if (!elgg_instanceof($group, 'group') || !$group->canEdit()) {
+	forward(REFERER);
+}
 
-		if ($user && elgg_instanceof($group, 'group') && $group->canEdit()) {
-			if (!$group->isMember($user)) {
-				if (groups_join_group($group, $user)) {
+foreach ($user_guids as $user_guid) {
+	$user = get_user($user_guid);
+	if (!$user || $group->isMember($user)) {
+		continue;
+	}
 
-					// send welcome email to user
-					notify_user($user->getGUID(), $group->owner_guid,
-							elgg_echo('groups:welcome:subject', array($group->name)),
-							elgg_echo('groups:welcome:body', array(
-								$user->name,
-								$group->name,
-								$group->getURL())
-							));
+	if (groups_join_group($group, $user)) {
+		// send welcome email to user
+		notify_user(
+			$user->getGUID(),
+			$group->owner_guid,
+			elgg_echo('groups:welcome:subject', array($group->name)),
+			elgg_echo('groups:welcome:body', array(
+				$user->name,
+				$group->name,
+				$group->getURL())
+			)
+		);
 
-					system_message(elgg_echo('groups:addedtogroup'));
-				} else {
-					// huh
-				}
-			}
-		}
+		system_message(elgg_echo('groups:addedtogroup'));
+	} else {
+		// huh
 	}
 }
 
