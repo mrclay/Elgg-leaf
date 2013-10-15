@@ -53,11 +53,11 @@ function groups_init() {
 	elgg_register_widget_type('a_users_groups', elgg_echo('groups:widget:membership'), elgg_echo('groups:widgets:description'));
 
 	elgg_register_widget_type(
-			'group_activity',
-			elgg_echo('groups:widget:group_activity:title'),
-			elgg_echo('groups:widget:group_activity:description'),
-			array('dashboard'),
-			true
+		'group_activity',
+		elgg_echo('groups:widget:group_activity:title'),
+		elgg_echo('groups:widget:group_activity:description'),
+		array('dashboard'),
+		true
 	);
 	
 	// add group activity tool option
@@ -509,7 +509,7 @@ function groups_annotation_menu_setup($hook, $type, $return, $params) {
 
 		$options = array(
 			'name' => 'edit',
-			'href' => "#edit-annotation-$annotation->id",
+			'href' => "#edit-annotation-{$annotation->id}",
 			'text' => elgg_echo('edit'),
 			'encode_text' => false,
 			'rel' => 'toggle',
@@ -559,14 +559,12 @@ function groups_write_acl_plugin_hook($hook, $entity_type, $returnvalue, $params
 		$groups = elgg_get_entities_from_relationship(array(
 					'relationship' => 'member',
 					'relationship_guid' => $user_guid,
-					'inverse_relationship' => FALSE,
+					'inverse_relationship' => false,
 					'limit' => false
 				));
 
-		if ($groups) {
-			foreach ($groups as $group) {
-				unset($returnvalue[$group->group_acl]);
-			}
+		foreach ((array)$groups as $group) {
+			unset($returnvalue[$group->group_acl]);
 		}
 	}
 
@@ -601,10 +599,13 @@ function groups_user_join_event_listener($event, $object_type, $object) {
  * Make sure users are added to the access collection
  */
 function groups_access_collection_override($hook, $entity_type, $returnvalue, $params) {
-	if (isset($params['collection'])) {
-		if (elgg_instanceof(get_entity($params['collection']->owner_guid), 'group')) {
-			return true;
-		}
+	if (!isset($params['collection'])) {
+		return null;
+	}
+
+	$group = get_entity($params['collection']->owner_guid);
+	if (elgg_instanceof($group, 'group')) {
+		return true;
 	}
 }
 
@@ -659,7 +660,7 @@ function groups_get_invited_groups($user_guid, $return_guids = FALSE) {
 	$groups = elgg_get_entities_from_relationship(array(
 		'relationship' => 'invited',
 		'relationship_guid' => $user_guid,
-		'inverse_relationship' => TRUE,
+		'inverse_relationship' => true,
 		'limit' => 0,
 	));
 	elgg_set_ignore_access($ia);
@@ -689,26 +690,26 @@ function groups_join_group($group, $user) {
 	$ia = elgg_set_ignore_access(TRUE);
 	$result = $group->join($user);
 	elgg_set_ignore_access($ia);
-	
-	if ($result) {
-		// flush user's access info so the collection is added
-		get_access_list($user->guid, 0, true);
 
-		// Remove any invite or join request flags
-		remove_entity_relationship($group->guid, 'invited', $user->guid);
-		remove_entity_relationship($user->guid, 'membership_request', $group->guid);
-
-		elgg_create_river_item(array(
-			'view' => 'river/relationship/member/create',
-			'action_type' => 'join',
-			'subject_guid' => $user->guid,
-			'object_guid' => $group->guid,
-		));
-
-		return true;
+	if (!$result) {
+		return false;
 	}
 
-	return false;
+	// flush user's access info so the collection is added
+	get_access_list($user->guid, 0, true);
+
+	// Remove any invite or join request flags
+	remove_entity_relationship($group->guid, 'invited', $user->guid);
+	remove_entity_relationship($user->guid, 'membership_request', $group->guid);
+
+	elgg_create_river_item(array(
+		'view' => 'river/relationship/member/create',
+		'action_type' => 'join',
+		'subject_guid' => $user->guid,
+		'object_guid' => $group->guid,
+	));
+
+	return true;
 }
 
 /**
@@ -716,16 +717,17 @@ function groups_join_group($group, $user) {
  * and the group itself. This is when you don't want other groups or access lists
  * in the access options available.
  *
+ * @param ElggGroup $group The group
+ *
  * @return array
  */
 function group_access_options($group) {
-	$access_array = array(
+	return array(
 		ACCESS_PRIVATE => 'private',
 		ACCESS_LOGGED_IN => 'logged in users',
 		ACCESS_PUBLIC => 'public',
 		$group->group_acl => elgg_echo('groups:acl', array($group->name)),
 	);
-	return $access_array;
 }
 
 function activity_profile_menu($hook, $entity_type, $return_value, $params) {
@@ -955,10 +957,11 @@ function discussion_prepare_notification($hook, $type, $notification, $params) {
 /**
  * Create discussion reply notification body
  *
- * @param string $hook
- * @param string $type
- * @param string $message
- * @param array  $params
+ * @param string $hook    The hook name
+ * @param string $type    The hook type
+ * @param string $message The message
+ * @param array  $params  Hook params
+ * @return string
  */
 function discussion_create_reply_notification($hook, $type, $message, $params) {
 	$reply = $params['annotation'];
@@ -1008,38 +1011,44 @@ function discussion_reply_notifications($event, $type, $annotation) {
 		return;
 	}
 
-	if (isset($CONFIG->register_objects[$object_type][$object_subtype])) {
-		$subject = $CONFIG->register_objects[$object_type][$object_subtype];
-		$string = $subject . ": " . $topic->getURL();
+	if (!isset($CONFIG->register_objects[$object_type][$object_subtype])) {
+		return;
+	}
 
-		// Get users interested in content from this person and notify them
-		// (Person defined by container_guid so we can also subscribe to groups if we want)
-		foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
-			$interested_users = elgg_get_entities_from_relationship(array(
-				'relationship' => 'notify' . $method,
-				'relationship_guid' => $topic->getContainerGUID(),
-				'inverse_relationship' => true,
-				'type' => 'user',
-				'limit' => 0,
-			));
+	$subject = $CONFIG->register_objects[$object_type][$object_subtype];
+	$string = $subject . ": " . $topic->getURL();
 
-			if ($interested_users && is_array($interested_users)) {
-				foreach ($interested_users as $user) {
-					if ($user instanceof ElggUser && !$user->isBanned()) {
-						if (($user->guid != $poster->guid) && has_access_to_entity($topic, $user) && $topic->access_id != ACCESS_PRIVATE) {
-							$body = elgg_trigger_plugin_hook('notify:annotation:message', $annotation->getSubtype(), array(
-								'annotation' => $annotation,
-								'to_entity' => $user,
-								'method' => $method), $string);
-							if (empty($body) && $body !== false) {
-								$body = $string;
-							}
-							if ($body !== false) {
-								notify_user($user->guid, $topic->getContainerGUID(), $subject, $body, array(), array($method));
-							}
-						}
-					}
-				}
+	// Get users interested in content from this person and notify them
+	// (Person defined by container_guid so we can also subscribe to groups if we want)
+	foreach ($NOTIFICATION_HANDLERS as $method => $foo) {
+		$interested_users = elgg_get_entities_from_relationship(array(
+			'relationship' => 'notify' . $method,
+			'relationship_guid' => $topic->getContainerGUID(),
+			'inverse_relationship' => true,
+			'type' => 'user',
+			'limit' => 0,
+		));
+
+		foreach ((array)$interested_users as $user) {
+			/* @var ElggUser $user */
+
+			if (!elgg_instanceof($user, 'user')
+					|| $user->isBanned()
+					|| ($user->guid == $poster->guid)
+					|| !has_access_to_entity($topic, $user)
+					|| ($topic->access_id == ACCESS_PRIVATE)) {
+				continue;
+			}
+
+			$body = elgg_trigger_plugin_hook('notify:annotation:message', $annotation->getSubtype(), array(
+				'annotation' => $annotation,
+				'to_entity' => $user,
+				'method' => $method), $string);
+			if (empty($body) && $body !== false) {
+				$body = $string;
+			}
+			if ($body !== false) {
+				notify_user($user->guid, $topic->getContainerGUID(), $subject, $body, array(), array($method));
 			}
 		}
 	}
@@ -1047,8 +1056,8 @@ function discussion_reply_notifications($event, $type, $annotation) {
 
 /**
  * A simple function to see who can edit a group discussion post
- * @param the comment $entity
- * @param user who owns the group $group_owner
+ * @param ElggEntity $entity      the comment
+ * @param ElggUser   $group_owner user who owns the group
  * @return boolean
  */
 function groups_can_edit_discussion($entity, $group_owner) {
@@ -1056,7 +1065,7 @@ function groups_can_edit_discussion($entity, $group_owner) {
 	//logged in user
 	$user = elgg_get_logged_in_user_guid();
 
-	if (($entity->owner_guid == $user) || $group_owner == $user || elgg_is_admin_logged_in()) {
+	if (($entity->owner_guid == $user) || ($group_owner == $user) || elgg_is_admin_logged_in()) {
 		return true;
 	} else {
 		return false;
