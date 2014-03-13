@@ -78,8 +78,7 @@ function _elgg_set_user_password() {
 				 */
 				_elgg_delete_users_remember_me_hashes($user);
 				$cookies_config = elgg_get_config('cookies');
-				$rm_cookie_name = $cookies_config['remember_me']['name'];
-				$rm_cookie_value = _elgg_services()->request->cookies->get($rm_cookie_name);
+				$rm_cookie_value = _elgg_services()->request->cookies->get($cookies_config['remember_me']['name']);
 
 				if ($user->guid == elgg_get_logged_in_user_guid() && $rm_cookie_value) {
 					// regenerate remember me code so no other user could
@@ -88,7 +87,7 @@ function _elgg_set_user_password() {
 					$rm_hash = _elgg_hash_remember_me_token($rm_token);
 					_elgg_services()->session->set('code', $rm_token);
 					_elgg_add_remember_me_hash($user, $rm_hash);
-					setcookie($rm_cookie_name, $rm_token, (time() + (86400 * 30)), "/");
+					_elgg_set_remember_me_cookie($rm_token);
 				}
 				if ($user->save()) {
 					system_message(elgg_echo('user:password:success'));
