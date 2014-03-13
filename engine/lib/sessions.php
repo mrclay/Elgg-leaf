@@ -291,21 +291,27 @@ function elgg_set_cookie(ElggCookie $cookie) {
 }
 
 /**
- * Add a remember me cookie to storage
+ * Add a remember me cookie hash to storage
  * 
  * @param ElggUser $user The user being remembered
- * @param string   $code 32 letter code
+ * @param string   $hash Hash of the remember me cookie value
  * @return void
  * @access private
+ *
+ * @throws DatabaseException
+ *
+ * @see _elgg_generate_remember_me_token()
  */
-function _elgg_add_remember_me_cookie(ElggUser $user, $code) {
+function _elgg_add_remember_me_hash(ElggUser $user, $hash) {
 	$db = _elgg_services()->db;
 	$prefix = $db->getTablePrefix();
 	$time = time();
-	$code = $db->sanitizeString($code);
+	$hash = $db->sanitizeString($hash);
 
-	$query = "INSERT INTO {$prefix}users_remember_me_cookies
-		(code, guid, timestamp) VALUES ('$code', $user->guid, $time)";
+	$query = "
+		INSERT INTO {$prefix}users_remember_me_cookies
+		(code, guid, timestamp) VALUES ('$hash', $user->guid, $time)
+	";
 	try {
 		$db->insertData($query);
 	} catch (DatabaseException $e) {
@@ -319,19 +325,57 @@ function _elgg_add_remember_me_cookie(ElggUser $user, $code) {
 }
 
 /**
- * Remove a remember me cookie from storage
+ * Remove a remember me cookie hash from storage
  * 
- * @param string $code 32 letter code
+ * @param string $hash Hash of the remember me cookie value
  * @return void
  * @access private
+ *
+ * @throws DatabaseException
+ *
+ * @see _elgg_generate_remember_me_token()
  */
-function _elgg_delete_remember_me_cookie($code) {
+function _elgg_delete_remember_me_hash($hash) {
 	$db = _elgg_services()->db;	
 	$prefix = $db->getTablePrefix();
-	$code = $db->sanitizeString($code);
+	$hash = $db->sanitizeString($hash);
 
-	$query = "DELETE FROM {$prefix}users_remember_me_cookies
-		WHERE code = '$code'";
+	$query = "
+		DELETE FROM {$prefix}users_remember_me_cookies
+		WHERE code = '$hash'
+	";
+	try {
+		$db->deleteData($query);
+	} catch (DatabaseException $e) {
+		if (false !== strpos($e->getMessage(), "users_remember_me_cookies' doesn't exist")) {
+			// schema has not been updated so we swallow this exception
+			return null;
+		} else {
+			throw $e;
+		}
+	}
+}
+
+/**
+ * Remove all of a user's remember me hashes from storage
+ *
+ * @param ElggUser $user
+ * @return void
+ * @access private
+ *
+ * @throws DatabaseException
+ *
+ * @see _elgg_generate_remember_me_token()
+ */
+function _elgg_delete_users_remember_me_hashes(ElggUser $user) {
+	$db = _elgg_services()->db;
+	$prefix = $db->getTablePrefix();
+	$guid = $user->guid;
+
+	$query = "
+		DELETE FROM {$prefix}users_remember_me_cookies
+		WHERE guid = '$guid'
+	";
 	try {
 		$db->deleteData($query);
 	} catch (DatabaseException $e) {
@@ -347,23 +391,50 @@ function _elgg_delete_remember_me_cookie($code) {
 /**
  * Generate a random cookie token used for the remember me feature.
  *
- * The first char is always "z" to indicate the value is more secure than the
- * previously generated ones.
+ * The "remember me" system generates a token for the user after login, which serves as a
+ * combination username/password. The raw token is stored in a cookie and, for legacy
+ * purposes, in the session under the key "code".
+ *
+ * A hash of the token (currently simple MD5) is stored in the
+ * "{prefix}users_remember_me_cookies" table under the column "code".
+ *
+ * New, more secure, tokens always begin with the letter "z". Legacy tokens are hex.
+ *
+ * Legacy tokens are replaced with new tokens when the user is available. During the upgrade
+ * to 1.9 all tokens were discarded for admin users.
  *
  * @return string
+ * @access private
  */
 function _elgg_generate_remember_me_token() {
 	return 'z' . ElggCrypto::getRandomString(31);
 }
 
 /**
- * Determine if a remember me cookie is a legacy MD5 hash
+ * Hash a remember me token for storage in the DB
  *
- * @param string $cookie_value
- * @return bool
+ * @todo As a token is used as a username/password combo, this should be a regular
+ *       password hashing algorithm like bcrypt
+ *
+ * @param string $token A remember me token
+ * @return string
+ * @access private
  */
-function _elgg_is_legacy_remember_me_token($cookie_value) {
-	return (isset($cookie_value[0]) && $cookie_value[0] !== 'z');
+function _elgg_hash_remember_me_token($token) {
+	return md5($token);
+}
+
+/**
+ * Determine if a remember me token is a legacy MD5 hash
+ *
+ * @param string $token
+ * @return bool
+ * @access private
+ *
+ * @see _elgg_generate_remember_me_token()
+ */
+function _elgg_is_legacy_remember_me_token($token) {
+	return (isset($token[0]) && $token[0] !== 'z');
 }
 
 /**
@@ -406,7 +477,7 @@ function login(ElggUser $user, $persistent = false) {
 	if ($persistent) {
 		$code = _elgg_generate_remember_me_token();
 		$session->set('code', $code);
-		_elgg_add_remember_me_cookie($user, md5($code));
+		_elgg_add_remember_me_hash($user, md5($code));
 		
 		$cookies = elgg_get_config('cookies');
 		$cookie = new ElggCookie($cookies['remember_me']['name']);
@@ -462,7 +533,7 @@ function logout() {
 
 	// remove remember cookie
 	if (isset($_COOKIE[$cookie_name])) {
-		_elgg_delete_remember_me_cookie(md5($_COOKIE[$cookie_name]));
+		_elgg_delete_remember_me_hash(md5($_COOKIE[$cookie_name]));
 
 		// tell browser to delete cookie
 		$cookie = new ElggCookie($cookie_name);
@@ -498,38 +569,53 @@ function _elgg_session_boot() {
 	$session = _elgg_services()->session;
 	$session->start();
 
+	/**
+	 * @see _elgg_generate_remember_me_token()
+	 */
+	$cookies_config = elgg_get_config('cookies');
+	$rm_cookie_name = $cookies_config['remember_me']['name'];
+	$rm_cookie_value = _elgg_services()->request->cookies->get($rm_cookie_name);
+
 	// test whether we have a user session
 	if ($session->has('guid')) {
-		$session->setLoggedInUser(get_user($session->get('guid')));
+		$user = get_user($session->get('guid'));
+		if (!$user) {
+			// OMG user has been deleted.
+			$session->invalidate();
+			forward('');
+		}
 
-		$cookies = elgg_get_config('cookies');
-		$cookie_name = $cookies['remember_me']['name'];
-		
+		$session->setLoggedInUser($user);
+
 		// replace user's old weaker-entropy code with new one
-		if (!empty($_COOKIE[$cookie_name]) && _elgg_is_legacy_remember_me_token($_COOKIE[$cookie_name])) {
+		if ($rm_cookie_value && _elgg_is_legacy_remember_me_token($rm_cookie_value)) {
 			// replace user's old weaker-entropy code with new one
-			$code = _elgg_generate_remember_me_token();
-			$session->set('code', $code);
-			$user->code = md5($code);
-			$user->save();
-			setcookie($cookie_name, $code, (time() + (86400 * 30)), "/");
+			$rm_cookie_hash = _elgg_hash_remember_me_token($rm_cookie_value);
+			$rm_new_token = _elgg_generate_remember_me_token();
+			$rm_new_hash = _elgg_hash_remember_me_token($rm_new_token);
+
+			$session->set('code', $rm_new_token);
+
+			_elgg_delete_remember_me_hash($rm_cookie_hash);
+			_elgg_add_remember_me_hash($user, $rm_new_hash);
+
+			setcookie($rm_cookie_name, $rm_new_token, (time() + (86400 * 30)), "/");
 		}
 	} else {
 		// is there a remember me cookie
-		$cookies = elgg_get_config('cookies');
-		$cookie_name = $cookies['remember_me']['name'];
-		if (isset($_COOKIE[$cookie_name])) {
+		if ($rm_cookie_value !== null) {
 			// we have a cookie, so try to log the user in
-			$user = get_user_by_code(md5($_COOKIE[$cookie_name]));
+			$rm_cookie_hash = _elgg_hash_remember_me_token($rm_cookie_value);
+			$user = get_user_by_code($rm_cookie_hash);
 			if ($user) {
 				$session->setLoggedInUser($user);
-				$session->set('code', md5($_COOKIE[$cookie_name]));
+				$session->set('code', $rm_cookie_value);
 			} else {
-				if (_elgg_is_legacy_remember_me_token($_COOKIE[$cookie_name])) {
+				if (_elgg_is_legacy_remember_me_token($rm_cookie_value)) {
 					// may be attempt to brute force legacy low-entropy codes
 					sleep(1);
 				}
-				setcookie($cookie_name, "", (time() - (86400 * 30)), "/");
+				setcookie($rm_cookie_name, "", (time() - (86400 * 30)), "/");
 			}
 		}
 	}

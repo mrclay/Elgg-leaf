@@ -72,14 +72,23 @@ function _elgg_set_user_password() {
 			if ($password == $password2) {
 				$user->salt = _elgg_generate_password_salt();
 				$user->password = generate_user_password($user, $password);
-				$user->code = '';
-				if ($user->guid == elgg_get_logged_in_user_guid() && !empty($_COOKIE['elggperm'])) {
+
+				/**
+				 * @see _elgg_generate_remember_me_token()
+				 */
+				_elgg_delete_users_remember_me_hashes($user);
+				$cookies_config = elgg_get_config('cookies');
+				$rm_cookie_name = $cookies_config['remember_me']['name'];
+				$rm_cookie_value = _elgg_services()->request->cookies->get($rm_cookie_name);
+
+				if ($user->guid == elgg_get_logged_in_user_guid() && $rm_cookie_value) {
 					// regenerate remember me code so no other user could
 					// use it to authenticate later
-					$code = _elgg_generate_remember_me_token();
-					$_SESSION['code'] = $code;
-					$user->code = md5($code);
-					setcookie("elggperm", $code, (time() + (86400 * 30)), "/");
+					$rm_token = _elgg_generate_remember_me_token();
+					$rm_hash = _elgg_hash_remember_me_token($rm_token);
+					_elgg_services()->session->set('code', $rm_token);
+					_elgg_add_remember_me_hash($user, $rm_hash);
+					setcookie($rm_cookie_name, $rm_token, (time() + (86400 * 30)), "/");
 				}
 				if ($user->save()) {
 					system_message(elgg_echo('user:password:success'));

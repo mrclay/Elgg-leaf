@@ -275,23 +275,27 @@ function get_user_by_username($username) {
 }
 
 /**
- * Get user by remember me code
+ * Get user by remember me cookie hash
  *
- * @param string $code The remember me code
+ * @param string $hash Hash of the remember me cookie value
  *
  * @return ElggUser
+ *
+ * @see _elgg_generate_remember_me_token()
+ *
+ * @throws DatabaseException
  */
-function get_user_by_code($code) {
-	if (!$code) {
+function get_user_by_code($hash) {
+	if (!$hash) {
 		return null;
 	}
 
 	$db = _elgg_services()->db;	
 	$prefix = $db->getTablePrefix();
-	$code = $db->sanitizeString($code);
+	$hash = $db->sanitizeString($hash);
 
 	$query = "SELECT guid FROM {$prefix}users_remember_me_cookies
-		WHERE code = '$code'";
+		WHERE code = '$hash'";
 	try {
 		$result = $db->getDataRow($query);
 	} catch (DatabaseException $e) {
