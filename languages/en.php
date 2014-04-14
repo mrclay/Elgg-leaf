@@ -116,6 +116,16 @@ return array(
 	'error:404:title' => 'Page not found',
 	'error:404:content' => 'Sorry. We could not find the page that you requested.',
 
+	'upload:error:ini_size' => 'The file you tried to upload is too large.',
+	'upload:error:form_size' => 'The file you tried to upload is too large.',
+	'upload:error:partial' => 'The file upload did not complete.',
+	'upload:error:no_file' => 'No file was selected.',
+	'upload:error:no_tmp_dir' => 'Cannot save the uploaded file.',
+	'upload:error:cant_write' => 'Cannot save the uploaded file.',
+	'upload:error:extension' => 'Cannot save the uploaded file.',
+	'upload:error:unknown' => 'The file upload failed.',
+
+
 /**
  * User details
  */
@@ -1059,6 +1069,8 @@ Once you have logged in, we highly recommend that you change your password.
 	'installation:minify:description' => "The simple cache can also improve performance by compressing JavaScript and CSS files. (Requires that simple cache is enabled.)",
 	'installation:minify_js:label' => "Compress JavaScript (recommended)",
 	'installation:minify_css:label' => "Compress CSS (recommended)",
+
+	'installation:htaccess:needs_upgrade' => "You must update your .htaccess file so that the path is injected into the GET parameter __elgg_uri (you can use htaccess_dist as a guide).",
 
 	'installation:systemcache:description' => "The system cache decreases the loading time of Elgg by caching data to files.",
 	'installation:systemcache:label' => "Use system cache (recommended)",
