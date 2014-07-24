@@ -1,14 +1,15 @@
 <?php
+namespace Elgg\Amd;
 
 /**
  * Control configuration of RequireJS
  *
- * @access private
- *
  * @package    Elgg.Core
  * @subpackage JavaScript
+ * 
+ * @access private
  */
-class Elgg_Amd_Config {
+class Config {
 	private $baseUrl = '';
 	private $paths = array();
 	private $shim = array();
@@ -74,7 +75,7 @@ class Elgg_Amd_Config {
 		$exports = elgg_extract('exports', $config);
 
 		if (empty($deps) && empty($exports)) {
-			throw new InvalidParameterException("Shimmed modules must have deps or exports");
+			throw new \InvalidParameterException("Shimmed modules must have deps or exports");
 		}
 
 		$this->shim[$name] = array();

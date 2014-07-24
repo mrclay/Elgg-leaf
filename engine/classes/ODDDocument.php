@@ -6,7 +6,7 @@
  * @subpackage ODD
  * @deprecated 1.9
  */
-class ODDDocument implements Iterator {
+class ODDDocument implements \Iterator {
 	/**
 	 * ODD Version
 	 *

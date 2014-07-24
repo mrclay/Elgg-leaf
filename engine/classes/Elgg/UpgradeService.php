@@ -1,4 +1,5 @@
 <?php
+namespace Elgg;
 
 /**
  * Upgrade service for Elgg
@@ -11,7 +12,7 @@
  * @package    Elgg.Core
  * @subpackage Upgrade
  */
-class Elgg_UpgradeService {
+class UpgradeService {
 
 	/**
 	 * Run the upgrade process
@@ -251,7 +252,7 @@ class Elgg_UpgradeService {
 			system_message(elgg_echo('upgrade:core'));
 
 			// Now we trigger an event to give the option for plugins to do something
-			$upgrade_details = new stdClass;
+			$upgrade_details = new \stdClass;
 			$upgrade_details->from = $dbversion;
 			$upgrade_details->to = elgg_get_version();
 
@@ -419,3 +420,4 @@ class Elgg_UpgradeService {
 	}
 
 }
+

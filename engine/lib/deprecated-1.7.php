@@ -749,7 +749,7 @@ $count = false, $meta_array_operator = 'and') {
  * @param string $menu_name The name of the menu item
  * @param string $menu_url  Its URL
  *
- * @return stdClass|false Depending on success
+ * @return \stdClass|false Depending on success
  * @deprecated 1.7
  */
 function menu_item($menu_name, $menu_url) {
@@ -1109,7 +1109,7 @@ function get_views($dir, $base) {
  * @param mixed  $register_value The value of the register
  * @param array  $children_array Optionally, an array of children
  *
- * @return false|stdClass Depending on success
+ * @return false|\stdClass Depending on success
  * @deprecated 1.7 Use {@link add_submenu_item()}
  */
 function make_register_object($register_name, $register_value, $children_array = array()) {
@@ -1118,7 +1118,7 @@ function make_register_object($register_name, $register_value, $children_array =
 		return false;
 	}
 
-	$register = new stdClass;
+	$register = new \stdClass;
 	$register->name = $register_name;
 	$register->value = $register_value;
 	$register->children = $children_array;

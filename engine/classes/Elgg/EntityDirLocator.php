@@ -1,4 +1,5 @@
 <?php
+namespace Elgg;
 
 /**
  * Locate the relative path of an entity's data dir.
@@ -12,7 +13,7 @@
  * 
  * @package Elgg.Core
  */
-class Elgg_EntityDirLocator {
+class EntityDirLocator {
 
 	/**
 	 * Number of entries per matrix dir. DO NOT CHANGE!
@@ -31,7 +32,7 @@ class Elgg_EntityDirLocator {
 
 		if (!$guid || $guid < 1) {
 			// Don't throw a ClassException to keep this class completely atomic.
-			throw new InvalidArgumentException("GUIDs must be integers > 0.");
+			throw new \InvalidArgumentException("GUIDs must be integers > 0.");
 		}
 
 		$this->guid = $guid;

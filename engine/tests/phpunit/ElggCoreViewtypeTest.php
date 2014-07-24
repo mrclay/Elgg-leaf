@@ -9,7 +9,7 @@ global $CONFIG;
 $CONFIG->context = array();
 
 
-class ElggCoreViewtypeTest extends PHPUnit_Framework_TestCase {
+class ElggCoreViewtypeTest extends \PHPUnit_Framework_TestCase {
 
 	protected function setUp() {
 		global $CURRENT_SYSTEM_VIEWTYPE;

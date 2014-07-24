@@ -1,4 +1,6 @@
 <?php
+namespace Elgg\Http;
+
 /**
  * Based on Symfony2's SessionStorageInterface and AttributeBagInterface.
  *
@@ -31,7 +33,7 @@
  * @package    Elgg.Core
  * @subpackage Http
  */
-interface Elgg_Http_SessionStorage {
+interface SessionStorage {
 
 	/**
 	 * Starts the session.

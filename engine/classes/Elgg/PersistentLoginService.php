@@ -1,6 +1,7 @@
 <?php
+namespace Elgg;
 /**
- * Elgg_PersistentLoginService
+ * \Elgg\PersistentLoginService
  *
  * If a user selects a persistent login, a long, random token is generated and stored in the cookie
  * called "elggperm", and a hash of the token is stored in the DB. If the user's PHP session expires,
@@ -22,22 +23,22 @@
  *
  * @access private
  */
-class Elgg_PersistentLoginService {
+class PersistentLoginService {
 
 	/**
 	 * Constructor
 	 *
-	 * @param Elgg_Database $db            The DB service
-	 * @param ElggSession   $session       The Elgg session
-	 * @param ElggCrypto    $crypto        The cryptography service
-	 * @param array         $cookie_config The persistent login cookie settings
-	 * @param string        $cookie_token  The token from the request cookie
-	 * @param int           $time          The current time
+	 * @param \Elgg\Database $db            The DB service
+	 * @param \ElggSession   $session       The Elgg session
+	 * @param \ElggCrypto    $crypto        The cryptography service
+	 * @param array          $cookie_config The persistent login cookie settings
+	 * @param string         $cookie_token  The token from the request cookie
+	 * @param int            $time          The current time
 	 */
 	public function __construct(
-			Elgg_Database $db,
-			ElggSession $session,
-			ElggCrypto $crypto,
+			\Elgg\Database $db,
+			\ElggSession $session,
+			\ElggCrypto $crypto,
 			array $cookie_config,
 			$cookie_token,
 			$time = null) {
@@ -55,10 +56,10 @@ class Elgg_PersistentLoginService {
 	/**
 	 * Make the user's login persistent
 	 *
-	 * @param ElggUser $user The user who logged in
+	 * @param \ElggUser $user The user who logged in
 	 * @return void
 	 */
-	public function makeLoginPersistent(ElggUser $user) {
+	public function makeLoginPersistent(\ElggUser $user) {
 		$token = $this->generateToken();
 		$hash = $this->hashToken($token);
 
@@ -84,11 +85,11 @@ class Elgg_PersistentLoginService {
 	/**
 	 * Handle a password change
 	 *
-	 * @param ElggUser $subject  The user whose password changed
-	 * @param ElggUser $modifier The user who changed the password
+	 * @param \ElggUser $subject  The user whose password changed
+	 * @param \ElggUser $modifier The user who changed the password
 	 * @return void
 	 */
-	public function handlePasswordChange(ElggUser $subject, ElggUser $modifier = null) {
+	public function handlePasswordChange(\ElggUser $subject, \ElggUser $modifier = null) {
 		$this->removeAllHashes($subject);
 		if (!$modifier || ($modifier->guid !== $subject->guid) || !$this->cookie_token) {
 			return;
@@ -101,7 +102,7 @@ class Elgg_PersistentLoginService {
 	 * Boot the persistent login session, possibly returning the user who should be
 	 * silently logged in.
 	 *
-	 * @return ElggUser|null
+	 * @return \ElggUser|null
 	 */
 	public function bootSession() {
 		if (!$this->cookie_token) {
@@ -128,10 +129,10 @@ class Elgg_PersistentLoginService {
 	/**
 	 * Replace the user's token if it's a legacy hexadecimal token
 	 *
-	 * @param ElggUser $logged_in_user The logged in user
+	 * @param \ElggUser $logged_in_user The logged in user
 	 * @return void
 	 */
-	public function replaceLegacyToken(ElggUser $logged_in_user) {
+	public function replaceLegacyToken(\ElggUser $logged_in_user) {
 		if (!$this->cookie_token || !$this->isLegacyToken($this->cookie_token)) {
 			return;
 		}
@@ -145,7 +146,7 @@ class Elgg_PersistentLoginService {
 	 * Find a user with the given hash
 	 *
 	 * @param string $hash The hashed token
-	 * @return ElggUser|null
+	 * @return \ElggUser|null
 	 */
 	public function getUserFromHash($hash) {
 		if (!$hash) {
@@ -170,11 +171,11 @@ class Elgg_PersistentLoginService {
 	/**
 	 * Store a hash in the DB
 	 *
-	 * @param ElggUser $user The user for whom we're storing the hash
-	 * @param string   $hash The hashed token
+	 * @param \ElggUser $user The user for whom we're storing the hash
+	 * @param string    $hash The hashed token
 	 * @return void
 	 */
-	protected function storeHash(ElggUser $user, $hash) {
+	protected function storeHash(\ElggUser $user, $hash) {
 		$time = time();
 		$hash = $this->db->sanitizeString($hash);
 
@@ -227,10 +228,10 @@ class Elgg_PersistentLoginService {
 	/**
 	 * Remove all the hashes associated with a user
 	 *
-	 * @param ElggUser $user The user for whom we're removing hashes
+	 * @param \ElggUser $user The user for whom we're removing hashes
 	 * @return void
 	 */
-	protected function removeAllHashes(ElggUser $user) {
+	protected function removeAllHashes(\ElggUser $user) {
 		$query = "DELETE FROM {$this->table} WHERE guid = '{$user->guid}'";
 		try {
 			$this->db->deleteData($query);
@@ -258,7 +259,7 @@ class Elgg_PersistentLoginService {
 	 * @return void
 	 */
 	protected function setCookie($token) {
-		$cookie = new ElggCookie($this->cookie_config['name']);
+		$cookie = new \ElggCookie($this->cookie_config['name']);
 		foreach (array('expire', 'path', 'domain', 'secure', 'httponly') as $key) {
 			$cookie->$key = $this->cookie_config[$key];
 		}
@@ -306,7 +307,7 @@ class Elgg_PersistentLoginService {
 	}
 
 	/**
-	 * @var Elgg_Database
+	 * @var \Elgg\Database
 	 */
 	protected $db;
 
@@ -326,12 +327,12 @@ class Elgg_PersistentLoginService {
 	protected $cookie_token;
 
 	/**
-	 * @var ElggSession
+	 * @var \ElggSession
 	 */
 	protected $session;
 
 	/**
-	 * @var ElggCrypto
+	 * @var \ElggCrypto
 	 */
 	protected $crypto;
 
@@ -358,3 +359,4 @@ class Elgg_PersistentLoginService {
 	 */
 	public $_callable_sleep = 'sleep';
 }
+
