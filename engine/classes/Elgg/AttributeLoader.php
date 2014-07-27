@@ -109,7 +109,7 @@ class AttributeLoader {
 	 * @param string $class             class of object being loaded
 	 * @param string $required_type     entity type this is being used to populate
 	 * @param array  $initialized_attrs attributes after initializeAttributes() has been run
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct($class, $required_type, array $initialized_attrs) {
 		if (!is_string($class)) {
@@ -152,7 +152,7 @@ class AttributeLoader {
 	 *
 	 * @param \stdClass $row Database row
 	 * @return void
-	 * @throws InvalidClassException
+	 * @throws \InvalidClassException
 	 */
 	protected function checkType($row) {
 		if ($row['type'] !== $this->required_type) {
@@ -181,7 +181,7 @@ class AttributeLoader {
 	 * @param mixed $row a row loaded from DB (array or \stdClass) or a GUID
 	 * @return array will be empty if failed to load all attributes (access control or entity doesn't exist)
 	 *
-	 * @throws InvalidArgumentException|LogicException|IncompleteEntityException
+	 * @throws \InvalidArgumentException|\LogicException|\IncompleteEntityException
 	 */
 	public function getRequiredAttributes($row) {
 		if (!is_array($row) && !($row instanceof \stdClass)) {

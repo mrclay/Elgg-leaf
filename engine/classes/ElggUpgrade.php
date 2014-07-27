@@ -170,8 +170,8 @@ class ElggUpgrade extends \ElggObject {
 	/**
 	 * Find an \ElggUpgrade object by the unique URL
 	 *
-	 * @param type $url The Upgrade URL
-	 * @return boolean
+	 * @param string $url The Upgrade URL
+	 * @return \ElggUpgrade|boolean
 	 */
 	public function getUpgradeFromURL($url) {
 		$url = elgg_normalize_url($url);

@@ -78,7 +78,7 @@ class AutoloadManager {
 		$map = array();
 
 		foreach ($dir as $file) {
-			/* @var SplFileInfo $file */
+			/* @var \SplFileInfo $file */
 			if (!$file->isFile() || !$file->isReadable()) {
 				continue;
 			}

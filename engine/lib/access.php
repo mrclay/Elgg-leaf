@@ -840,7 +840,7 @@ function get_user_access_collections($owner_guid, $site_guid = 0) {
  * @param int  $collection The collection's ID
  * @param bool $idonly     If set to true, will only return the members' GUIDs (default: false)
  *
- * @return array \ElggUser guids or entities if successful, false if not
+ * @return ElggUser[]|int[]|false guids or entities if successful, false if not
  * @see add_user_to_access_collection()
  */
 function get_members_of_access_collection($collection, $idonly = false) {

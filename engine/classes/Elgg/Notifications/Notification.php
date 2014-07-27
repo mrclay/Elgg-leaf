@@ -38,7 +38,7 @@ class Notification {
 	 * @param string      $body     The body of the notification
 	 * @param string      $summary  Optional summary of the notification
 	 * @param array       $params   Optional array of parameters
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(\ElggEntity $from, \ElggEntity $to, $language, $subject, $body, $summary = '', array $params = array()) {
 		if (!$from) {

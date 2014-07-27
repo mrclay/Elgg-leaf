@@ -38,7 +38,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-     * @expectedException InvalidParameterException
+     * @expectedException \InvalidParameterException
      */
 	public function testThrowsOnBadShim() {
 		$amdConfig = new \Elgg\Amd\Config();

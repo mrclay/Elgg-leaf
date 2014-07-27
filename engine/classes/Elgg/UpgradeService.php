@@ -99,7 +99,7 @@ class UpgradeService {
 						$success = false;
 						error_log("Could not include $upgrade_path/$upgrade");
 					}
-				} catch (Exception $e) {
+				} catch (\Exception $e) {
 					$success = false;
 					error_log($e->getMessage());
 				}
@@ -405,7 +405,7 @@ class UpgradeService {
 					if ($quiet) {
 						try {
 							run_sql_script($fromdir . $sqlfile);
-						} catch (DatabaseException $e) {
+						} catch (\DatabaseException $e) {
 							error_log($e->getmessage());
 						}
 					} else {

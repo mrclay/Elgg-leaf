@@ -10,12 +10,12 @@ class PersistentLoginTest extends \PHPUnit_Framework_TestCase {
 	protected $session;
 
 	/**
-	 * @var PHPUnit_Framework_MockObject_MockObject
+	 * @var \PHPUnit_Framework_MockObject_MockObject
 	 */
 	protected $dbMock;
 
 	/**
-	 * @var PHPUnit_Framework_MockObject_MockObject
+	 * @var \PHPUnit_Framework_MockObject_MockObject
 	 */
 	protected $cryptoMock;
 
@@ -25,7 +25,7 @@ class PersistentLoginTest extends \PHPUnit_Framework_TestCase {
 	protected $svc;
 
 	/**
-	 * @var PHPUnit_Framework_MockObject_MockObject
+	 * @var \PHPUnit_Framework_MockObject_MockObject
 	 */
 	protected $user123;
 

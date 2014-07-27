@@ -42,7 +42,7 @@ class NativeSessionStorageTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException RuntimeException
+	 * @expectedException \RuntimeException
 	 */
 	public function testSetIdAfterStart() {
 		if (headers_sent()) {

@@ -39,7 +39,7 @@ interface SessionStorage {
 	 * Starts the session.
 	 *
 	 * @return boolean True if started.
-	 * @throws RuntimeException If something goes wrong starting the session.
+	 * @throws \RuntimeException If something goes wrong starting the session.
 	 */
 	public function start();
 
@@ -99,7 +99,7 @@ interface SessionStorage {
 	 *
 	 * @return boolean True if session regenerated, false if error
 	 *
-	 * @throws RuntimeException If an error occurs while regenerating this storage
+	 * @throws \RuntimeException If an error occurs while regenerating this storage
 	 */
 	public function regenerate($destroy = false, $lifetime = null);
 
@@ -112,7 +112,7 @@ interface SessionStorage {
 	 * it should actually persist the session data if required.
 	 *
 	 * @return void
-	 * @throws RuntimeException If the session is saved without being started,
+	 * @throws \RuntimeException If the session is saved without being started,
 	 *                          or if the session is already closed.
 	 */
 	public function save();

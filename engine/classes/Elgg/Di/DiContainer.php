@@ -95,7 +95,7 @@ class DiContainer {
 	 * @param string $name  The name of the value
 	 * @param mixed  $value The value
 	 * @return \Elgg\Di\DiContainer
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function setValue($name, $value) {
 		$this->remove($name);
@@ -110,7 +110,7 @@ class DiContainer {
 	 * @param callable $callable Factory for the value
 	 * @param bool     $shared   Whether the same value should be returned for every request
 	 * @return \Elgg\Di\DiContainer
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function setFactory($name, $callable, $shared = true) {
 		if (!is_callable($callable, true)) {
@@ -131,7 +131,7 @@ class DiContainer {
 	 * @param string $class_name Class name to be instantiated
 	 * @param bool   $shared     Whether the same value should be returned for every request
 	 * @return \Elgg\Di\DiContainer
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function setClassName($name, $class_name, $shared = true) {
 		$classname_pattern = version_compare(PHP_VERSION, '5.3', '<') ? self::CLASS_NAME_PATTERN_52 : self::CLASS_NAME_PATTERN_53;

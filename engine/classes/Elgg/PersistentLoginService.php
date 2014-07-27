@@ -157,7 +157,7 @@ class PersistentLoginService {
 		$query = "SELECT guid FROM {$this->table} WHERE code = '$hash'";
 		try {
 			$user_row = $this->db->getDataRow($query);
-		} catch (DatabaseException $e) {
+		} catch (\DatabaseException $e) {
 			return $this->handleDbException($e);
 		}
 		if (!$user_row) {
@@ -185,7 +185,7 @@ class PersistentLoginService {
 		";
 		try {
 			$this->db->insertData($query);
-		} catch (DatabaseException $e) {
+		} catch (\DatabaseException $e) {
 			$this->handleDbException($e);
 		}
 	}
@@ -202,7 +202,7 @@ class PersistentLoginService {
 		$query = "DELETE FROM {$this->table} WHERE code = '$hash'";
 		try {
 			$this->db->deleteData($query);
-		} catch (DatabaseException $e) {
+		} catch (\DatabaseException $e) {
 			$this->handleDbException($e);
 		}
 	}
@@ -210,13 +210,13 @@ class PersistentLoginService {
 	/**
 	 * Swallow a schema not upgraded exception, otherwise rethrow it
 	 *
-	 * @param DatabaseException $exception The exception to handle
+	 * @param \DatabaseException $exception The exception to handle
 	 * @param string            $default   The value to return if the table doesn't exist yet
 	 * @return mixed
 	 *
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
-	protected function handleDbException(DatabaseException $exception, $default = null) {
+	protected function handleDbException(\DatabaseException $exception, $default = null) {
 		if (false !== strpos($exception->getMessage(), "users_remember_me_cookies' doesn't exist")) {
 			// schema has not been updated so we swallow this exception
 			return $default;
@@ -235,7 +235,7 @@ class PersistentLoginService {
 		$query = "DELETE FROM {$this->table} WHERE guid = '{$user->guid}'";
 		try {
 			$this->db->deleteData($query);
-		} catch (DatabaseException $e) {
+		} catch (\DatabaseException $e) {
 			$this->handleDbException($e);
 		}
 	}

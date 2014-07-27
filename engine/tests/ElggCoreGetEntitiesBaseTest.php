@@ -151,7 +151,7 @@ abstract class ElggCoreGetEntitiesBaseTest extends \ElggCoreUnitTest {
 	 * Return an array of invalid strings for type or subtypes.
 	 *
 	 * @param int $num
-	 * @return arr
+	 * @return string[]
 	 */
 	protected function getRandomInvalids($num = 1) {
 		$r = array();

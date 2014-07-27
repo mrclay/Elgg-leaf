@@ -155,7 +155,7 @@ function get_entities_from_annotations_calculate_x($sum = "sum", $entity_type = 
  * @param string $orderdir       Order of results
  * @param bool   $count          Return count or entities
  *
- * @return unknown
+ * @return ElggEntity[]|int
  */
 function get_entities_from_annotation_count($entity_type = "", $entity_subtype = "", $name = "", $mdname = '', $mdvalue = '', $owner_guid = 0, $limit = 10, $offset = 0, $orderdir = 'desc', $count = false) {
 
@@ -677,7 +677,7 @@ function callpath_gatekeeper($path, $include_subdirs = true, $strict_mode = fals
  * @param string     $table       Entity table prefix as defined in SELECT...FROM entities $table
  * @param NULL|array $owner_guids Owner GUIDs
  *
- * @return FALSE|str
+ * @return string|false
  * @since 1.7.0
  * @access private
  */
@@ -1059,9 +1059,9 @@ function get_entities_from_metadata_groups_multi($group_guid, $meta_array, $enti
 /**
  * List items within a given geographic area.
  *
- * @param real   $lat            Latitude
- * @param real   $long           Longitude
- * @param real   $radius         The radius
+ * @param float  $lat            Latitude
+ * @param float  $long           Longitude
+ * @param float  $radius         The radius
  * @param string $type           The type of entity (eg "user", "object" etc)
  * @param string $subtype        The arbitrary subtype of the entity
  * @param int    $owner_guid     The GUID of the owning user
@@ -3119,9 +3119,9 @@ function set_plugin_usersetting($name, $value, $user_guid = 0, $plugin_id = "") 
 /**
  * Clears a user-specific plugin setting
  *
- * @param str $name      Name of the plugin setting
- * @param int $user_guid Defaults to logged in user
- * @param str $plugin_id Defaults to contextual plugin name
+ * @param string $name      Name of the plugin setting
+ * @param int    $user_guid Defaults to logged in user
+ * @param string $plugin_id Defaults to contextual plugin name
  *
  * @deprecated 1.8 Use elgg_unset_plugin_user_setting or \ElggPlugin->unsetUserSetting().
  * @return bool Success
@@ -3671,7 +3671,7 @@ function find_metadata($meta_name = "", $meta_value = "", $entity_type = "", $en
  * @param int    $entity_guid Entity GUID
  * @param string $meta_name   Metadata name
  *
- * @return mixed \ElggMetadata object, an array of \ElggMetadata or false.
+ * @return ElggMetadata|ElggMetadata[]|false object, an array of \ElggMetadata or false.
  * @deprecated 1.8 Use elgg_get_metadata()
  */
 function get_metadata_byname($entity_guid, $meta_name) {

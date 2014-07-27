@@ -91,7 +91,7 @@ class Database {
 	 * @param string $type The type of link we want: "read", "write" or "readwrite".
 	 *
 	 * @return resource Database link
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 * @todo make protected once we get rid of get_db_link()
 	 */
 	public function getLink($type) {
@@ -112,7 +112,7 @@ class Database {
 	 * links up separately; otherwise just create the one database link.
 	 *
 	 * @return void
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function setupConnections() {
 		if ($this->config->isDatabaseSplit()) {
@@ -133,7 +133,7 @@ class Database {
 	 * resource: "read", "write", or "readwrite".
 	 *
 	 * @return void
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function establishLink($dblinkname = "readwrite") {
 
@@ -169,7 +169,7 @@ class Database {
 	 *
 	 * @return array An array of database result objects or callback function results. If the query
 	 *               returned nothing, an empty array.
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function getData($query, $callback = '') {
 		return $this->getResults($query, $callback, false);
@@ -186,7 +186,7 @@ class Database {
 	 * @param string $callback A callback function
 	 *
 	 * @return mixed A single database result object or the result of the callback function.
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function getDataRow($query, $callback = '') {
 		return $this->getResults($query, $callback, true);
@@ -201,7 +201,7 @@ class Database {
 	 *
 	 * @return int|false The database id of the inserted row if a AUTO_INCREMENT field is
 	 *                   defined, 0 if not, and false on failure.
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function insertData($query) {
 
@@ -227,7 +227,7 @@ class Database {
 	 * @param bool   $getNumRows Return the number of rows affected (default: false)
 	 *
 	 * @return bool|int
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function updateData($query, $getNumRows = false) {
 
@@ -256,7 +256,7 @@ class Database {
 	 * @param string $query The SQL query to run
 	 *
 	 * @return int|false The number of affected rows or false on failure
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function deleteData($query) {
 
@@ -283,7 +283,7 @@ class Database {
 	 *
 	 * @return array An array of database result objects or callback function results. If the query
 	 *               returned nothing, an empty array.
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	protected function getResults($query, $callback = null, $single = false) {
 
@@ -347,7 +347,7 @@ class Database {
 	 * @param resource $dblink The DB link
 	 *
 	 * @return resource|bool The result of mysql_query()
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 * @todo should this be public?
 	 */
 	public function executeQuery($query, $dblink) {
@@ -389,7 +389,7 @@ class Database {
 	 * @param string $scriptlocation The full path to the script
 	 *
 	 * @return void
-	 * @throws DatabaseException
+	 * @throws \DatabaseException
 	 */
 	public function runSqlScript($scriptlocation) {
 		$script = file_get_contents($scriptlocation);
@@ -409,7 +409,7 @@ class Database {
 				if (!empty($statement)) {
 					try {
 						$this->updateData($statement);
-					} catch (DatabaseException $e) {
+					} catch (\DatabaseException $e) {
 						$errors[] = $e->getMessage();
 					}
 				}
@@ -486,7 +486,7 @@ class Database {
 				if ((isset($query_details['h'])) && (is_callable($query_details['h']))) {
 					$query_details['h']($result);
 				}
-			} catch (DatabaseException $e) {
+			} catch (\DatabaseException $e) {
 				// Suppress all exceptions since page already sent to requestor
 				$this->logger->log($e, \Elgg\Logger::ERROR);
 			}
@@ -535,7 +535,7 @@ class Database {
 	 * Test that the Elgg database is installed
 	 *
 	 * @return void
-	 * @throws InstallationException
+	 * @throws \InstallationException
 	 */
 	public function assertInstalled() {
 
@@ -549,7 +549,7 @@ class Database {
 			if (mysql_errno($dblink) > 0) {
 				throw new \DatabaseException();
 			}
-		} catch (DatabaseException $e) {
+		} catch (\DatabaseException $e) {
 			throw new \InstallationException("Unable to handle this request. This site is not configured or the database is down.");
 		}
 

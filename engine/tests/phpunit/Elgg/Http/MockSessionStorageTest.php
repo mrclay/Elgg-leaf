@@ -23,7 +23,7 @@ class MockSessionStorageTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @expectedException RuntimeException
+	 * @expectedException \RuntimeException
 	 */
 	public function testSetIdAfterStart() {
 		$this->storage->start();

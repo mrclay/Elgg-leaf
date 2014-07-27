@@ -423,11 +423,11 @@ class ElggSite extends \ElggEntity {
 	 * @param int    $limit   Limit
 	 * @param int    $offset  Offset
 	 *
-	 * @return unknown
+	 * @return mixed
 	 * @deprecated 1.8 Was never implemented
 	 */
 	public function getCollections($subtype = "", $limit = 10, $offset = 0) {
-		elgg_deprecated_notice("\ElggSite::getCollections() is deprecated", 1.8);
+		elgg_deprecated_notice("ElggSite::getCollections() is deprecated", 1.8);
 		get_site_collections($this->getGUID(), $subtype, $limit, $offset);
 	}
 

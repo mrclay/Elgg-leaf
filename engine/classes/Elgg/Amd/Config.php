@@ -181,7 +181,7 @@ class Config {
 	/**
 	 * Removes all config for a module
 	 *
-	 * @param type $name The module name
+	 * @param string $name The module name
 	 * @return bool
 	 */
 	public function removeModule($name) {

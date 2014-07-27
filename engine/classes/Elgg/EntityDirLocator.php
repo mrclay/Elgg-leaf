@@ -25,7 +25,7 @@ class EntityDirLocator {
 	 * 
 	 * @param int $guid GUID of the entity.
 	 *
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct($guid) {
 		$guid = (int) $guid;

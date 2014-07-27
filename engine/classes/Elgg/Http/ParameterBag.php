@@ -99,7 +99,7 @@ class ParameterBag implements \IteratorAggregate, \Countable {
 	 *
 	 * @return mixed
 	 *
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function get($path, $default = null, $deep = false) {
 		if (!$deep || false === $pos = strpos($path, '[')) {

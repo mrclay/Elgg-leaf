@@ -356,7 +356,7 @@ class Request {
 	 *
 	 * @return string
 	 *
-	 * @throws UnexpectedValueException when the host name is invalid
+	 * @throws \UnexpectedValueException when the host name is invalid
 	 */
 	public function getHost() {
 		if (!$host = $this->headers->get('HOST')) {

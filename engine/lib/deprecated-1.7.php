@@ -96,7 +96,7 @@ function get_entities_from_access_collection($collection_id, $entity_type = "", 
  * @param int    $timelower      Lower time limit
  * @param int    $timeupper      Upper time limit
  *
- * @return unknown_type
+ * @return ElggEntity[]|int
  */
 function get_entities_from_annotations($entity_type = "", $entity_subtype = "", $name = "",
 $value = "", $owner_guid = 0, $group_guid = 0, $limit = 10, $offset = 0, $order_by = "asc",

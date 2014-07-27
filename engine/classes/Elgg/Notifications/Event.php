@@ -30,7 +30,7 @@ class Event {
 	 * @param string    $action The name of the action (default: create)
 	 * @param \ElggUser $actor  The user that caused the event (default: logged in user)
 	 * 
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct(\ElggData $object, $action, \ElggUser $actor = null) {
 		if (elgg_instanceof($object)) {

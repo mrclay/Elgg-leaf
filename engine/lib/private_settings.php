@@ -297,7 +297,7 @@ function get_private_setting($entity_guid, $name) {
  *
  * @param int $entity_guid The entity GUID
  *
- * @return array|empty array if no settings
+ * @return string[] empty array if no settings
  * @see set_private_setting()
  * @see get_private_settings()
  * @see remove_private_setting()

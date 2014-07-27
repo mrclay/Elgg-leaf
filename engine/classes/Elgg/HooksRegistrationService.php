@@ -166,8 +166,8 @@ abstract class HooksRegistrationService {
 			}
 			return "(" . get_class($callable[0]) . ")->{$callable[1]}";
 		}
-		if ($callable instanceof Closure) {
-			$ref = new ReflectionFunction($callable);
+		if ($callable instanceof \Closure) {
+			$ref = new \ReflectionFunction($callable);
 			$file = $ref->getFileName();
 			$line = $ref->getStartLine();
 			return "(Closure {$file}:{$line})";

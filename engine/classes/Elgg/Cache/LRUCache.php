@@ -29,7 +29,7 @@ class LRUCache implements \ArrayAccess {
 	 * Create a LRU Cache
 	 *
 	 * @param int $size The size of the cache
-	 * @throws InvalidArgumentException
+	 * @throws \InvalidArgumentException
 	 */
 	public function __construct($size) {
 		if (!is_int($size) || $size <= 0) {

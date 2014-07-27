@@ -100,11 +100,11 @@ class ODDDocument implements \Iterator {
 	/**
 	 * Set an optional wrapper factory to optionally embed the ODD document in another format.
 	 *
-	 * @param ODDWrapperFactory $factory The factory
+	 * @param \ODDWrapperFactory $factory The factory
 	 *
 	 * @return void
 	 */
-	public function setWrapperFactory(ODDWrapperFactory $factory) {
+	public function setWrapperFactory(\ODDWrapperFactory $factory) {
 		$this->wrapperfactory = $factory;
 	}
 

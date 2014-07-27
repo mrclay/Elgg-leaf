@@ -781,7 +781,7 @@ function _elgg_get_plugin_dependency_strings($dep) {
 /**
  * Returns the \ElggPlugin entity of the last plugin called.
  *
- * @return mixed \ElggPlugin or false
+ * @return ElggPlugin|false
  * @since 1.8.0
  * @access private
  * @deprecated 1.9

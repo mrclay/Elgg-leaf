@@ -2040,7 +2040,7 @@ function already_attached($guid_one, $guid_two) {
  * @param int    $guid Entity GUID
  * @param string $type The type of object to return e.g. 'file', 'friend_of' etc
  *
- * @return an array of objects
+ * @return ElggObject[] array of objects
  * @access private
  * @deprecated 1.9 Use elgg_get_entities_from_relationship()
  */
