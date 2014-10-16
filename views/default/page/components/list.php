@@ -4,17 +4,18 @@
  *
  * @package Elgg
  *
- * @uses $vars['items']       Array of ElggEntity or ElggAnnotation objects
- * @uses $vars['offset']      Index of the first list item in complete list
- * @uses $vars['limit']       Number of items per page. Only used as input to pagination.
- * @uses $vars['count']       Number of items in the complete list
- * @uses $vars['base_url']    Base URL of list (optional)
- * @uses $vars['pagination']  Show pagination? (default: true)
- * @uses $vars['position']    Position of the pagination: before, after, or both
- * @uses $vars['full_view']   Show the full view of the items (default: false)
- * @uses $vars['list_class']  Additional CSS class for the <ul> element
- * @uses $vars['item_class']  Additional CSS class for the <li> elements
- * @uses $vars['no_results']  Message to display if no results
+ * @uses $vars['items']         Array of ElggEntity or ElggAnnotation objects
+ * @uses $vars['offset']        Index of the first list item in complete list
+ * @uses $vars['limit']         Number of items per page. Only used as input to pagination.
+ * @uses $vars['count']         Number of items in the complete list
+ * @uses $vars['base_url']      Base URL of list (optional)
+ * @uses $vars['pagination']    Show pagination? (default: true)
+ * @uses $vars['position']      Position of the pagination: before, after, or both
+ * @uses $vars['full_view']     Show the full view of the items (default: false)
+ * @uses $vars['list_class']    Additional CSS class for the <ul> element
+ * @uses $vars['item_class']    Additional CSS class for the <li> elements
+ * @uses $vars['no_results']    Message to display if no results
+ * @uses $vars['item_renderer'] Callable to render list item (default: 'elgg_view_list_item')
  */
 
 $items = $vars['items'];
@@ -26,6 +27,7 @@ $pagination = elgg_extract('pagination', $vars, true);
 $offset_key = elgg_extract('offset_key', $vars, 'offset');
 $position = elgg_extract('position', $vars, 'after');
 $no_results = elgg_extract('no_results', $vars, '');
+$item_renderer = elgg_extract('item_renderer', $vars, 'elgg_view_list_item');
 
 if (!$items && $no_results) {
 	echo "<p>$no_results</p>";
@@ -61,26 +63,28 @@ if ($pagination && $count) {
 
 $html .= "<ul class=\"$list_class\">";
 foreach ($items as $item) {
-	$li = elgg_view_list_item($item, $vars);
-	if ($li) {
-		$item_classes = array($item_class);
-		
-		if (elgg_instanceof($item)) {
-			$id = "elgg-{$item->getType()}-{$item->getGUID()}";
-			
-			$item_classes[] = "elgg-item-" . $item->getType();
-			$subtype = $item->getSubType();
-			if ($subtype) {
-				$item_classes[] = "elgg-item-" . $item->getType() . "-" . $subtype;
-			}
-		} else {
-			$id = "item-{$item->getType()}-{$item->id}";
-		}
-		
-		$item_classes = implode(" ", $item_classes);
-		
-		$html .= "<li id=\"$id\" class=\"$item_classes\">$li</li>";
+	$item_html = call_user_func($item_renderer, $item, $vars);
+	if (!$item_html) {
+		continue;
 	}
+
+	$item_classes = array($item_class);
+
+	if ($item instanceof ElggEntity) {
+		$id = "elgg-{$item->getType()}-{$item->getGUID()}";
+
+		$item_classes[] = "elgg-item-" . $item->getType();
+		$subtype = $item->getSubType();
+		if ($subtype) {
+			$item_classes[] = "elgg-item-" . $item->getType() . "-" . $subtype;
+		}
+	} else {
+		$id = "item-{$item->getType()}-{$item->id}";
+	}
+
+	$item_classes = implode(" ", $item_classes);
+
+	$html .= "<li id=\"$id\" class=\"$item_classes\">$item_html</li>";
 }
 $html .= '</ul>';
 

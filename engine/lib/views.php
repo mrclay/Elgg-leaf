@@ -944,6 +944,7 @@ function elgg_view_annotation(\ElggAnnotation $annotation, array $vars = array()
  *      'list_type'        List type: 'list' (default), 'gallery'
  *      'list_type_toggle' Display the list type toggle?
  *      'no_results'       Message to display if no results
+ *      'item_renderer'    Callable to render list item. Default: 'elgg_view_list_item'
  *
  * @return string The rendered list of entities
  * @access private

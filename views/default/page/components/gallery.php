@@ -2,7 +2,7 @@
 /**
  * Gallery view
  *
- * Implemented as an unorder list
+ * Implemented as an unordered list
  *
  * @uses $vars['items']         Array of ElggEntity or ElggAnnotation objects
  * @uses $vars['offset']        Index of the first list item in complete list
@@ -14,6 +14,7 @@
  * @uses $vars['gallery_class'] Additional CSS class for the <ul> element
  * @uses $vars['item_class']    Additional CSS class for the <li> elements
  * @uses $vars['no_results']    Message to display if no results
+ * @uses $vars['item_renderer'] Callable to render list item (default: 'elgg_view_list_item')
  */
 
 $items = $vars['items'];
@@ -24,6 +25,7 @@ $pagination = elgg_extract('pagination', $vars, true);
 $offset_key = elgg_extract('offset_key', $vars, 'offset');
 $position = elgg_extract('position', $vars, 'after');
 $no_results = elgg_extract('no_results', $vars, '');
+$item_renderer = elgg_extract('item_renderer', $vars, 'elgg_view_list_item');
 
 if (!$items && $no_results) {
 	echo "<p>$no_results</p>";
@@ -60,23 +62,19 @@ if ($position == 'before' || $position == 'both') {
 	echo $nav;
 }
 
-?>
-<ul class="<?php echo $gallery_class; ?>">
-	<?php
-		foreach ($items as $item) {
-			if (elgg_instanceof($item)) {
-			$id = "elgg-{$item->getType()}-{$item->getGUID()}";
-			} else {
-				$id = "item-{$item->getType()}-{$item->id}";
-			}
-			echo "<li id=\"$id\" class=\"$item_class\">";
-			echo elgg_view_list_item($item, $vars);
-			echo "</li>";
-		}
-	?>
-</ul>
+echo "<ul class=\"$gallery_class\">";
+foreach ($items as $item) {
+	if ($item instanceof ElggEntity) {
+		$id = "elgg-{$item->getType()}-{$item->getGUID()}";
+	} else {
+		$id = "item-{$item->getType()}-{$item->id}";
+	}
+	echo "<li id=\"$id\" class=\"$item_class\">";
+	echo call_user_func($item_renderer, $item, $vars);
+	echo "</li>";
+}
+echo "</ul>";
 
-<?php
 if ($position == 'after' || $position == 'both') {
 	echo $nav;
 }
