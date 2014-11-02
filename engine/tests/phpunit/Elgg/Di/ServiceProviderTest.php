@@ -1,64 +1,30 @@
 <?php
 namespace Elgg\Di;
 
+use Elgg\Http\MockSessionStorage;
 
 class ServiceProviderTest extends \PHPUnit_Framework_TestCase {
 
-	public function testPropertiesReturnCorrectClassNames() {
-		$mgr = $this->getMock('\Elgg\AutoloadManager', array(), array(), '', false);
+	public function testCanInstantiateAllServices() {
 
-		$sp = new \Elgg\Di\ServiceProvider($mgr);
+		$sp = _elgg_create_service_provider();
+		$di = require dirname(dirname(dirname(dirname(__DIR__)))) . "/di.php";
 
-		$sp->setValue('session', new \ElggSession(new \Elgg\Http\MockSessionStorage()));
+		// Some services not compatible with unit test environment...
+		$sp->setValue('Elgg\Http\SessionStorage', new MockSessionStorage());
+		unset($di['cookies']);
+		unset($di['db']);
+		unset($di['jsroot']);
+		unset($di['notifications']);
+		unset($di['persistentLogin']);
+		unset($di['Elgg\AmdConfig']);
+		unset($di['Elgg\Database']);
+		unset($di['Elgg\Queue\Queue']);
+		unset($di['Elgg\PersistentLoginService']);
 		
-		$svcClasses = array(
-			'access' => '\Elgg\Access',
-			'accessCache' => '\ElggStaticVariableCache',
-			'accessCollections' => '\Elgg\Database\AccessCollections',
-			'actions' => '\Elgg\ActionsService',
-			'adminNotices' => '\Elgg\Database\AdminNotices',
-
-			// requires _elgg_get_simplecache_root() to be defined
-			//'amdConfig' => '\Elgg\Amd\Config',
-			
-			'annotations' => '\Elgg\Database\Annotations',
-			'autoP' => '\ElggAutoP',
-			'autoloadManager' => '\Elgg\AutoloadManager',
-			'config' => '\Elgg\Config',
-			'configTable' => '\Elgg\Database\ConfigTable',
-			'datalist' => '\Elgg\Database\Datalist',
-			'db' => '\Elgg\Database',
-			'entityTable' => '\Elgg\Database\EntityTable',
-			'events' => '\Elgg\EventsService',
-			'externalFiles' => '\Elgg\Assets\ExternalFiles',
-			'hooks' => '\Elgg\PluginHooksService',
-			'input' => '\Elgg\Http\Input',
-			'logger' => '\Elgg\Logger',
-			'metadataCache' => '\ElggVolatileMetadataCache',
-			'metadataTable' => '\Elgg\Database\MetadataTable',
-			'metastringsTable' => '\Elgg\Database\MetastringsTable',
-			'plugins' => '\Elgg\Database\Plugins',
-			'request' => '\Elgg\Http\Request',
-			'relationshipsTable' => '\Elgg\Database\RelationshipsTable',
-			'router' => '\Elgg\Router',
-			'session' => '\ElggSession',
-			'simpleCache' => '\Elgg\Cache\SimpleCache',
-			'siteSecret' => '\Elgg\Database\SiteSecret',
-			'stickyForms' => '\Elgg\Forms\StickyForms',
-			'subtypeTable' => '\Elgg\Database\SubtypeTable',
-			'systemCache' => '\Elgg\Cache\SystemCache',
-			'translator' => '\Elgg\I18n\Translator',
-			'usersTable' => '\Elgg\Database\UsersTable',
-			'views' => '\Elgg\ViewsService',
-			'widgets' => '\Elgg\WidgetsService',
-		);
-
-		foreach ($svcClasses as $key => $class) {
-			$obj1 = $sp->{$key};
-			$obj2 = $sp->{$key};
-			$this->assertInstanceOf($class, $obj1);
-			$this->assertSame($obj1, $obj2);
+		// Create all services without throwing exceptions
+		foreach ($di as $key => $definition) {
+			$sp->$key; 
 		}
 	}
 }
-

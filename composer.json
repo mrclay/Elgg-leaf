@@ -12,7 +12,9 @@
         "ext-xml": "*",
         "mrclay/minify": "2.*",
         "knplabs/gaufrette": "0.1.*",
-        "tedivm/stash": "~0.12"
+        "tedivm/stash": "~0.12",
+        "mnapoli/php-di": "~4.1",
+        "doctrine/cache": "~1.3"
     },
     "suggest": {
         "ext-mbstring": "*"
@@ -30,6 +32,6 @@
     "require-dev": {
         "phpunit/phpunit": "~4.1",
         "elgg/sniffs": "dev-master",
-        "squizlabs/php_codesniffer": "1.*"
+        "squizlabs/php_codesniffer": "~1.0"
     }
 }

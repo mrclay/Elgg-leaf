@@ -1,6 +1,12 @@
 <?php
 
+<<<<<<< HEAD
 class ElggUpgradeTest extends PHPUnit_Framework_TestCase {
+=======
+use Elgg\I18n\Translator;
+
+class ElggUpgradeTest extends \PHPUnit_Framework_TestCase {
+>>>>>>> chore(di): Replace homegrown DI system with PHP-DI
 	/**
 	 * @var ElggUpgrade
 	 */
@@ -69,7 +75,10 @@ class ElggUpgradeTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @expectedException UnexpectedValueException
+<<<<<<< HEAD
 	 * @expectedExceptionMessage ElggUpgrade objects must have a value for the upgrade_url property.
+=======
+>>>>>>> chore(di): Replace homegrown DI system with PHP-DI
 	 */
 	public function testThrowsOnSaveWithoutPath() {
 		$this->obj->description = 'Test';
@@ -79,7 +88,10 @@ class ElggUpgradeTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @expectedException UnexpectedValueException
+<<<<<<< HEAD
 	 * @expectedExceptionMessage ElggUpgrade objects must have a value for the title property.
+=======
+>>>>>>> chore(di): Replace homegrown DI system with PHP-DI
 	 */
 	public function testThrowsOnSaveWithoutTitle() {
 		$this->obj->setPath('test');
@@ -89,7 +101,10 @@ class ElggUpgradeTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * @expectedException UnexpectedValueException
+<<<<<<< HEAD
 	 * @expectedExceptionMessage ElggUpgrade objects must have a value for the description property.
+=======
+>>>>>>> chore(di): Replace homegrown DI system with PHP-DI
 	 */
 	public function testThrowsOnSaveWithoutDesc() {
 		$this->obj->setPath('test');
