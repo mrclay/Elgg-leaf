@@ -1,17 +1,7 @@
 <?php
 namespace Elgg\Database;
 
-
-/**
- * An array of key value pairs from the datalists table.
- *
- * Used as a cache in datalist functions.
- *
- * @global array $DATALIST_CACHE
- */
-global $DATALIST_CACHE;
-$DATALIST_CACHE = array();
-
+use Elgg\Cache\MemoryPool;
 
 /**
  * Persistent, installation-wide key-value storage.
@@ -25,21 +15,33 @@ $DATALIST_CACHE = array();
  * @since      1.10.0
  */
 class Datalist {
-	/**
-	 * Global Elgg configuration
-	 * 
-	 * @var \stdClass
-	 */
-	private $CONFIG;
+	
+	const ALL_RESULTS_KEY = '*';
+	
+	/** @var \Elgg\Cache\Pool */
+	private $cache;
+
+	/** @var \Elgg\Database */
+	private $db;
+
+	/** @var string */
+	private $dbprefix;
+
+	/** @var \stdClass Global Elgg configuration */
+	private $logger;
 
 	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		global $CONFIG;
-		$this->CONFIG = $CONFIG;
+		// TODO(ewinslow): Inject all these
+		// TODO(ewinslow): Add back memcached support
+		$this->cache = new MemoryPool();
+		$this->db = _elgg_services()->db;
+		$this->dbprefix = _elgg_services()->config->get('dbprefix');
+		$this->logger = _elgg_services()->logger;
 	}
-
+	
 	/**
 	 * Get the value of a datalist element.
 	 * 
@@ -54,49 +56,18 @@ class Datalist {
 	 * @access private
 	 */
 	function get($name) {
-		global $DATALIST_CACHE;
-	
 		$name = trim($name);
 	
 		// cannot store anything longer than 255 characters in db, so catch here
 		if (elgg_strlen($name) > 255) {
-			_elgg_services()->logger->error("The name length for configuration variables cannot be greater than 255");
+			$this->logger->error("The name length for configuration variables cannot be greater than 255");
 			return false;
 		}
-	
-		if (isset($DATALIST_CACHE[$name])) {
-			return $DATALIST_CACHE[$name];
-		}
-	
-		// If memcache enabled then cache value in memcache
-		$value = null;
-		static $datalist_memcache = null;
-		if (!$datalist_memcache && is_memcache_available()) {
-			$datalist_memcache = new \ElggMemcache('datalist_memcache');
-		}
-		if ($datalist_memcache) {
-			$value = $datalist_memcache->load($name);
-		}
-		// @todo cannot cache 0 or false?
-		if ($value) {
-			return $value;
-		}
-	
-		// not in cache and not in memcache so check database
-		$escaped_name = sanitize_string($name);
-		$result = _elgg_services()->db->getDataRow("SELECT * FROM {$this->CONFIG->dbprefix}datalists WHERE name = '$escaped_name'");
-		if ($result) {
-			$DATALIST_CACHE[$result->name] = $result->value;
-	
-			// Cache it if memcache is available
-			if ($datalist_memcache) {
-				$datalist_memcache->save($result->name, $result->value);
-			}
-	
-			return $result->value;
-		}
-	
-		return null;
+
+		return $this->cache->get($name, function() use ($name) {
+			$all = $this->loadAll();
+			return $all[$name];
+		});
 	}
 	
 	/**
@@ -116,38 +87,25 @@ class Datalist {
 	 * @access private
 	 */
 	function set($name, $value) {
-		global $DATALIST_CACHE;
-	
 		$name = trim($name);
 	
 		// cannot store anything longer than 255 characters in db, so catch before we set
 		if (elgg_strlen($name) > 255) {
-			_elgg_services()->logger->error("The name length for configuration variables cannot be greater than 255");
+			$this->logger->error("The name length for configuration variables cannot be greater than 255");
 			return false;
 		}
 	
-		// If memcache is available then invalidate the cached copy
-		static $datalist_memcache = null;
-		if ((!$datalist_memcache) && (is_memcache_available())) {
-			$datalist_memcache = new \ElggMemcache('datalist_memcache');
-		}
 	
-		if ($datalist_memcache) {
-			$datalist_memcache->delete($name);
-		}
-	
-		$escaped_name = sanitize_string($name);
-		$escaped_value = sanitize_string($value);
-		$success = _elgg_services()->db->insertData("INSERT INTO {$this->CONFIG->dbprefix}datalists"
+		$escaped_name = $this->db->sanitizeString($name);
+		$escaped_value = $this->db->sanitizeString($value);
+		$success = $this->db->insertData("INSERT INTO {$this->dbprefix}datalists"
 			. " SET name = '$escaped_name', value = '$escaped_value'"
 			. " ON DUPLICATE KEY UPDATE value = '$escaped_value'");
+
+		$this->cache->invalidate($name);
+		$this->cache->invalidate(self::ALL_RESULTS_KEY);
 	
-		if ($success !== false) {
-			$DATALIST_CACHE[$name] = $value;
-			return true;
-		} else {
-			return false;
-		}
+		return $success !== false;
 	}
 	
 	/**
@@ -157,18 +115,21 @@ class Datalist {
 	 * 
 	 * @todo make a list of datalists that we want to get in one grab
 	 * 
-	 * @return void
+	 * @return array
 	 * @access private
 	 */
 	function loadAll() {
-		global $DATALIST_CACHE;
-
-		$result = _elgg_services()->db->getData("SELECT * FROM {$this->CONFIG->dbprefix}datalists");
-		if ($result) {
-			foreach ($result as $row) {
-				$DATALIST_CACHE[$row->name] = $row->value;
+		$this->cache->get(ALL_RESULTS_KEY, function() {
+			$result = $this->db->getData("SELECT * FROM {$this->dbprefix}datalists");
+			$map = array();
+			if (is_array($result)) {
+				foreach ($result as $row) {
+					$map[$row->name] = $row->value;
+				}
 			}
-		}
+
+			return $map;
+		});
 	}
 	
 	/**
@@ -199,7 +160,7 @@ class Datalist {
 	 * @todo deprecate
 	 */
 	function runFunctionOnce($functionname, $timelastupdatedcheck = 0) {
-		$lastupdated = _elgg_services()->datalist->get($functionname);
+		$lastupdated = $this->get($functionname);
 		if ($lastupdated) {
 			$lastupdated = (int) $lastupdated;
 		} elseif ($lastupdated !== false) {
@@ -210,7 +171,7 @@ class Datalist {
 		}
 		if (is_callable($functionname) && $lastupdated <= $timelastupdatedcheck) {
 			$functionname();
-			_elgg_services()->datalist->set($functionname, time());
+			$this->set($functionname, time());
 			return true;
 		} else {
 			return false;
