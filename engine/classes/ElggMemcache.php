@@ -24,37 +24,42 @@ class ElggMemcache extends \ElggSharedMemoryCache {
 	 *
 	 * @internal Use _elgg_get_memcache() instead of direct construction.
 	 *
-	 * @param string $namespace The namespace for this cache to write to -
-	 * note, namespaces of the same name are shared!
+	 * @param string      $namespace The namespace for this cache to write to
+	 * @param \Stash\Pool $pool      The cache pool to use. Default is memcache.
+	 * @param int         $ttl       The TTL in seconds. Default is from $CONFIG->memcache_expires.
 	 *
 	 * @throws ConfigurationException
 	 *
 	 * @see _elgg_get_memcache()
 	 */
-	public function __construct($namespace = 'default') {
-		$this->stash_pool = _elgg_services()->memcacheStashPool;
-		if (!$this->stash_pool) {
-			throw new \ConfigurationException('No memcache servers defined, please populate the $this->CONFIG->memcache_servers variable');
-		}
-
+	public function __construct($namespace = 'default', \Stash\Pool $pool = null, $ttl = null) {
 		$this->setNamespace($namespace);
 
-		// Set some defaults
-		$expires = _elgg_services()->config->get('memcache_expires');
-		if (isset($expires)) {
-			$this->ttl = $expires;
+		if (!$pool) {
+			$pool = _elgg_services()->memcacheStashPool;
+			if (!$pool) {
+				throw new \ConfigurationException('No memcache servers defined, please populate the $this->CONFIG->memcache_servers variable');
+			}
+		}
+		$this->stash_pool = $pool;
+
+		if ($ttl === null) {
+			$ttl = _elgg_services()->config->get('memcache_expires');
+		}
+		if (isset($ttl)) {
+			$this->ttl = $ttl;
 		}
 	}
 
 	/**
 	 * Set the default TTL.
 	 *
-	 * @param int $expires The TTL in seconds from now. Default is no expiration.
+	 * @param int $ttl The TTL in seconds from now. Default is no expiration.
 	 *
 	 * @return void
 	 */
-	public function setDefaultExpiry($expires = 0) {
-		$this->ttl = $expires;
+	public function setDefaultExpiry($ttl = 0) {
+		$this->ttl = $ttl;
 	}
 
 	/**
