@@ -27,24 +27,19 @@ class Datalist {
 	/** @var Database */
 	private $db;
 
-	/** @var string */
-	private $dbprefix;
-
 	/** @var Logger */
 	private $logger;
 
 	/**
 	 * @param Database   $db       Elgg database
-	 * @param string     $dbprefix Elgg table prefix
 	 * @param MemoryPool $cache    Memory cache
 	 * @param Logger     $logger   Elgg logger
 	 */
-	public function __construct(Database $db, $dbprefix, MemoryPool $cache, Logger $logger) {
+	public function __construct(Database $db, MemoryPool $cache, Logger $logger) {
 		// TODO(ewinslow): Add back memcached support
 
 		$this->cache = $cache;
 		$this->db = $db;
-		$this->dbprefix = $dbprefix;
 		$this->logger = $logger;
 	}
 	
@@ -100,12 +95,14 @@ class Datalist {
 			return false;
 		}
 	
-	
+		$dbprefix = $this->db->getTablePrefix();
 		$escaped_name = $this->db->sanitizeString($name);
 		$escaped_value = $this->db->sanitizeString($value);
-		$success = $this->db->insertData("INSERT INTO {$this->dbprefix}datalists"
-			. " SET name = '$escaped_name', value = '$escaped_value'"
-			. " ON DUPLICATE KEY UPDATE value = '$escaped_value'");
+		$success = $this->db->insertData("
+			INSERT INTO {$dbprefix}datalists
+			SET name = '$escaped_name', value = '$escaped_value'
+			ON DUPLICATE KEY UPDATE value = '$escaped_value'
+		");
 
 		$this->cache->invalidate(self::ALL_RESULTS_KEY);
 	
@@ -124,7 +121,8 @@ class Datalist {
 	 */
 	function loadAll() {
 		return $this->cache->get(self::ALL_RESULTS_KEY, function() {
-			$result = $this->db->getData("SELECT * FROM {$this->dbprefix}datalists");
+			$dbprefix = $this->db->getTablePrefix();
+			$result = $this->db->getData("SELECT * FROM {$dbprefix}datalists");
 			$map = array();
 			if (is_array($result)) {
 				foreach ($result as $row) {

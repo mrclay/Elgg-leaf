@@ -187,7 +187,7 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 	 * @return \Elgg\Database\Datalist
 	 */
 	protected function getDatalist(\Elgg\Di\ServiceProvider $c) {
-		return new Datalist($c->db, $c->config->get('dbprefix'), new MemoryPool(), $c->logger);
+		return new Datalist($c->db, new MemoryPool(), $c->logger);
 	}
 
 	/**
