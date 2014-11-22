@@ -23,6 +23,7 @@ use Elgg\Database\Datalist;
  * @property-read \Elgg\PluginHooksService                 $hooks
  * @property-read \Elgg\Http\Input                         $input
  * @property-read \Elgg\Logger                             $logger
+ * @property-read \Stash\Pool|null                         $memcacheStashPool
  * @property-read \ElggVolatileMetadataCache               $metadataCache
  * @property-read \Elgg\Database\MetadataTable             $metadataTable
  * @property-read \Elgg\Notifications\NotificationsService $notifications
@@ -75,6 +76,7 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		$this->setFactory('hooks', array($this, 'getHooks'));
 		$this->setClassName('input', 'Elgg\Http\Input');
 		$this->setFactory('logger', array($this, 'getLogger'));
+		$this->setFactory('memcacheStashPool', array($this, 'getMemcacheStashPool'));
 		$this->setClassName('metadataCache', '\ElggVolatileMetadataCache');
 		$this->setClassName('metadataTable', '\Elgg\Database\MetadataTable');
 		$this->setFactory('persistentLogin', array($this, 'getPersistentLogin'));
@@ -234,6 +236,25 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 	protected function getRouter(\Elgg\Di\ServiceProvider $c) {
 		// TODO(evan): Init routes from plugins or cache
 		return new \Elgg\Router($c->hooks);
+	}
+
+	/**
+	 * Stash Memcache driver factory
+	 *
+	 * @param \Elgg\Di\ServiceProvider $c Dependency injection container
+	 * @return \Stash\Pool|null
+	 */
+	protected function getMemcacheStashPool(\Elgg\Di\ServiceProvider $c) {
+		$servers = $c->config->get('memcache_servers');
+		if (!$servers) {
+			return null;
+		}
+
+		$driver = new \Stash\Driver\Memcache();
+		$driver->setOptions(array(
+			'servers' => $servers,
+		));
+		return new \Stash\Pool($driver);
 	}
 
 	/**
