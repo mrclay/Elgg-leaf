@@ -36,7 +36,10 @@ class Datalist {
 	public function __construct() {
 		// TODO(ewinslow): Inject all these
 		// TODO(ewinslow): Add back memcached support
+
+		// The internal cache loads all values into a single array.
 		$this->cache = new MemoryPool();
+
 		$this->db = _elgg_services()->db;
 		$this->dbprefix = _elgg_services()->config->get('dbprefix');
 		$this->logger = _elgg_services()->logger;
@@ -64,10 +67,9 @@ class Datalist {
 			return false;
 		}
 
-		return $this->cache->get($name, function() use ($name) {
-			$all = $this->loadAll();
-			return $all[$name];
-		});
+		// There's no gain in storing/managing individual cache keys. Just use the array.
+		$all = $this->loadAll();
+		return isset($all[$name]) ? $all[$name] : null;
 	}
 	
 	/**
@@ -102,7 +104,6 @@ class Datalist {
 			. " SET name = '$escaped_name', value = '$escaped_value'"
 			. " ON DUPLICATE KEY UPDATE value = '$escaped_value'");
 
-		$this->cache->invalidate($name);
 		$this->cache->invalidate(self::ALL_RESULTS_KEY);
 	
 		return $success !== false;
@@ -119,7 +120,7 @@ class Datalist {
 	 * @access private
 	 */
 	function loadAll() {
-		$this->cache->get(ALL_RESULTS_KEY, function() {
+		return $this->cache->get(self::ALL_RESULTS_KEY, function() {
 			$result = $this->db->getData("SELECT * FROM {$this->dbprefix}datalists");
 			$map = array();
 			if (is_array($result)) {
