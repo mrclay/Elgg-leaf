@@ -2,6 +2,8 @@
 namespace Elgg\Database;
 
 use Elgg\Cache\MemoryPool;
+use Elgg\Database;
+use Elgg\Logger;
 
 /**
  * Persistent, installation-wide key-value storage.
@@ -15,34 +17,35 @@ use Elgg\Cache\MemoryPool;
  * @since      1.10.0
  */
 class Datalist {
-	
+
+	// The internal cache stores all DB rows as a single array.
 	const ALL_RESULTS_KEY = '*';
 	
-	/** @var \Elgg\Cache\Pool */
+	/** @var MemoryPool */
 	private $cache;
 
-	/** @var \Elgg\Database */
+	/** @var Database */
 	private $db;
 
 	/** @var string */
 	private $dbprefix;
 
-	/** @var \stdClass Global Elgg configuration */
+	/** @var Logger */
 	private $logger;
 
 	/**
-	 * Constructor
+	 * @param Database   $db       Elgg database
+	 * @param string     $dbprefix Elgg table prefix
+	 * @param MemoryPool $cache    Memory cache
+	 * @param Logger     $logger   Elgg logger
 	 */
-	public function __construct() {
-		// TODO(ewinslow): Inject all these
+	public function __construct(Database $db, $dbprefix, MemoryPool $cache, Logger $logger) {
 		// TODO(ewinslow): Add back memcached support
 
-		// The internal cache loads all values into a single array.
-		$this->cache = new MemoryPool();
-
-		$this->db = _elgg_services()->db;
-		$this->dbprefix = _elgg_services()->config->get('dbprefix');
-		$this->logger = _elgg_services()->logger;
+		$this->cache = $cache;
+		$this->db = $db;
+		$this->dbprefix = $dbprefix;
+		$this->logger = $logger;
 	}
 	
 	/**

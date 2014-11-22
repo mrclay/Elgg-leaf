@@ -1,5 +1,7 @@
 <?php
 namespace Elgg\Di;
+use Elgg\Cache\MemoryPool;
+use Elgg\Database\Datalist;
 
 /**
  * Provides common Elgg services.
@@ -65,7 +67,7 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		$this->setClassName('configTable', '\Elgg\Database\ConfigTable');
 		$this->setValue('context', new \Elgg\Context());
 		$this->setClassName('crypto', '\ElggCrypto');
-		$this->setClassName('datalist', '\Elgg\Database\Datalist');
+		$this->setFactory('datalist', array($this, 'getDatalist'));
 		$this->setFactory('db', array($this, 'getDatabase'));
 		$this->setClassName('entityTable', '\Elgg\Database\EntityTable');
 		$this->setFactory('events', array($this, 'getEvents'));
@@ -176,6 +178,16 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		$obj = new \Elgg\Amd\Config();
 		$obj->setBaseUrl(_elgg_get_simplecache_root() . "js/");
 		return $obj;
+	}
+
+	/**
+	 * Datalist factory
+	 *
+	 * @param \Elgg\Di\ServiceProvider $c Dependency injection container
+	 * @return \Elgg\Database\Datalist
+	 */
+	protected function getDatalist(\Elgg\Di\ServiceProvider $c) {
+		return new Datalist($c->db, $c->config->get('dbprefix'), new MemoryPool(), $c->logger);
 	}
 
 	/**
