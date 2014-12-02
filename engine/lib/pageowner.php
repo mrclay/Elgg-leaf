@@ -10,30 +10,17 @@
 /**
  * Gets the guid of the entity that owns the current page.
  *
- * @param int $guid Optional parameter used by elgg_set_page_owner_guid().
+ * @param mixed $unused Do not use this argument.
  *
  * @return int The current page owner guid (0 if none).
  * @since 1.8.0
  */
-function elgg_get_page_owner_guid($guid = 0) {
-	static $page_owner_guid;
-
-	if ($guid) {
-		$page_owner_guid = (int)$guid;
+function elgg_get_page_owner_guid($unused = 'DO_NOT_USE') {
+	if ($unused !== 'DO_NOT_USE') {
+		elgg_deprecated_notice("Do not use " . __FUNCTION__ . " to set the page owner", "1.10");
+		_elgg_services()->pageOwner->setGuid($unused);
 	}
-
-	if (isset($page_owner_guid)) {
-		return $page_owner_guid;
-	}
-
-	// return guid of page owner entity
-	$guid = (int)elgg_trigger_plugin_hook('page_owner', 'system', null, 0);
-
-	if ($guid) {
-		$page_owner_guid = $guid;
-	}
-
-	return $guid;
+	return _elgg_services()->pageOwner->getGuid();
 }
 
 /**
@@ -46,16 +33,7 @@ function elgg_get_page_owner_guid($guid = 0) {
  * @since 1.8.0
  */
 function elgg_get_page_owner_entity() {
-	$guid = elgg_get_page_owner_guid();
-	if ($guid > 0) {
-		$ia = elgg_set_ignore_access(true);
-		$owner = get_entity($guid);
-		elgg_set_ignore_access($ia);
-
-		return $owner;
-	}
-
-	return false;
+	return _elgg_services()->pageOwner->getEntity();
 }
 
 /**
@@ -66,7 +44,7 @@ function elgg_get_page_owner_entity() {
  * @since 1.8.0
  */
 function elgg_set_page_owner_guid($guid) {
-	elgg_get_page_owner_guid($guid);
+	_elgg_services()->pageOwner->setGuid($guid);
 }
 
 /**

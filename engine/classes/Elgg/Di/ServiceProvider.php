@@ -33,6 +33,7 @@ namespace Elgg\Di;
  * @property-read \Elgg\Database\MetastringsTable          $metastringsTable
  * @property-read \Elgg\Notifications\NotificationsService $notifications
  * @property-read \Elgg\EntityPreloader                    $ownerPreloader
+ * @property-read \Elgg\PageOwner                          $pageOwner
  * @property-read \Elgg\PersistentLoginService             $persistentLogin
  * @property-read \Elgg\Database\Plugins                   $plugins
  * @property-read \Elgg\Database\QueryCounter              $queryCounter
@@ -151,6 +152,10 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 
 		$this->setFactory('ownerPreloader', function(ServiceProvider $c) {
 			return new \Elgg\EntityPreloader(array('owner_guid'));
+		});
+
+		$this->setFactory('pageOwner', function(ServiceProvider $c) {
+			return new \Elgg\PageOwner($c->access, $c->entityTable);
 		});
 
 		$this->setFactory('persistentLogin', function(ServiceProvider $c) {
