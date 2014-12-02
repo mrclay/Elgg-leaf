@@ -1,5 +1,6 @@
 <?php
 namespace Elgg\Di;
+use Elgg\Escaper;
 
 /**
  * Provides common Elgg services.
@@ -23,6 +24,7 @@ namespace Elgg\Di;
  * @property-read \Elgg\Database\Datalist                  $datalist
  * @property-read \Elgg\Database                           $db
  * @property-read \Elgg\Database\EntityTable               $entityTable
+ * @property-read \Elgg\Escaper                            $escaper
  * @property-read \Elgg\EventsService                      $events
  * @property-read \Elgg\Assets\ExternalFiles               $externalFiles
  * @property-read \Elgg\PluginHooksService                 $hooks
@@ -110,6 +112,11 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		});
 
 		$this->setClassName('entityTable', '\Elgg\Database\EntityTable');
+
+		$this->setFactory('escaper', function(ServiceProvider $c) {
+			$zend_escaper = new \Zend\Escaper\Escaper();
+			return new Escaper($zend_escaper);
+		});
 
 		$this->setFactory('events', function(ServiceProvider $c) {
 			return $this->resolveLoggerDependencies('events');
