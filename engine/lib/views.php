@@ -340,19 +340,193 @@ function elgg_view_exists($view, $viewtype = '', $recurse = true) {
  * @warning Any variables in $_SESSION will override passed vars
  * upon name collision.  See https://github.com/Elgg/Elgg/issues/2124
  *
- * @param string  $view     The name and location of the view to use
- * @param array   $vars     Variables to pass to the view.
- * @param boolean $bypass   If set to true, elgg_view will bypass any specified
- *                          alternative template handler; by default, it will
- *                          hand off to this if requested (see set_template_handler)
- * @param boolean $ignored  This argument is ignored and will be removed eventually
- * @param string  $viewtype If set, forces the viewtype for the elgg_view call to be
- *                          this value (default: standard detection)
+ * @param string  $view                 The name and location of the view to use
+ * @param array   $vars                 Variables to pass to the view.
+ * @param boolean $bypass               If set to true, elgg_view will bypass any specified
+ *                                      alternative template handler; by default, it will
+ *                                      hand off to this if requested (see set_template_handler)
+ * @param boolean $ignored              This argument is ignored and will be removed eventually
+ * @param string  $viewtype             If set, forces the viewtype for the elgg_view call to be
+ *                                      this value (default: standard detection)
+ * @param bool    $issue_missing_notice Log a notice if the view is missing (do not use this)
  *
  * @return string The parsed view
  */
-function elgg_view($view, $vars = array(), $bypass = false, $ignored = false, $viewtype = '') {
-	return _elgg_services()->views->renderView($view, $vars, $bypass, $viewtype);
+function elgg_view($view, $vars = array(), $bypass = false, $ignored = false, $viewtype = '', $issue_missing_notice = true) {
+
+	$views = _elgg_services()->views;
+
+	if (!is_string($view) || !is_string($viewtype)) {
+		$views->logger->log("View and Viewtype in views must be a strings: $view", 'NOTICE');
+		return '';
+	}
+	// basic checking for bad paths
+	if (strpos($view, '..') !== false) {
+		return '';
+	}
+
+	if (!is_array($vars)) {
+		_elgg_services()->logger->log("Vars in views must be an array: $view", 'ERROR');
+		$vars = array();
+	}
+
+	// Get the current viewtype
+	if ($viewtype === '' || !_elgg_is_valid_viewtype($viewtype)) {
+		$viewtype = elgg_get_viewtype();
+	}
+
+	$view_orig = $view;
+
+	// Trigger the pagesetup event
+	if (!isset($views->CONFIG->pagesetupdone) && $views->CONFIG->boot_complete) {
+		$views->CONFIG->pagesetupdone = true;
+		_elgg_services()->events->trigger('pagesetup', 'system');
+	}
+
+	// @warning - plugin authors: do not expect user, config, and url to be
+	// set by elgg_view() in the future. Instead, use elgg_get_logged_in_user_entity(),
+	// elgg_get_config(), and elgg_get_site_url() in your views.
+	if (!isset($vars['user'])) {
+		$vars['user'] = $views->getUserWrapper();
+	}
+	if (!isset($vars['config'])) {
+		if (!$views->config_wrapper) {
+			$warning = 'Do not rely on $vars["config"] or $CONFIG being available in views';
+			$views->config_wrapper = new \Elgg\DeprecationWrapper($views->CONFIG, $warning, 1.8);
+		}
+		$vars['config'] = $views->config_wrapper;
+	}
+	if (!isset($vars['url'])) {
+		if (!$views->site_url_wrapper) {
+			$warning = 'Do not rely on $vars["url"] being available in views';
+			$views->site_url_wrapper = new \Elgg\DeprecationWrapper(elgg_get_site_url(), $warning, 1.8);
+		}
+		$vars['url'] = $views->site_url_wrapper;
+	}
+
+	// full_view is the new preferred key for full view on entities @see elgg_view_entity()
+	// check if full_view is set because that means we've already rewritten it and this is
+	// coming from another view passing $vars directly.
+	if (isset($vars['full']) && !isset($vars['full_view'])) {
+		elgg_deprecated_notice("Use \$vars['full_view'] instead of \$vars['full']", 1.8, 2);
+		$vars['full_view'] = $vars['full'];
+	}
+	if (isset($vars['full_view'])) {
+		$vars['full'] = $vars['full_view'];
+	}
+
+	// internalname => name (1.8)
+	if (isset($vars['internalname']) && !isset($vars['__ignoreInternalname']) && !isset($vars['name'])) {
+		elgg_deprecated_notice('You should pass $vars[\'name\'] now instead of $vars[\'internalname\']', 1.8, 2);
+		$vars['name'] = $vars['internalname'];
+	} elseif (isset($vars['name'])) {
+		if (!isset($vars['internalname'])) {
+			$vars['__ignoreInternalname'] = '';
+		}
+		$vars['internalname'] = $vars['name'];
+	}
+
+	// internalid => id (1.8)
+	if (isset($vars['internalid']) && !isset($vars['__ignoreInternalid']) && !isset($vars['name'])) {
+		elgg_deprecated_notice('You should pass $vars[\'id\'] now instead of $vars[\'internalid\']', 1.8, 2);
+		$vars['id'] = $vars['internalid'];
+	} elseif (isset($vars['id'])) {
+		if (!isset($vars['internalid'])) {
+			$vars['__ignoreInternalid'] = '';
+		}
+		$vars['internalid'] = $vars['id'];
+	}
+
+	// If it's been requested, pass off to a template handler instead
+	if ($bypass == false && isset($views->CONFIG->template_handler) && !empty($views->CONFIG->template_handler)) {
+		$template_handler = $views->CONFIG->template_handler;
+		if (is_callable($template_handler)) {
+			return call_user_func($template_handler, $view, $vars);
+		}
+	}
+
+	// Set up any extensions to the requested view
+	if (isset($views->CONFIG->views->extensions[$view])) {
+		$viewlist = $views->CONFIG->views->extensions[$view];
+	} else {
+		$viewlist = array(500 => $view);
+	}
+
+	$content = '';
+	foreach ($viewlist as $view) {
+
+		$view_location = $views->getViewLocation($view, $viewtype);
+
+		// @warning - plugin authors: do not expect $CONFIG to be available in views
+		// in the future. Instead, use elgg_get_config() in your views.
+		// Note: this is intentionally a local var during rendering.
+
+		if ($views->fileExists("{$view_location}$viewtype/$view.php")) {
+			$rendering = _elgg_view_include("{$view_location}$viewtype/$view.php", $vars, $views->config_wrapper);
+		} else if ($views->fileExists("{$view_location}$viewtype/$view")) {
+			$rendering = file_get_contents("{$view_location}$viewtype/$view");
+		} else {
+			if ($issue_missing_notice) {
+				$views->logger->log("$viewtype/$view view does not exist.", 'NOTICE');
+			}
+			$rendering = false;
+		}
+
+		if ($rendering !== false) {
+			$content .= $rendering;
+			continue;
+		}
+
+		// attempt to load default view
+		if ($viewtype !== 'default' && $views->doesViewtypeFallback($viewtype)) {
+
+			if ($views->fileExists("{$view_location}default/$view.php")) {
+				$rendering = _elgg_view_include("{$view_location}default/$view.php", $vars, $views->config_wrapper);
+			} else if ($views->fileExists("{$view_location}default/$view")) {
+				$rendering = file_get_contents("{$view_location}default/$view");
+			} else {
+				if ($issue_missing_notice) {
+					$views->logger->log("default/$view view does not exist.", 'NOTICE');
+				}
+				$rendering = false;
+			}
+
+			if ($rendering !== false) {
+				$content .= $rendering;
+			}
+		}
+	}
+
+	// Plugin hook
+	$params = array('view' => $view_orig, 'vars' => $vars, 'viewtype' => $viewtype);
+	$content = $views->hooks->trigger('view', $view_orig, $params, $content);
+
+	// backward compatibility with less granular hook will be gone in 2.0
+	$content_tmp = $views->hooks->trigger('display', 'view', $params, $content);
+
+	if ($content_tmp !== $content) {
+		$content = $content_tmp;
+		elgg_deprecated_notice('The display:view plugin hook is deprecated by view:view_name', 1.8);
+	}
+
+	return $content;
+}
+
+/**
+ * Include a view script with controlled scope (don't allow the script to break elgg_view() internals)
+ *
+ * @param string                   $__file The file to include
+ * @param array                    $vars   View parameters
+ * @param \Elgg\DeprecationWrapper $CONFIG A wrapped version of the global CONFIG for BC purposes.
+ *
+ * @return string
+ *
+ * @access private
+ */
+function _elgg_view_include($__file, array $vars, \Elgg\DeprecationWrapper $CONFIG) {
+	ob_start();
+	include $__file;
+	return ob_get_clean();
 }
 
 /**
