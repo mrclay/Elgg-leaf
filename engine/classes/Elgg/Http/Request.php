@@ -74,6 +74,11 @@ class Request {
 	/**
 	 * @var string
 	 */
+	protected $content;
+
+	/**
+	 * @var string
+	 */
 	protected $baseUrl = null;
 
 	/**
@@ -89,29 +94,31 @@ class Request {
 	/**
 	 * Create a request
 	 *
-	 * @param array $query   GET parameters
-	 * @param array $request POST parameters
-	 * @param array $cookies COOKIE parameters
-	 * @param array $files   FILES parameters
-	 * @param array $server  SERVER parameters
+	 * @param array  $query   The GET parameters
+	 * @param array  $request The POST parameters
+	 * @param array  $cookies The COOKIE parameters
+	 * @param array  $files   The FILES parameters
+	 * @param array  $server  The SERVER parameters
+	 * @param string $content The raw body data
 	 */
 	public function __construct(array $query = array(), array $request = array(),
-			array $cookies = array(), array $files = array(), array $server = array()) {
-		$this->initialize($query, $request, $cookies, $files, $server);
+			array $cookies = array(), array $files = array(), array $server = array(), $content = null) {
+		$this->initialize($query, $request, $cookies, $files, $server, $content);
 	}
 
 	/**
 	 * Initialize the request
 	 *
-	 * @param array $query   GET parameters
-	 * @param array $request POST parameters
-	 * @param array $cookies COOKIE parameters
-	 * @param array $files   FILES parameters
-	 * @param array $server  SERVER parameters
+	 * @param array  $query   The GET parameters
+	 * @param array  $request The POST parameters
+	 * @param array  $cookies The COOKIE parameters
+	 * @param array  $files   The FILES parameters
+	 * @param array  $server  The SERVER parameters
+	 * @param string $content The raw body data
 	 * @return void
 	 */
 	protected function initialize(array $query = array(), array $request = array(),
-			array $cookies = array(), array $files = array(), array $server = array()) {
+			array $cookies = array(), array $files = array(), array $server = array(), $content = null) {
 		$this->query = new \Elgg\Http\ParameterBag($this->stripSlashesIfMagicQuotes($query));
 		$this->request = new \Elgg\Http\ParameterBag($this->stripSlashesIfMagicQuotes($request));
 		$this->cookies = new \Elgg\Http\ParameterBag($this->stripSlashesIfMagicQuotes($cookies));
@@ -122,6 +129,8 @@ class Request {
 		$headers = $this->prepareHeaders();
 		// Symfony uses HeaderBag so this will change in next Elgg version
 		$this->headers = new \Elgg\Http\ParameterBag($headers);
+
+		$this->content = $content;
 	}
 
 	/**
@@ -130,7 +139,16 @@ class Request {
 	 * @return \Elgg\Http\Request
 	 */
 	public static function createFromGlobals() {
-		return new \Elgg\Http\Request($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER);
+		$request = new \Elgg\Http\Request($_GET, $_POST, $_COOKIE, $_FILES, $_SERVER);
+
+		if (0 === strpos($request->headers->get('CONTENT_TYPE'), 'application/x-www-form-urlencoded')
+			&& in_array(strtoupper($request->server->get('REQUEST_METHOD', 'GET')), array('PUT', 'DELETE', 'PATCH'))
+		) {
+			parse_str($request->getContent(), $data);
+			$request->request = new \Elgg\Http\ParameterBag($data);
+		}
+
+		return $request;
 	}
 
 	/**
@@ -145,10 +163,11 @@ class Request {
 	 * @param array  $cookies    The request cookies ($_COOKIE)
 	 * @param array  $files      The request files ($_FILES)
 	 * @param array  $server     The server parameters ($_SERVER)
+	 * @param string $content    The raw body data
 	 *
 	 * @return \Elgg\Http\Request
 	 */
-	public static function create($uri, $method = 'GET', $parameters = array(), $cookies = array(), $files = array(), $server = array()) {
+	public static function create($uri, $method = 'GET', $parameters = array(), $cookies = array(), $files = array(), $server = array(), $content = null) {
 		$server = array_merge(array(
 			'SERVER_NAME' => 'localhost',
 			'SERVER_PORT' => 80,
@@ -219,7 +238,7 @@ class Request {
 		$server['REQUEST_URI'] = $components['path'] . ('' !== $queryString ? '?' . $queryString : '');
 		$server['QUERY_STRING'] = $queryString;
 
-		return new \Elgg\Http\Request($query, $request, $cookies, $files, $server);
+		return new \Elgg\Http\Request($query, $request, $cookies, $files, $server, $content);
 	}
 
 	/**
@@ -506,6 +525,33 @@ class Request {
 		}
 
 		return $server->get('REMOTE_ADDR');
+	}
+
+	/**
+	 * Returns the request body content.
+	 *
+	 * @param bool $asResource If true, a resource will be returned
+	 *
+	 * @return string|resource The request body content or a resource to read the body stream.
+	 *
+	 * @throws \LogicException
+	 */
+	public function getContent($asResource = false)
+	{
+		if (false === $this->content || (true === $asResource && null !== $this->content)) {
+			throw new \LogicException('getContent() can only be called once when using the resource return type.');
+		}
+
+		if (true === $asResource) {
+			$this->content = false;
+			return fopen('php://input', 'rb');
+		}
+
+		if (null === $this->content) {
+			$this->content = file_get_contents('php://input');
+		}
+
+		return $this->content;
 	}
 
 	/**
