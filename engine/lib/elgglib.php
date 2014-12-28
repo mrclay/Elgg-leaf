@@ -1512,7 +1512,7 @@ function _elgg_js_page_handler($page) {
  *
  * /ajax/view/<name of view>?<key/value params>
  *
- * @param array $page Array of URL segements
+ * @param array $page Array of URL segments
  * @return bool
  *
  * @see elgg_register_ajax_view()
@@ -1555,6 +1555,77 @@ function _elgg_ajax_page_handler($page) {
 		return true;
 	}
 	return false;
+}
+
+/**
+ * Serve client views
+ *
+ * /cviews/fetch/ POST JSON request to name "cvids"
+ *
+ * @param array $segments Array of URL segments
+ * @return bool
+ *
+ * @access private
+ */
+function _elgg_cviews_page_handler($segments) {
+	if ($segments[0] === 'demo') {
+		// todo move this elsewhere
+		elgg_require_js('elgg/cviews/demo');
+
+		$title = 'Cviews demo';
+
+		$content = elgg_view('cviews/wrapper', [
+			'view' => 'cviews/demo/river_object',
+			'cvid' => 'demo-preview',
+		]);
+
+		$content .= elgg_view('cviews/wrapper', [
+			'view' => 'cviews/demo/river',
+			'cvid' => 'demo-river',
+			'vars' => [
+				'limit' => 5,
+				'offset' => 0,
+			],
+		]);
+
+		$layout = elgg_view_layout('one_sidebar', [
+			'content' => $content,
+			'title' => $title,
+		]);
+		echo elgg_view_page($title, $layout);
+		return true;
+	}
+
+	$json = _elgg_services()->request->getContent();
+	$cviews = json_decode($json, true);
+	if (!$cviews || !is_array($cviews)) {
+		return false;
+	}
+
+	$response = [];
+	foreach ($cviews as $cview) {
+		if (empty($cview['cvid']) || empty($cview['view'])) {
+			return false;
+		}
+
+		$cvid = $cview['cvid'];
+		$view = $cview['view'];
+		$vars = !empty($cview['vars']) ? $cview['vars'] : [];
+
+		if (!preg_match('~^[a-zA-Z0-9\\-]+$~', $cvid)) {
+			return false;
+		}
+
+		if (0 !== strpos($view, 'cviews/') || !elgg_view_exists($view)) {
+			return false;
+		}
+
+		$response[$cvid] = elgg_view($view, $vars);
+	}
+
+	header("Content-Type: text/javascript");
+	echo json_encode($response);
+	return true;
 }
 
 /**
@@ -1901,6 +1972,7 @@ function _elgg_init() {
 	elgg_register_page_handler('js', '_elgg_js_page_handler');
 	elgg_register_page_handler('css', '_elgg_css_page_handler');
 	elgg_register_page_handler('ajax', '_elgg_ajax_page_handler');
+	elgg_register_page_handler('cviews', '_elgg_cviews_page_handler');
 
 	elgg_register_page_handler('manifest.json', function() {
 		$site = elgg_get_site_entity();
