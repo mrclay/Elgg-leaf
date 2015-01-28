@@ -17,6 +17,7 @@ use Symfony\Component\HttpFoundation\Session\Session as SymfonySession;
  * @property-read \Elgg\Database\AdminNotices              $adminNotices
  * @property-read \Elgg\Amd\Config                         $amdConfig
  * @property-read \Elgg\Database\Annotations               $annotations
+ * @property-read \Elgg\Api                                $api
  * @property-read \ElggAutoP                               $autoP
  * @property-read \Elgg\AutoloadManager                    $autoloadManager
  * @property-read \ElggCrypto                              $crypto
@@ -245,6 +246,8 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 
 		$this->setClassName('widgets', '\Elgg\WidgetsService');
 
+		// this should come last in case Api constructor uses any dependencies above
+		$this->setValue('api', new \Elgg\Api($this));
 	}
 
 	/**

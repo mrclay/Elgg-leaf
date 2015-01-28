@@ -8,6 +8,15 @@
  */
 
 /**
+ * Returns the Elgg public API object. This is also passed into system events, except "boot"
+ *
+ * @return \Elgg\Api
+ */
+function elgg() {
+	return _elgg_services()->core;
+}
+
+/**
  * Register a PHP file as a library.
  *
  * @see elgg_load_library
@@ -1428,7 +1437,7 @@ function _elgg_shutdown_hook() {
 	global $START_MICROTIME;
 
 	try {
-		elgg_trigger_event('shutdown', 'system');
+		elgg_trigger_event('shutdown', 'system', _elgg_services()->api);
 
 		$time = (float)(microtime(true) - $START_MICROTIME);
 		$uri = _elgg_services()->request->server->get('REQUEST_URI', 'CLI');

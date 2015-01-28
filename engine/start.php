@@ -79,12 +79,12 @@ if (!elgg_is_registered_viewtype($viewtype)) {
 }
 
 // @todo deprecate as plugins can use 'init', 'system' event
-elgg_trigger_event('plugins_boot', 'system');
+elgg_trigger_event('plugins_boot', 'system', _elgg_services()->api);
 
 // Complete the boot process for both engine and plugins
-elgg_trigger_event('init', 'system');
+elgg_trigger_event('init', 'system', _elgg_services()->api);
 
 $CONFIG->boot_complete = true;
 
 // System loaded and ready
-elgg_trigger_event('ready', 'system');
+elgg_trigger_event('ready', 'system', _elgg_services()->api);
