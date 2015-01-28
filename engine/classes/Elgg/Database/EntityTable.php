@@ -304,7 +304,53 @@ class EntityTable {
 	 * @see elgg_list_entities()
 	 */
 	function getEntities(array $options = array()) {
-		
+
+		$keys_string = ',' . implode(',', array_keys($options)) . ',';
+		$options_has = function ($key) use (&$keys_string) {
+			return false !== strpos($keys_string, ",$key");
+		};
+
+		if (empty($options['__ege_from_attributes'])) {
+			if ($options_has('attribute_name_')) {
+				$options['__return_options'] = true;
+				$options = $this->getEntitiesFromAttributes($options);
+				unset($options['__return_options']);
+
+				// make sure ege_from_relationship decorates, too
+				$keys_string .= 'inverse_relationship,';
+			}
+		}
+
+		if (empty($options['__ege_from_relationship'])) {
+			if ($options_has('relationship')) {
+				$options['__return_options'] = true;
+				$options = _elgg_services()->relationshipsTable->getEntities($options);
+				unset($options['__return_options']);
+
+				// make sure ege_from_metadata decorates, too
+				$keys_string .= 'metadata_name,';
+			}
+		}
+
+		if (empty($options['__ege_from_annotations'])) {
+			if ($options_has('annotation_')) {
+				$options['__return_options'] = true;
+				$options = _elgg_services()->annotations->getEntities($options);
+				unset($options['__return_options']);
+
+				// make sure ege_from_metadata decorates, too
+				$keys_string .= 'metadata_name,';
+			}
+		}
+
+		if (empty($options['__ege_from_metadata'])) {
+			if ($options_has('metadata_')) {
+				$options['__return_options'] = true;
+				$options = _elgg_services()->metadataTable->getEntities($options);
+				unset($options['__return_options']);
+			}
+		}
+
 	
 		$defaults = array(
 			'types'					=>	ELGG_ENTITIES_ANY_VALUE,
@@ -960,6 +1006,8 @@ class EntityTable {
 		$defaults = array(
 			'attribute_name_value_pairs' => ELGG_ENTITIES_ANY_VALUE,
 			'attribute_name_value_pairs_operator' => 'AND',
+
+			'__ege_from_attributes' => true,
 		);
 	
 		$options = array_merge($defaults, $options);
@@ -987,6 +1035,10 @@ class EntityTable {
 			}
 	
 			$options['joins'] = array_merge($options['joins'], $clauses['joins']);
+		}
+
+		if (!empty($options['__return_options'])) {
+			return $options;
 		}
 	
 		return elgg_get_entities_from_relationship($options);

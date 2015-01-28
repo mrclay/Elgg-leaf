@@ -326,6 +326,8 @@ class Annotations {
 			'annotation_created_time_upper'			=>	ELGG_ENTITIES_ANY_VALUE,
 	
 			'annotation_owner_guids'				=>	ELGG_ENTITIES_ANY_VALUE,
+
+			'__ege_from_annotations' => true,
 		);
 	
 		$options = array_merge($defaults, $options);
@@ -376,6 +378,10 @@ class Annotations {
 	
 		if ($time_wheres) {
 			$options['wheres'] = array_merge($options['wheres'], $time_wheres);
+		}
+
+		if (!empty($options['__return_options'])) {
+			return $options;
 		}
 	
 		return elgg_get_entities_from_metadata($options);

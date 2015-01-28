@@ -317,6 +317,8 @@ class RelationshipsTable {
 
 			'relationship_created_time_lower' => ELGG_ENTITIES_ANY_VALUE,
 			'relationship_created_time_upper' => ELGG_ENTITIES_ANY_VALUE,
+
+			'__ege_from_relationship' => true,
 		);
 	
 		$options = array_merge($defaults, $options);
@@ -363,6 +365,10 @@ class RelationshipsTable {
 			if (!isset($options['group_by'])) {
 				$options['group_by'] = $clauses['group_by'];
 			}
+		}
+
+		if (!empty($options['__return_options'])) {
+			return $options;
 		}
 	
 		return elgg_get_entities_from_metadata($options);

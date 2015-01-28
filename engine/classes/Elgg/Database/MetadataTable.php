@@ -468,6 +468,8 @@ class MetadataTable {
 			'order_by_metadata'                  => array(),
 	
 			'metadata_owner_guids'               => ELGG_ENTITIES_ANY_VALUE,
+
+			'__ege_from_metadata' => true,
 		);
 	
 		$options = array_merge($defaults, $options);
@@ -479,6 +481,10 @@ class MetadataTable {
 	
 		if (!$options = _elgg_entities_get_metastrings_options('metadata', $options)) {
 			return false;
+		}
+
+		if (!empty($options['__return_options'])) {
+			return $options;
 		}
 	
 		return $this->entityTable->getEntities($options);
