@@ -398,7 +398,7 @@ function _elgg_invalidate_metadata_cache($action, array $options) {
  * @access private
  */
 function _elgg_metadata_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreMetadataAPITest.php';
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreMetadataCacheTest.php';
 	return $value;

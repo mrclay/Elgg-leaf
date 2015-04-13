@@ -57,7 +57,7 @@ class ViewsService {
 	 * @param \Elgg\Logger             $logger Logger
 	 */
 	public function __construct(\Elgg\PluginHooksService $hooks, \Elgg\Logger $logger) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$this->CONFIG = $CONFIG;
 		$this->hooks = $hooks;
 		$this->logger = $logger;

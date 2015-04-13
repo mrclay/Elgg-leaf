@@ -108,7 +108,7 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		});
 
 		$this->setFactory('db', function(ServiceProvider $c) {
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 			$db_config = new \Elgg\Database\Config($CONFIG);
 			return new \Elgg\Database($db_config, $c->logger);
 		});
@@ -126,7 +126,7 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		});
 
 		$this->setFactory('externalFiles', function(ServiceProvider $c) {
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 			return new \Elgg\Assets\ExternalFiles($CONFIG);
 		});
 

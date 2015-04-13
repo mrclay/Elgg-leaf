@@ -16,7 +16,7 @@
  * @access private
  */
 function get_object_entity_as_row($guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 	return get_data_row("SELECT * from {$CONFIG->dbprefix}objects_entity where guid=$guid");
@@ -34,7 +34,7 @@ function get_object_entity_as_row($guid) {
  * @access private
  */
 function _elgg_objects_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = "{$CONFIG->path}engine/tests/ElggObjectTest.php";
 	return $value;
 }

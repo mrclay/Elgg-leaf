@@ -709,7 +709,7 @@ function get_entity_dates($type = '', $subtype = '', $container_guid = 0, $site_
  * @see get_registered_entity_types()
  */
 function elgg_register_entity_type($type, $subtype = null) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$type = strtolower($type);
 	if (!in_array($type, $CONFIG->entity_types)) {
@@ -744,7 +744,7 @@ function elgg_register_entity_type($type, $subtype = null) {
  * @see elgg_register_entity_type()
  */
 function elgg_unregister_entity_type($type, $subtype = null) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$type = strtolower($type);
 	if (!in_array($type, $CONFIG->entity_types)) {
@@ -782,7 +782,7 @@ function elgg_unregister_entity_type($type, $subtype = null) {
  * @see elgg_register_entity_type()
  */
 function get_registered_entity_types($type = null) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->registered_entities)) {
 		return false;
@@ -810,7 +810,7 @@ function get_registered_entity_types($type = null) {
  * @return bool Depending on whether or not the type has been registered
  */
 function is_registered_entity_type($type, $subtype = null) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->registered_entities)) {
 		return false;
@@ -965,7 +965,7 @@ function update_entity_last_action($guid, $posted = null) {
  * @access private
  */
 function _elgg_entities_test($hook, $type, $value) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggEntityTest.php';
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreAttributeLoaderTest.php';
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreGetEntitiesTest.php';

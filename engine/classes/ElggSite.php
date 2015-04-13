@@ -137,7 +137,7 @@ class ElggSite extends \ElggEntity {
 	 * {@inheritdoc}
 	 */
 	protected function create() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guid = parent::create();
 
@@ -168,7 +168,7 @@ class ElggSite extends \ElggEntity {
 	 * {@inheritdoc}
 	 */
 	protected function update() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		if (!parent::update()) {
 			return false;
@@ -194,7 +194,7 @@ class ElggSite extends \ElggEntity {
 	 * @throws SecurityException
 	 */
 	public function delete() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		if ($CONFIG->site->getGUID() == $this->guid) {
 			throw new \SecurityException('You cannot delete the current site');
 		}
@@ -214,7 +214,7 @@ class ElggSite extends \ElggEntity {
 	 * @throws SecurityException
 	 */
 	public function disable($reason = "", $recursive = true) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		if ($CONFIG->site->getGUID() == $this->guid) {
 			throw new \SecurityException('You cannot disable the current site');
@@ -494,7 +494,7 @@ class ElggSite extends \ElggEntity {
 	 * @since 1.8.0
 	 */
 	public function checkWalledGarden() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// command line calls should not invoke the walled garden check
 		if (PHP_SAPI === 'cli') {
@@ -537,7 +537,7 @@ class ElggSite extends \ElggEntity {
 	 * @since 1.8.0
 	 */
 	public function isPublicPage($url = '') {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		if (empty($url)) {
 			$url = current_page_url();

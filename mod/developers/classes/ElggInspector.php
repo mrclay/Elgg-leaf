@@ -62,12 +62,12 @@ class ElggInspector {
 	 * returns [view] => array(view location and extensions)
 	 */
 	public function getViews() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$coreViews = $this->recurseFileTree($CONFIG->viewpath . "default/");
 
 		// remove base path and php extension
-		array_walk($coreViews, create_function('&$v,$k', 'global $CONFIG; $v = substr($v, strlen($CONFIG->viewpath . "default/"), -4);'));
+		array_walk($coreViews, create_function('&$v,$k', '$CONFIG = \Elgg\Config::$global; $v = substr($v, strlen($CONFIG->viewpath . "default/"), -4);'));
 
 		// setup views array before adding extensions and plugin views
 		$views = array();
@@ -143,7 +143,7 @@ class ElggInspector {
 	 * returns [views]
 	 */
 	public function getSimpleCache() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$tree = array();
 		foreach ($CONFIG->views->simplecache as $view => $foo) {

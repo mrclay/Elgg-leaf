@@ -21,7 +21,7 @@ class Translator {
 	 * Initializes new translator
 	 */
 	public function __construct() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$this->CONFIG = $CONFIG;
 		$this->defaultPath = dirname(dirname(dirname(dirname(__DIR__)))) . "/languages/";
 	}

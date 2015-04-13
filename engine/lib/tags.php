@@ -70,7 +70,7 @@ function string_to_tag_array($string) {
  * @since 1.7.1
  */
 function elgg_get_tags(array $options = array()) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$defaults = array(
 		'threshold' => 1,
@@ -208,7 +208,7 @@ function elgg_get_tags(array $options = array()) {
  * @since 1.7.0
  */
 function elgg_register_tag_metadata_name($name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->registered_tag_metadata_names)) {
 		$CONFIG->registered_tag_metadata_names = array();
@@ -228,7 +228,7 @@ function elgg_register_tag_metadata_name($name) {
  * @since 1.7.0
  */
 function elgg_get_registered_tag_metadata_names() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$names = (isset($CONFIG->registered_tag_metadata_names)) ? $CONFIG->registered_tag_metadata_names : array();
 

@@ -20,7 +20,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testSetConfigWithNewName() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 'test';
 		$this->assertTrue(set_config($name, $value, 22));
@@ -53,7 +53,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testSetConfigWithCurrentSite() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 99;
 		$this->assertTrue(set_config($name, $value));
@@ -63,14 +63,14 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testGetConfigAlreadyLoadedForCurrentSite() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$CONFIG->foo_unit_test = 35;
 		$this->assertIdentical(35, get_config('foo_unit_test'));
 		unset($CONFIG->foo_unit_test);
 	}
 
 	public function testGetConfigAlreadyLoadedForNotCurrentSite() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$CONFIG->foo_unit_test = 35;
 		$this->assertIdentical(null, get_config('foo_unit_test', 34));
 		unset($CONFIG->foo_unit_test);
@@ -81,7 +81,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testUnsetConfigOnNotCurrentSite() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$CONFIG->foo_unit_test = 35;
 		$this->assertIdentical(true, unset_config('foo_unit_test', 99));
 		$this->assertIdentical(35, $CONFIG->foo_unit_test);
@@ -89,7 +89,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testUnsetConfigClearsGlobalForCurrentSite() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$CONFIG->foo_unit_test = 35;
 		$this->assertIdentical(true, unset_config('foo_unit_test'));
 		$this->assertTrue(!isset($CONFIG->foo_unit_test));
@@ -110,7 +110,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testDatalistSetNewName() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 'test';
 		$this->assertTrue(datalist_set($name, $value));
@@ -119,7 +119,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testDatalistSetWithUsedName() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 'test';
 		$this->assertTrue(datalist_set($name, 'not test'));
@@ -137,7 +137,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggSaveConfigForDatalist() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 'test';
 		$this->assertTrue(elgg_save_config($name, $value, null));
@@ -148,7 +148,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggSaveConfigForCurrentSiteConfig() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 'test';
 		$this->assertTrue(elgg_save_config($name, $value));
@@ -158,7 +158,7 @@ class ElggCoreConfigTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggSaveConfigForNonCurrentSiteConfig() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$name = 'foo' . rand(0, 1000);
 		$value = 'test';
 		$this->assertTrue(elgg_save_config($name, $value, 17));

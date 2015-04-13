@@ -238,7 +238,7 @@ function list_all_apis() {
  * @return bool Depending on success
  */
 function elgg_ws_register_service_handler($handler, $function) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->servicehandler)) {
 		$CONFIG->servicehandler = array();
@@ -260,7 +260,7 @@ function elgg_ws_register_service_handler($handler, $function) {
  * @return void
  */
 function elgg_ws_unregister_service_handler($handler) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (isset($CONFIG->servicehandler, $CONFIG->servicehandler[$handler])) {
 		unset($CONFIG->servicehandler[$handler]);

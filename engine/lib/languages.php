@@ -72,7 +72,7 @@ function get_language() {
  * @access private
  */
 function _elgg_load_translations_for_language($language) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// Try to load translations from system cache
 	if (!empty($CONFIG->system_cache_enabled)) {
@@ -159,7 +159,7 @@ function register_translations($path, $load_all = false) {
  * @return bool success
  */
 function _elgg_register_translations_for_language($path, $language) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$path = sanitise_filepath($path);
 

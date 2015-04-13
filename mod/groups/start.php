@@ -1287,7 +1287,7 @@ function discussion_reply_menu_setup($hook, $type, $return, $params) {
  * @return array
  */
 function groups_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->pluginspath . 'groups/tests/write_access.php';
 	return $value;
 }

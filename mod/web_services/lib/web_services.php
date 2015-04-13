@@ -314,7 +314,7 @@ function serialise_parameters($method, $parameters) {
  * @access private
  */
 function api_auth_key() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// check that an API key is present
 	$api_key = get_input('api_key');
@@ -345,7 +345,7 @@ function api_auth_key() {
  * @access private
  */
 function api_auth_hmac() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// Get api header
 	$api_header = get_and_validate_api_headers();
@@ -520,7 +520,7 @@ function map_api_hash($algo) {
 function calculate_hmac($algo, $time, $nonce, $api_key, $secret_key,
 $get_variables, $post_hash = "") {
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_log("HMAC Parts: $algo, $time, $api_key, $secret_key, $get_variables, $post_hash");
 
@@ -589,7 +589,7 @@ function cache_hmac_check_replay($hmac) {
  * @access private
  */
 function pam_auth_usertoken() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$token = get_input('auth_token');
 	if (!$token) {
@@ -714,7 +714,7 @@ function _php_api_exception_handler($exception) {
  * @access private
  */
 function service_handler($handler, $request) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_set_context('api');
 

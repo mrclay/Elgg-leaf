@@ -12,7 +12,7 @@
  * @return bool
  */
 function create_user_token($username, $expire = 60) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$site_guid = $CONFIG->site_id;
 	$user = get_user_by_username($username);
@@ -45,7 +45,7 @@ function create_user_token($username, $expire = 60) {
  * @since 1.7.0
  */
 function get_user_tokens($user_guid, $site_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($site_guid)) {
 		$site_guid = $CONFIG->site_id;
@@ -72,7 +72,7 @@ function get_user_tokens($user_guid, $site_guid) {
  * @return mixed The user id attached to the token if not expired or false.
  */
 function validate_user_token($token, $site_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($site_guid)) {
 		$site_guid = $CONFIG->site_id;
@@ -103,7 +103,7 @@ function validate_user_token($token, $site_guid) {
  * @since 1.7.0
  */
 function remove_user_token($token, $site_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($site_guid)) {
 		$site_guid = $CONFIG->site_id;
@@ -123,7 +123,7 @@ function remove_user_token($token, $site_guid) {
  * @since 1.7.0
  */
 function remove_expired_user_tokens() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$site_guid = $CONFIG->site_id;
 

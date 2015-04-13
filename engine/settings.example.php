@@ -14,10 +14,7 @@
  * @subpackage Configuration
  */
 
-global $CONFIG;
-if (!isset($CONFIG)) {
-	$CONFIG = new \stdClass;
-}
+$CONFIG = new \stdClass;
 
 /*
  * Standard configuration
@@ -209,3 +206,5 @@ $CONFIG->min_password_length = 6;
  * @global string $CONFIG->exception_include
  */
 $CONFIG->exception_include = '';
+
+return $CONFIG;

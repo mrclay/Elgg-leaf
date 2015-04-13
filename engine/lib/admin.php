@@ -35,7 +35,7 @@
  * @since 1.8.0
  */
 function elgg_get_admins(array $options = array()) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (isset($options['joins'])) {
 		if (!is_array($options['joins'])) {

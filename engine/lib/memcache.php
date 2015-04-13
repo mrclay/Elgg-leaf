@@ -14,7 +14,7 @@
  * @return bool
  */
 function is_memcache_available() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	static $memcache_available;
 

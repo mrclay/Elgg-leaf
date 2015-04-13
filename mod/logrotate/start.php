@@ -95,7 +95,7 @@ function logrotate_delete_cron($hook, $entity_type, $returnvalue, $params) {
  * @return bool Were any log tables deleted
  */
 function log_browser_delete_log($time_of_delete) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$cutoff = time() - (int)$time_of_delete;
 

@@ -350,7 +350,7 @@ function _elgg_user_settings_menu_prepare($hook, $type, $value, $params) {
  * @access private
  */
 function _elgg_user_settings_page_handler($page) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($page[0])) {
 		$page[0] = 'user';

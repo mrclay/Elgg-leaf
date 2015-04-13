@@ -344,7 +344,7 @@ function _elgg_comments_access_sync($event, $type, $entity) {
  * @access private
  */
 function _elgg_comments_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = "{$CONFIG->path}engine/tests/ElggCommentTest.php";
 	return $value;
 }

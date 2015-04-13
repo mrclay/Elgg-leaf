@@ -10,7 +10,7 @@ elgg_register_event_handler('init','system','search_init');
  * Initialize search plugin
  */
 function search_init() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	require_once 'search_hooks.php';
 
 	// page handler for search actions and results
@@ -298,7 +298,7 @@ function search_highlight_words($words, $string) {
  * @return mixed
  */
 function search_remove_ignored_words($query, $format = 'array') {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// don't worry about "s or boolean operators
 	//$query = str_replace(array('"', '-', '+', '~'), '', stripslashes(strip_tags($query)));
@@ -384,7 +384,7 @@ function search_get_search_view($params, $view_type) {
  * @return str
  */
 function search_get_where_sql($table, $fields, $params, $use_fulltext = TRUE) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$query = $params['query'];
 
 	// add the table prefix to the fields

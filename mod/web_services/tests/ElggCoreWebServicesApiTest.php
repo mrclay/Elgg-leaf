@@ -297,7 +297,7 @@ class ElggCoreWebServicesApiTest extends ElggCoreUnitTest {
 	}
 
 	public function testApiAuthKeyBadKey() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		
 		set_input('api_key', 'BAD');
 		try {

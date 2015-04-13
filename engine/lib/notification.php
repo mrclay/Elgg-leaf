@@ -591,7 +591,7 @@ function set_user_notification_setting($user_guid, $method, $value) {
  * @since 1.7.2
  */
 function elgg_send_email($from, $to, $subject, $body, array $params = null) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!$from) {
 		$msg = "Missing a required parameter, '" . 'from' . "'";
@@ -715,7 +715,7 @@ function _elgg_save_notification_user_settings() {
  * @access private
  */
 function _elgg_notifications_test($hook, $type, $tests) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$tests[] = "{$CONFIG->path}engine/tests/ElggCoreDatabaseQueueTest.php";
 	return $tests;
 }

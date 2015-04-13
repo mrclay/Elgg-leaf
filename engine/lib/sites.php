@@ -16,7 +16,7 @@
  * @since 1.8.0
  */
 function elgg_get_site_entity($site_guid = 0) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$result = false;
 	
@@ -42,7 +42,7 @@ function elgg_get_site_entity($site_guid = 0) {
  * @access private
  */
 function get_site_entity_as_row($guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 	return get_data_row("SELECT * FROM {$CONFIG->dbprefix}sites_entity WHERE guid = $guid");
@@ -56,7 +56,7 @@ function get_site_entity_as_row($guid) {
  * @return mixed
  */
 function get_site_by_url($url) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$url = sanitise_string($url);
 
@@ -81,7 +81,7 @@ function get_site_by_url($url) {
  * @access private
  */
 function _elgg_sites_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = "{$CONFIG->path}engine/tests/ElggSiteTest.php";
 	return $value;
 }

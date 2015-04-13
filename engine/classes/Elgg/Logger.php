@@ -46,7 +46,7 @@ class Logger {
 	 * @param \Elgg\PluginHooksService $hooks Hooks service
 	 */
 	public function __construct(\Elgg\PluginHooksService $hooks) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		
 		$this->CONFIG = $CONFIG;
 		$this->hooks = $hooks;

@@ -447,7 +447,7 @@ function elgg_get_entities_from_plugin_user_settings(array $options = array()) {
  * @access private
  */
 function _elgg_plugins_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggCorePluginsAPITest.php';
 	return $value;
 }

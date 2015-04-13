@@ -112,7 +112,7 @@ class ElggCoreEntityTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggEntityDisableAndEnable() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// add annotations and metadata to check if they're disabled.
 		$annotation_id = create_annotation($this->entity->guid, 'test_annotation_' . rand(), 'test_value_' . rand());
@@ -149,7 +149,7 @@ class ElggCoreEntityTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggEntityRecursiveDisableAndEnable() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$obj1 = new \ElggObject();
 		$obj1->container_guid = $this->entity->getGUID();

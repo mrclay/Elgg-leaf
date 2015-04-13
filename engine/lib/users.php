@@ -203,7 +203,7 @@ function generate_random_cleartext_password() {
  * @throws RegistrationException on invalid
  */
 function validate_username($username) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// Basic, check length
 	if (!isset($CONFIG->minusername)) {
@@ -265,7 +265,7 @@ function validate_username($username) {
  * @throws RegistrationException on invalid
  */
 function validate_password($password) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->min_password_length)) {
 		$CONFIG->min_password_length = 6;
@@ -588,7 +588,7 @@ function elgg_users_setup_entity_menu($hook, $type, $return, $params) {
  * @access private
  */
 function elgg_profile_fields_setup() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$profile_defaults = array (
 		'description' => 'longtext',
@@ -644,7 +644,7 @@ function elgg_profile_fields_setup() {
  * @access private
  */
 function elgg_avatar_page_handler($page) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$user = get_user_by_username($page[1]);
 	if ($user) {
@@ -670,7 +670,7 @@ function elgg_avatar_page_handler($page) {
  * @access private
  */
 function elgg_profile_page_handler($page) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$user = get_user_by_username($page[0]);
 	elgg_set_page_owner_guid($user->guid);
@@ -781,7 +781,7 @@ function users_init() {
  * @access private
  */
 function users_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = "{$CONFIG->path}engine/tests/ElggUserTest.php";
 	return $value;
 }

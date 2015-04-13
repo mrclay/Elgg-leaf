@@ -463,7 +463,7 @@ function elgg_get_file_simple_type($mime_type) {
  * @access private
  */
 function _elgg_filestore_init() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// Now register a default filestore
 	if (isset($CONFIG->dataroot)) {
@@ -568,7 +568,7 @@ function _elgg_filestore_parse_simpletype($hook, $type, $simple_type, $params) {
  * @access private
  */
 function _elgg_filestore_test($hook, $type, $value) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = "{$CONFIG->path}engine/tests/ElggCoreFilestoreTest.php";
 	return $value;
 }

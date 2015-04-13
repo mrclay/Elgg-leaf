@@ -736,7 +736,7 @@ function _elgg_entities_get_metastrings_options($type, $options) {
  * @access private
  */
 function _elgg_metastrings_test($hook, $type, $value) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreMetastringsTest.php';
 	return $value;
 }

@@ -160,7 +160,7 @@ function elgg_create_river_item(array $options = array()) {
  * @since 1.8.0
  */
 function elgg_delete_river(array $options = array()) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$defaults = array(
 		'ids'                  => ELGG_ENTITIES_ANY_VALUE,
@@ -284,7 +284,7 @@ function elgg_delete_river(array $options = array()) {
  * @since 1.8.0
  */
 function elgg_get_river(array $options = array()) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$defaults = array(
 		'ids'                  => ELGG_ENTITIES_ANY_VALUE,
@@ -710,7 +710,7 @@ function update_river_access_by_object($object_guid, $access_id) {
 	$access_id = (int) $access_id;
 
 	// Load config
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$query = "UPDATE {$CONFIG->dbprefix}river
 		SET access_id = {$access_id}
@@ -726,7 +726,7 @@ function update_river_access_by_object($object_guid, $access_id) {
  * @access private
  */
 function _elgg_river_page_handler($page) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_set_page_owner_guid(elgg_get_logged_in_user_guid());
 
@@ -753,7 +753,7 @@ function _elgg_river_page_handler($page) {
  * @access private
  */
 function _elgg_river_test($hook, $type, $value) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreRiverAPITest.php';
 	return $value;
 }

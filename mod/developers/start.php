@@ -98,7 +98,7 @@ function developers_setup_menu() {
  * Clear all the strings so the raw descriptor strings are displayed
  */
 function developers_clear_strings() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$language = get_language();
 	$CONFIG->translations[$language] = array();

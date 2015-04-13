@@ -183,7 +183,7 @@ function _elgg_widgets_init() {
  * @access private
  */
 function _elgg_default_widgets_init() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$default_widgets = elgg_trigger_plugin_hook('get_list', 'default_widgets', null, array());
 
 	$CONFIG->default_widget_info = $default_widgets;

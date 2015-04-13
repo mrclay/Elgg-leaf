@@ -100,7 +100,7 @@ function elgg_get_entities_from_private_settings(array $options = array()) {
 function elgg_get_entity_private_settings_where_sql($table, $names = null, $values = null,
 $pairs = null, $pair_operator = 'AND', $name_prefix = '') {
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// @todo short circuit test
 
@@ -273,7 +273,7 @@ $pairs = null, $pair_operator = 'AND', $name_prefix = '') {
  * @see remove_all_private_settings()
  */
 function get_private_setting($entity_guid, $name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$entity_guid = (int) $entity_guid;
 	$name = sanitise_string($name);
 
@@ -304,7 +304,7 @@ function get_private_setting($entity_guid, $name) {
  * @see remove_all_private_settings()
  */
 function get_all_private_settings($entity_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$entity_guid = (int) $entity_guid;
 	$entity = get_entity($entity_guid);
@@ -340,7 +340,7 @@ function get_all_private_settings($entity_guid) {
  * @see remove_all_private_settings()
  */
 function set_private_setting($entity_guid, $name, $value) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$entity_guid = (int) $entity_guid;
 	$name = sanitise_string($name);
@@ -367,7 +367,7 @@ function set_private_setting($entity_guid, $name, $value) {
  * @see remove_all_private_settings()
  */
 function remove_private_setting($entity_guid, $name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$entity_guid = (int) $entity_guid;
 
@@ -395,7 +395,7 @@ function remove_private_setting($entity_guid, $name) {
  * @see remove_private_settings()
  */
 function remove_all_private_settings($entity_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$entity_guid = (int) $entity_guid;
 

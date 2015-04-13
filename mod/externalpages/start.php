@@ -133,7 +133,7 @@ function expages_menu_register_hook($hook, $type, $return, $params) {
  * @param string $page
  */
 function expages_url_forwarder($page) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$url = "{$CONFIG->wwwroot}{$page}";
 	forward($url);
 }

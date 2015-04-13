@@ -36,7 +36,7 @@ function full_url() {
  */
 function elgg_register_entity_url_handler($entity_type, $entity_subtype, $function_name) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use the plugin hook in \ElggEntity::getURL()', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!is_callable($function_name, true)) {
 		return false;
@@ -66,7 +66,7 @@ function elgg_register_entity_url_handler($entity_type, $entity_subtype, $functi
  */
 function elgg_register_relationship_url_handler($relationship_type, $function_name) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use the plugin hook in getURL()', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!is_callable($function_name, true)) {
 		return false;
@@ -91,7 +91,7 @@ function elgg_register_relationship_url_handler($relationship_type, $function_na
  */
 function get_relationship_url($id) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use \ElggRelationship::getURL()', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$id = (int)$id;
 
@@ -142,7 +142,7 @@ function get_relationship_url($id) {
 function elgg_register_extender_url_handler($extender_type, $extender_name, $function_name) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use the plugin hook in getURL()', 1.9, 2);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!is_callable($function_name, true)) {
 		return false;
@@ -170,7 +170,7 @@ function elgg_register_extender_url_handler($extender_type, $extender_name, $fun
  */
 function get_extender_url(\ElggExtender $extender) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use \ElggExtender::getURL()', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$view = elgg_get_viewtype();
 
@@ -1053,7 +1053,7 @@ function list_user_friends_objects($user_guid, $subtype = "", $limit = 10, $full
  */
 function elgg_geocode_location($location) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. See geolocation plugin on github', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (is_array($location)) {
 		return false;
@@ -1117,7 +1117,7 @@ function elgg_geocode_location($location) {
  */
 function elgg_get_entities_from_location(array $options = array()) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. See geolocation plugin on github', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($options['latitude']) || !isset($options['longitude']) ||
 		!isset($options['distance'])) {
@@ -1354,7 +1354,7 @@ function get_notable_entities($start_time, $end_time, $type = "", $subtype = "",
 $order_by = "asc", $limit = 10, $offset = 0, $count = false, $site_guid = 0,
 $container_guid = null) {
 	elgg_deprecated_notice('get_notable_entities() has been deprecated', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if ($subtype === false || $subtype === null || $subtype === 0) {
 		return false;
@@ -1505,7 +1505,7 @@ $entity_type = "", $entity_subtype = "", $owner_guid = 0, $limit = 10, $offset =
 $site_guid = 0, $count = false) {
 	elgg_deprecated_notice('get_notable_entities_from_metadata() has been deprecated', 1.9);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$meta_n = get_metastring_id($meta_name);
 	$meta_v = get_metastring_id($meta_value);
@@ -1637,7 +1637,7 @@ $relationship_guid, $inverse_relationship = false, $type = "", $subtype = "", $o
 $order_by = "", $limit = 10, $offset = 0, $count = false, $site_guid = 0) {
 	elgg_deprecated_notice('get_noteable_entities_from_relationship() has been deprecated', 1.9);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$start_time = (int)$start_time;
 	$end_time = (int)$end_time;
@@ -2334,7 +2334,7 @@ function unregister_service_handler($handler) {
  */
 function create_site_entity($guid, $name, $description, $url) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use \ElggSite constructor', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 	$name = sanitise_string($name);
@@ -2396,7 +2396,7 @@ function create_site_entity($guid, $name, $description, $url) {
  */
 function create_group_entity($guid, $name, $description) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use \ElggGroup constructor', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 	$name = sanitise_string($name);
@@ -2459,7 +2459,7 @@ function create_group_entity($guid, $name, $description) {
  */
 function create_user_entity($guid, $name, $username, $password, $salt, $email, $language, $code) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use \ElggUser constructor', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 	$name = sanitise_string($name);
@@ -2524,7 +2524,7 @@ function create_user_entity($guid, $name, $username, $password, $salt, $email, $
  */
 function create_object_entity($guid, $title, $description) {
 	elgg_deprecated_notice(__FUNCTION__ . ' is deprecated. Use \ElggObject constructor', 1.9);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 	$title = sanitise_string($title);
@@ -2963,7 +2963,7 @@ function import($xml) {
  * @deprecated 1.9
  */
 function _export_init() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_register_action("import/opendd");
 }
@@ -3021,7 +3021,7 @@ function elgg_get_views($dir, $base) {
  * @deprecated 1.9
  */
 function elgg_view_tree($view_root, $viewtype = "") {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	static $treecache = array();
 
 	// Get viewtype

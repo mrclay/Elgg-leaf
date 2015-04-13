@@ -55,7 +55,7 @@ function get_entity_statistics($owner_guid = 0) {
  * @return int
  */
 function get_number_users($show_deactivated = false) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$access = "";
 

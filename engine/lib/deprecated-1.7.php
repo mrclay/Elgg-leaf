@@ -503,7 +503,7 @@ $listtypetoggle = false, $pagination = true) {
  */
 function search_for_group($criteria, $limit = 10, $offset = 0, $order_by = "", $count = false) {
 	elgg_deprecated_notice('search_for_group() was deprecated by new search plugin.', 1.7);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$criteria = sanitise_string($criteria);
 	$limit = (int)$limit;
@@ -776,7 +776,7 @@ function menu_item($menu_name, $menu_url) {
  */
 function search_for_object($criteria, $limit = 10, $offset = 0, $order_by = "", $count = false) {
 	elgg_deprecated_notice('search_for_object() was deprecated by new search plugin.', 1.7);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$criteria = sanitise_string($criteria);
 	$limit = (int)$limit;
@@ -929,7 +929,7 @@ $order_by = "", $limit = 10, $offset = 0, $count = false, $site_guid = 0) {
  */
 function search_for_site($criteria, $limit = 10, $offset = 0, $order_by = "", $count = false) {
 	elgg_deprecated_notice('search_for_site() was deprecated by new search plugin.', 1.7);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$criteria = sanitise_string($criteria);
 	$limit = (int)$limit;
@@ -976,7 +976,7 @@ function search_for_site($criteria, $limit = 10, $offset = 0, $order_by = "", $c
  */
 function search_for_user($criteria, $limit = 10, $offset = 0, $order_by = "", $count = false) {
 	elgg_deprecated_notice('search_for_user() was deprecated by new search.', 1.7);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$criteria = sanitise_string($criteria);
 	$limit = (int)$limit;

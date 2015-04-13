@@ -248,7 +248,7 @@ function get_config($name, $site_guid = 0) {
  * @access private
  */
 function _elgg_load_site_config() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$CONFIG->site_guid = (int) datalist_get('default_site');
 	$CONFIG->site_id = $CONFIG->site_guid;
@@ -284,7 +284,7 @@ function _elgg_load_site_config() {
  * @access private
  */
 function _elgg_load_application_config() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$install_root = str_replace("\\", "/", dirname(dirname(dirname(__FILE__))));
 	$defaults = array(
@@ -368,7 +368,7 @@ function _elgg_load_application_config() {
  * @access private
  */
 function _elgg_config_test($hook, $type, $tests) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$tests[] = "{$CONFIG->path}engine/tests/ElggCoreConfigTest.php";
 	return $tests;
 }

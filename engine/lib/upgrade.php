@@ -88,7 +88,7 @@ function elgg_get_upgrade_files($upgrade_path = null) {
  * @todo the hack in the 2011010101 upgrade requires this
  */
 function _elgg_upgrade_unlock() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	delete_data("drop table {$CONFIG->dbprefix}upgrade_lock");
 	elgg_log('Upgrade unlocked.', 'NOTICE');
 }

@@ -154,7 +154,7 @@ class ElggCoreUserTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggUserMakeAdmin() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// need to save user to have a guid
 		$guid = $this->user->save();
@@ -170,7 +170,7 @@ class ElggCoreUserTest extends \ElggCoreUnitTest {
 	}
 
 	public function testElggUserRemoveAdmin() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// need to save user to have a guid
 		$guid = $this->user->save();
@@ -212,7 +212,7 @@ class ElggCoreUserTest extends \ElggCoreUnitTest {
 	}
 
 	protected function fetchUser($guid) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		return get_data_row("SELECT * FROM {$CONFIG->dbprefix}users_entity WHERE guid = '$guid'");
 	}

@@ -22,7 +22,7 @@ class RelationshipsTable {
 	 * Constructor
 	 */
 	public function __construct() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$this->CONFIG = $CONFIG;
 	}
 

@@ -60,12 +60,13 @@ class ElggInstaller {
 	 * Constructor bootstraps the Elgg engine
 	 */
 	public function __construct() {
-		global $CONFIG;
-		if (!isset($CONFIG)) {
-			$CONFIG = new stdClass;
+		if (!class_exists('Elgg\Config', false)) {
+			require_once __DIR__ . '/Elgg/Config.php';
 		}
 
-		$this->CONFIG = $CONFIG;
+		\Elgg\Config::$global = new stdClass;
+
+		$this->CONFIG = \Elgg\Config::$global;
 
 		$this->isAction = isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'POST';
 
@@ -99,7 +100,7 @@ class ElggInstaller {
 	 * @throws InstallationException
 	 */
 	public function run($step) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// language needs to be set before the first call to elgg_echo()
 		$CONFIG->language = 'en';
@@ -899,10 +900,13 @@ class ElggInstaller {
 	 * @throws InstallationException
 	 */
 	protected function loadSettingsFile() {
-		
-
-		if (!include_once("{$this->CONFIG->path}engine/settings.php")) {
+		$settings = (include_once "{$this->CONFIG->path}engine/settings.php");
+		if (!$settings) {
 			throw new InstallationException(_elgg_services()->translator->translate('InstallationException:CannotLoadSettings'));
+		}
+
+		foreach ($settings as $key => $value) {
+			$this->CONFIG->{$key} = $value;
 		}
 	}
 

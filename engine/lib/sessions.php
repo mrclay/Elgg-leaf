@@ -72,7 +72,7 @@ function elgg_is_admin_logged_in() {
  * @since 1.7.1
  */
 function elgg_is_admin_user($user_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$user_guid = (int)$user_guid;
 

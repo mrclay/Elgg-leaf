@@ -90,7 +90,7 @@
  * @since 1.8.0
  */
 function elgg_register_menu_item($menu_name, $menu_item) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->menus[$menu_name])) {
 		$CONFIG->menus[$menu_name] = array();
@@ -120,7 +120,7 @@ function elgg_register_menu_item($menu_name, $menu_item) {
  * @since 1.8.0
  */
 function elgg_unregister_menu_item($menu_name, $item_name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->menus[$menu_name])) {
 		return null;
@@ -148,7 +148,7 @@ function elgg_unregister_menu_item($menu_name, $item_name) {
  * @since 1.8.0
  */
 function elgg_is_menu_item_registered($menu_name, $item_name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->menus[$menu_name])) {
 		return false;
@@ -174,7 +174,7 @@ function elgg_is_menu_item_registered($menu_name, $item_name) {
  * @since 1.9.0
  */
 function elgg_get_menu_item($menu_name, $item_name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->menus[$menu_name])) {
 		return null;
@@ -242,7 +242,7 @@ function elgg_register_title_button($handler = null, $name = 'add') {
  * @see elgg_get_breadcrumbs
  */
 function elgg_push_breadcrumb($title, $link = null) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	if (!isset($CONFIG->breadcrumbs)) {
 		$CONFIG->breadcrumbs = array();
 	}
@@ -257,7 +257,7 @@ function elgg_push_breadcrumb($title, $link = null) {
  * @since 1.8.0
  */
 function elgg_pop_breadcrumb() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (empty($CONFIG->breadcrumbs) || !is_array($CONFIG->breadcrumbs)) {
 		return array();
@@ -276,7 +276,7 @@ function elgg_pop_breadcrumb() {
  * @see elgg_prepare_breadcrumbs
  */
 function elgg_get_breadcrumbs() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	// if no crumbs set, still allow hook to populate it
 	if (isset($CONFIG->breadcrumbs) && is_array($CONFIG->breadcrumbs)) {

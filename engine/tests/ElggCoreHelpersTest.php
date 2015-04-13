@@ -27,7 +27,7 @@ class ElggCoreHelpersTest extends \ElggCoreUnitTest {
 	 */
 	public function tearDown() {
 
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		unset($CONFIG->externals);
 		unset($CONFIG->externals_map);
 	}
@@ -221,7 +221,7 @@ class ElggCoreHelpersTest extends \ElggCoreUnitTest {
 	 * Test elgg_register_js()
 	 */
 	public function testElggRegisterJS() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// specify name
 		$result = elgg_register_js('key', 'http://test1.com', 'footer');
@@ -246,7 +246,7 @@ class ElggCoreHelpersTest extends \ElggCoreUnitTest {
 	 * Test elgg_register_css()
 	 */
 	public function testElggRegisterCSS() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		
 		// specify name
 		$result = elgg_register_css('key', 'http://test1.com');
@@ -267,7 +267,7 @@ class ElggCoreHelpersTest extends \ElggCoreUnitTest {
 	 * Test elgg_unregister_js()
 	 */
 	public function testElggUnregisterJS() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$base = trim(elgg_get_site_url(), "/");
 
@@ -319,7 +319,7 @@ class ElggCoreHelpersTest extends \ElggCoreUnitTest {
 	 * Test elgg_load_js()
 	 */
 	public function testElggLoadJS() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// load before register
 		elgg_load_js('key');
@@ -334,7 +334,7 @@ class ElggCoreHelpersTest extends \ElggCoreUnitTest {
 	 * Test elgg_get_loaded_js()
 	 */
 	public function testElggGetJS() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$base = trim(elgg_get_site_url(), "/");
 

@@ -333,7 +333,7 @@ function _elgg_set_comment_url($hook, $type, $url, $params) {
  * @access private
  */
 function _elgg_annotations_test($hook, $type, $tests) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$tests[] = $CONFIG->path . 'engine/tests/ElggCoreAnnotationAPITest.php';
 	$tests[] = $CONFIG->path . 'engine/tests/ElggAnnotationTest.php';
 	return $tests;

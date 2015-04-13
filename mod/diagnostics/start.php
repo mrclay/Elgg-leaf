@@ -124,7 +124,7 @@ function diagnostics_phpinfo_hook($hook, $entity_type, $returnvalue, $params) {
  * @return string
  */
 function diagnostics_globals_hook($hook, $entity_type, $returnvalue, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$output = str_replace($CONFIG->dbpass, '<<DBPASS>>', print_r($GLOBALS, true));
 	$returnvalue .= elgg_echo('diagnostics:report:globals', array($output));

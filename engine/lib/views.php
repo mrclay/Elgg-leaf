@@ -114,7 +114,7 @@ function elgg_get_viewtype() {
  * @return bool
  */
 function elgg_register_viewtype($viewtype) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->view_types) || !is_array($CONFIG->view_types)) {
 		$CONFIG->view_types = array();
@@ -136,7 +136,7 @@ function elgg_register_viewtype($viewtype) {
  * @since 1.9.0
  */
 function elgg_is_registered_viewtype($viewtype) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->view_types) || !is_array($CONFIG->view_types)) {
 		return false;
@@ -229,7 +229,7 @@ function elgg_unregister_ajax_view($view) {
  * @since 1.9.0
  */
 function elgg_register_external_view($view, $cacheable = false) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->allowed_ajax_views)) {
 		$CONFIG->allowed_ajax_views = array();
@@ -262,7 +262,7 @@ function _elgg_is_view_cacheable($view) {
  * @since 1.9.0
  */
 function elgg_unregister_external_view($view) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (isset($CONFIG->allowed_ajax_views[$view])) {
 		unset($CONFIG->allowed_ajax_views[$view]);
@@ -690,7 +690,7 @@ function elgg_view_layout($layout_name, $vars = array()) {
  * @since 1.8.0
  */
 function elgg_view_menu($menu_name, array $vars = array()) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$vars['name'] = $menu_name;
 	
@@ -1303,7 +1303,7 @@ function elgg_view_river_item($item, array $vars = array()) {
  * @return string The complete form
  */
 function elgg_view_form($action, $form_vars = array(), $body_vars = array()) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$defaults = array(
 		'action' => $CONFIG->wwwroot . "action/$action",
@@ -1471,7 +1471,7 @@ function elgg_view_access_collections($owner_guid) {
  * @see elgg_view()
  */
 function set_template_handler($function_name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (is_callable($function_name)) {
 		$CONFIG->template_handler = $function_name;
@@ -1626,7 +1626,7 @@ function elgg_views_handle_deprecated_views() {
  * @elgg_event_handler boot system
  */
 function elgg_views_boot() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_register_simplecache_view('css/ie');
 

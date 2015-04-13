@@ -279,7 +279,7 @@ function list_entities_from_annotation_count($entity_type = "", $entity_subtype 
  */
 function add_to_register($register_name, $subregister_name, $subregister_value, $children_array = array()) {
 	elgg_deprecated_notice("add_to_register() has been deprecated", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (empty($register_name) || empty($subregister_name)) {
 		return false;
@@ -320,7 +320,7 @@ function add_to_register($register_name, $subregister_name, $subregister_value, 
  */
 function remove_from_register($register_name, $subregister_name) {
 	elgg_deprecated_notice("remove_from_register() has been deprecated", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (empty($register_name) || empty($subregister_name)) {
 		return false;
@@ -353,7 +353,7 @@ function remove_from_register($register_name, $subregister_name) {
  */
 function get_register($register_name) {
 	elgg_deprecated_notice("get_register() has been deprecated", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if ($register_name == 'menu') {
 		// backward compatible code for site menu
@@ -624,7 +624,7 @@ function call_gatekeeper($function, $file = "") {
 function callpath_gatekeeper($path, $include_subdirs = true, $strict_mode = false) {
 	elgg_deprecated_notice("callpath_gatekeeper() is neat but pointless", 1.8);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$path = sanitise_string($path);
 
@@ -744,7 +744,7 @@ function elgg_get_entity_site_where_sql($table, $site_guids) {
 function get_objects_in_group($group_guid, $subtype = "", $owner_guid = 0, $site_guid = 0, $order_by = "", $limit = 10, $offset = 0, $count = FALSE) {
 	elgg_deprecated_notice("get_objects_in_group was deprected in 1.8.  Use elgg_get_entities() instead", 1.8);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if ($subtype === FALSE || $subtype === null || $subtype === 0) {
 		return FALSE;
@@ -867,7 +867,7 @@ function list_entities_groups($subtype = "", $owner_guid = 0, $container_guid = 
  */
 function get_entities_from_metadata_groups($group_guid, $meta_name, $meta_value = "", $entity_type = "", $entity_subtype = "", $owner_guid = 0, $limit = 10, $offset = 0, $order_by = "", $site_guid = 0, $count = false) {
 	elgg_deprecated_notice("get_entities_from_metadata_groups was deprecated in 1.8.", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$meta_n = get_metastring_id($meta_name);
 	$meta_v = get_metastring_id($meta_value);
@@ -970,7 +970,7 @@ function get_entities_from_metadata_groups($group_guid, $meta_name, $meta_value 
 function get_entities_from_metadata_groups_multi($group_guid, $meta_array, $entity_type = "", $entity_subtype = "", $owner_guid = 0, $limit = 10, $offset = 0, $order_by = "", $site_guid = 0, $count = false) {
 	elgg_deprecated_notice("get_entities_from_metadata_groups_multi was deprecated in 1.8.", 1.8);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!is_array($meta_array) || sizeof($meta_array) == 0) {
 		return false;
@@ -1474,7 +1474,7 @@ function filter_string($string) {
 function remove_blacklist($input) {
 	elgg_deprecated_notice('remove_blacklist() was deprecated!', 1.8);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!is_array($CONFIG->wordblacklist)) {
 		return $input;
@@ -1722,7 +1722,7 @@ function find_plugin_settings($plugin_id = null) {
  * @return array
  */
 function get_installed_plugins($status = 'all') {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_deprecated_notice('get_installed_plugins() was deprecated by elgg_get_plugins()', 1.8);
 
@@ -2356,7 +2356,7 @@ function get_activity_stream_data($limit = 10, $offset = 0, $type = "", $subtype
 $owner_guid = "", $owner_relationship = "") {
 	elgg_deprecated_notice("get_activity_stream_data was deprecated", 1.8);
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$limit = (int)$limit;
 	$offset = (int)$offset;
@@ -2584,7 +2584,7 @@ function list_site_members($site_guid, $limit = 10, $fullview = true) {
  */
 function add_site_collection($site_guid, $collection_guid) {
 	elgg_deprecated_notice("add_site_collection has been deprecated", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$site_guid = (int)$site_guid;
 	$collection_guid = (int)$collection_guid;
@@ -2962,7 +2962,7 @@ function elgg_view_listing($icon, $info) {
  */
 function get_entity_icon_url(\ElggEntity $entity, $size = 'medium') {
 	elgg_deprecated_notice("get_entity_icon_url() deprecated for getIconURL()", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$size = sanitise_string($size);
 	switch (strtolower($size)) {
@@ -4524,7 +4524,7 @@ function reorder_widgets_from_panel($panelstring1, $panelstring2, $panelstring3,
  */
 function use_widgets($context) {
 	elgg_deprecated_notice("use_widgets is deprecated", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->widgets)) {
 		$CONFIG->widgets = new \stdClass;
@@ -4547,7 +4547,7 @@ function use_widgets($context) {
  */
 function using_widgets() {
 	elgg_deprecated_notice("using_widgets is deprecated", 1.8);
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$context = elgg_get_context();
 	if (isset($CONFIG->widgets->contexts) && is_array($CONFIG->widgets->contexts)) {
@@ -4658,7 +4658,7 @@ function remove_from_river_by_id($id) {
  * @deprecated 1.8
  */
 function default_page_handler($page, $handler) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_deprecated_notice("default_page_handler is deprecated", "1.8");
 

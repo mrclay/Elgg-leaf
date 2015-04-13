@@ -500,7 +500,7 @@ class ElggGroup extends \ElggEntity
 	 * {@inheritdoc}
 	 */
 	protected function update() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		
 		if (!parent::update()) {
 			return false;
@@ -520,7 +520,7 @@ class ElggGroup extends \ElggEntity
 	 * {@inheritdoc}
 	 */
 	protected function create() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		
 		$guid = parent::create();
 		$name = sanitize_string($this->name);

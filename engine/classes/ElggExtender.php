@@ -286,7 +286,7 @@ abstract class ElggExtender extends \ElggData {
 
 		// @todo remove when elgg_register_extender_url_handler() has been removed
 		if ($this->id) {
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 
 			$function = "";
 			if (isset($CONFIG->extender_url_handler[$type][$subtype])) {

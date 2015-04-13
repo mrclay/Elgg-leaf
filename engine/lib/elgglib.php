@@ -806,7 +806,7 @@ function _elgg_php_exception_handler($exception) {
 	// @note Do not send a 500 header because it is not a server error
 
 	// we don't want the 'pagesetup', 'system' event to fire
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$CONFIG->pagesetupdone = true;
 
 	try {
@@ -903,7 +903,7 @@ function _elgg_php_error_handler($errno, $errmsg, $filename, $linenum, $vars) {
 			break;
 
 		default:
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 			if (isset($CONFIG->debug) && $CONFIG->debug === 'NOTICE') {
 				error_log("PHP NOTICE: $error");
 			}
@@ -974,7 +974,7 @@ function elgg_dump($value, $to_screen = true) {
  * @since 1.9
  */
 function elgg_get_version($human_readable = false) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	static $version, $release;
 
@@ -1803,7 +1803,7 @@ function _elgg_walled_garden_ajax_handler($page) {
  * @access private
  */
 function _elgg_walled_garden_init() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_register_css('elgg.walled_garden', elgg_get_simplecache_url('css', 'walled_garden'));
 	elgg_register_js('elgg.walled_garden', elgg_get_simplecache_url('js', 'walled_garden'));
@@ -1877,7 +1877,7 @@ function _elgg_engine_boot() {
  * @access private
  */
 function _elgg_init() {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	elgg_register_action('comment/save');
 	elgg_register_action('comment/delete');
@@ -1949,7 +1949,7 @@ function _elgg_init() {
  * @access private
  */
 function _elgg_api_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggTravisInstallTest.php';
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreHelpersTest.php';
 	$value[] = $CONFIG->path . 'engine/tests/ElggCoreRegressionBugsTest.php';

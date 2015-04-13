@@ -31,7 +31,7 @@ function get_system_log($by_user = "", $event = "", $class = "", $type = "", $su
 						$offset = 0, $count = false, $timebefore = 0, $timeafter = 0, $object_id = 0,
 						$ip_address = "") {
 
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$by_user_orig = $by_user;
 	if (is_array($by_user) && sizeof($by_user) > 0) {
@@ -122,7 +122,7 @@ function get_system_log($by_user = "", $event = "", $class = "", $type = "", $su
  * @return mixed
  */
 function get_log_entry($entry_id) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$entry_id = (int)$entry_id;
 
@@ -189,7 +189,7 @@ function get_object_from_log_entry($entry) {
  * @return void
  */
 function system_log($object, $event) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	static $log_cache;
 	static $cache_size = 0;
 
@@ -262,7 +262,7 @@ function system_log($object, $event) {
  * @return bool
  */
 function archive_log($offset = 0) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$offset = (int)$offset;
 	$now = time(); // Take a snapshot of now

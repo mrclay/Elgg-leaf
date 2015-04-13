@@ -20,10 +20,19 @@ class Config {
 	private $CONFIG;
 
 	/**
+	 * A temporary shim for core code currently using global $CONFIG. This should not be used
+	 * by plugins nor by new core code.
+	 *
+	 * @var \stdClass
+	 * @access private
+	 */
+	public static $global;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$this->CONFIG = $CONFIG;
 	}
 

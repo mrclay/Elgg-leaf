@@ -764,7 +764,7 @@ class ElggPlugin extends \ElggObject {
 	protected static function getConfigWrapper() {
 		static $wrapper;
 		if (null === $wrapper) {
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 			$warning = 'Do not rely on local $CONFIG being available in start.php';
 			$wrapper = new \Elgg\DeprecationWrapper($CONFIG, $warning, "1.10");
 		}

@@ -25,7 +25,7 @@ class UpgradeService {
 	 * Constructor
 	 */
 	public function __construct() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$this->CONFIG = $CONFIG;
 	}
 
@@ -154,7 +154,7 @@ class UpgradeService {
 	 */
 	protected static function includeCode($file) {
 		// do not remove - some upgrade scripts depend on this
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		return include $file;
 	}

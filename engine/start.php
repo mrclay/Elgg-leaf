@@ -37,13 +37,8 @@ $START_MICROTIME = microtime(true);
  * @see engine/settings.php
  * @global \stdClass $CONFIG
  */
-global $CONFIG;
-if (!isset($CONFIG)) {
-	$CONFIG = new \stdClass;
-}
-$CONFIG->boot_complete = false;
 
-$engine_dir = dirname(__FILE__);
+$engine_dir = __DIR__;
 
 // No settings means a fresh install
 if (!is_file("$engine_dir/settings.php")) {
@@ -56,10 +51,28 @@ if (!is_readable("$engine_dir/settings.php")) {
 	exit;
 }
 
-require_once "$engine_dir/settings.php";
+$settings = (require_once "$engine_dir/settings.php");
+
+if (!$settings instanceof stdClass || empty($settings->dbprefix)) {
+	// @todo show deprecation warning to add return $CONFIG; to end of file
+	$settings = $GLOBALS['CONFIG'];
+}
+
+$settings->boot_complete = false;
 
 // This will be overridden by the DB value but may be needed before the upgrade script can be run.
-$CONFIG->default_limit = 10;
+$settings->default_limit = 10;
+
+if (!class_exists('Elgg\Config', false)) {
+	require_once "$engine_dir/classes/Elgg/Config.php";
+}
+
+Elgg\Config::$global = $settings;
+
+// For older plugins
+// @todo remove this someday
+global $CONFIG;
+$CONFIG = Elgg\Config::$global;
 
 require_once "$engine_dir/load.php";
 
@@ -84,7 +97,7 @@ elgg_trigger_event('plugins_boot', 'system');
 // Complete the boot process for both engine and plugins
 elgg_trigger_event('init', 'system');
 
-$CONFIG->boot_complete = true;
+Elgg\Config::$global->boot_complete = true;
 
 // System loaded and ready
 elgg_trigger_event('ready', 'system');

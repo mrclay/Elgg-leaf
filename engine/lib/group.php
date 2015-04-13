@@ -17,7 +17,7 @@
  * @access private
  */
 function get_group_entity_as_row($guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$guid = (int)$guid;
 
@@ -37,7 +37,7 @@ function get_group_entity_as_row($guid) {
  * @since 1.5.0
  */
 function add_group_tool_option($name, $label, $default_on = true) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->group_tool_options)) {
 		$CONFIG->group_tool_options = array();
@@ -63,7 +63,7 @@ function add_group_tool_option($name, $label, $default_on = true) {
  * @since 1.7.5
  */
 function remove_group_tool_option($name) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($CONFIG->group_tool_options)) {
 		return;
@@ -110,7 +110,7 @@ function _elgg_groups_container_override($hook, $type, $result, $params) {
  * @access private
  */
 function _elgg_groups_test($hook, $type, $value) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->path . 'engine/tests/ElggGroupTest.php';
 	return $value;
 }

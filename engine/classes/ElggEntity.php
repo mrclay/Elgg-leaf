@@ -1370,7 +1370,7 @@ abstract class ElggEntity extends \ElggData implements
 
 		// @todo remove when elgg_register_entity_url_handler() has been removed
 		if ($this->guid) {
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 			if (isset($CONFIG->entity_url_handler[$this->getType()][$this->getSubtype()])) {
 				$function = $CONFIG->entity_url_handler[$this->getType()][$this->getSubtype()];
 				if (is_callable($function)) {
@@ -1608,7 +1608,7 @@ abstract class ElggEntity extends \ElggData implements
 	 * @throws IOException If the new row fails to write to the DB.
 	 */
 	protected function create() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// Using attribute array directly; get function does something special!
 		$type = $this->getDatabase()->sanitizeString($this->attributes['type']);
@@ -1711,7 +1711,7 @@ abstract class ElggEntity extends \ElggData implements
 	 * @throws InvalidParameterException
 	 */
 	protected function update() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		// See #5600. This ensures canEdit() checks the BD persisted entity so it sees the
 		// persisted owner_guid, container_guid, etc.
@@ -1897,7 +1897,7 @@ abstract class ElggEntity extends \ElggData implements
 			$this->disable_reason = $reason;
 		}
 
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$guid = (int)$this->guid;
 		
 		if ($recursive) {
@@ -1961,8 +1961,8 @@ abstract class ElggEntity extends \ElggData implements
 		if (!$this->canEdit()) {
 			return false;
 		}
-		
-		global $CONFIG;
+
+		$CONFIG = \Elgg\Config::$global;
 	
 		// Override access only visible entities
 		$old_access_status = access_get_show_hidden_status();
@@ -2027,7 +2027,7 @@ abstract class ElggEntity extends \ElggData implements
 	 * @return bool
 	 */
 	public function delete($recursive = true) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guid = $this->guid;
 		if (!$guid) {

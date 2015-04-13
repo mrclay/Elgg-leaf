@@ -43,7 +43,7 @@ class ElggMemcache extends \ElggSharedMemoryCache {
 	 * @throws ConfigurationException
 	 */
 	public function __construct($namespace = 'default') {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		$this->CONFIG = $CONFIG;
 
 		$this->setNamespace($namespace);

@@ -25,7 +25,7 @@ class ElggHMACCache extends ElggCache {
 	 * @return boolean
 	 */
 	public function save($key, $data) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$key = sanitise_string($key);
 		$time = time();
@@ -44,7 +44,7 @@ class ElggHMACCache extends ElggCache {
 	 * @return string
 	 */
 	public function load($key, $offset = 0, $limit = null) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$key = sanitise_string($key);
 
@@ -64,7 +64,7 @@ class ElggHMACCache extends ElggCache {
 	 * @return bool
 	 */
 	public function delete($key) {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$key = sanitise_string($key);
 
@@ -87,7 +87,7 @@ class ElggHMACCache extends ElggCache {
 	 *
 	 */
 	public function __destruct() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$time = time();
 		$age = (int)$this->getVariable("max_age");

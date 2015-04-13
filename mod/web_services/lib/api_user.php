@@ -13,7 +13,7 @@
  * @return stdClass object or false
  */
 function create_api_user($site_guid) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	if (!isset($site_guid)) {
 		$site_guid = $CONFIG->site_id;
@@ -45,7 +45,7 @@ function create_api_user($site_guid) {
  * @return mixed stdClass representing the database row or false.
  */
 function get_api_user($site_guid, $api_key) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$api_key = sanitise_string($api_key);
 	$site_guid = (int)$site_guid;
@@ -65,7 +65,7 @@ function get_api_user($site_guid, $api_key) {
  * @return bool
  */
 function remove_api_user($site_guid, $api_key) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$keypair = get_api_user($site_guid, $api_key);
 	if ($keypair) {

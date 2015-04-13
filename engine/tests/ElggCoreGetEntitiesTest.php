@@ -676,7 +676,7 @@ class ElggCoreGetEntitiesTest extends \ElggCoreGetEntitiesBaseTest {
 	}
 
 	public function testElggApiGettersEntityNoValueSubtypeSet() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 		// create an entity we can later delete.
 		// order by time created and limit by 1 should == this entity.
 
@@ -717,7 +717,7 @@ class ElggCoreGetEntitiesTest extends \ElggCoreGetEntitiesBaseTest {
 	}
 
 	public function testElggApiGettersEntitySiteSingular() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guids = array();
 
@@ -752,7 +752,7 @@ class ElggCoreGetEntitiesTest extends \ElggCoreGetEntitiesBaseTest {
 	}
 
 	public function testElggApiGettersEntitySiteSingularAny() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guids = array();
 
@@ -791,7 +791,7 @@ class ElggCoreGetEntitiesTest extends \ElggCoreGetEntitiesBaseTest {
 	}
 
 	public function testElggApiGettersEntitySitePlural() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guids = array();
 
@@ -830,7 +830,7 @@ class ElggCoreGetEntitiesTest extends \ElggCoreGetEntitiesBaseTest {
 	}
 
 	public function testElggApiGettersEntitySitePluralSomeInvalid() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guids = array();
 
@@ -868,7 +868,7 @@ class ElggCoreGetEntitiesTest extends \ElggCoreGetEntitiesBaseTest {
 	}
 
 	public function testElggApiGettersEntitySitePluralAllInvalid() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$guids = array();
 

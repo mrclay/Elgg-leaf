@@ -37,7 +37,7 @@ class Inspector {
 	 * @return string[]
 	 */
 	public function getViewtypes() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		return array_keys($CONFIG->views->locations);
 	}
@@ -50,7 +50,7 @@ class Inspector {
 	 * @return array [view] => map of priority to ViewComponent[]
 	 */
 	public function getViews($viewtype = 'default') {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$overrides = null;
 		if ($CONFIG->system_cache_enabled) {
@@ -185,7 +185,7 @@ class Inspector {
 	 * @return array [views]
 	 */
 	public function getSimpleCache() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$tree = array();
 		foreach ($CONFIG->views->simplecache as $view => $foo) {

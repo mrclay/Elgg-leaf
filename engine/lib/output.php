@@ -579,7 +579,7 @@ function _elgg_get_display_query($string) {
  * @access private
  */
 function _elgg_output_unit_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = "{$CONFIG->path}engine/tests/ElggCoreOutputAutoPTest.php";
 	return $value;
 }

@@ -33,8 +33,7 @@ class ElggDiskFilestore extends \ElggFilestore {
 	 * @param string $directory_root Root directory, must end in "/"
 	 */
 	public function __construct($directory_root = "") {
-		global $CONFIG;
-		$this->CONFIG = $CONFIG;
+		$this->CONFIG = \Elgg\Config::$global;
 
 		if ($directory_root) {
 			$this->dir_root = $directory_root;

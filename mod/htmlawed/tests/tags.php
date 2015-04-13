@@ -32,7 +32,7 @@ class HtmLawedTest extends ElggCoreUnitTest {
 	public function setUp() {
 		// unregister all config hooks to test stock
 		// no way to do this through the API.
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		if (isset($CONFIG->hooks['config']['htmlawed'])) {
 			$this->configHooks = $CONFIG->hooks['config']['htmlawed'];
@@ -49,7 +49,7 @@ class HtmLawedTest extends ElggCoreUnitTest {
 	 * Called after each test method.
 	 */
 	public function tearDown() {
-		global $CONFIG;
+		$CONFIG = \Elgg\Config::$global;
 
 		$CONFIG->hooks['config']['htmlawed'] = $this->configHooks;
 		$CONFIG->hooks['allowed_styles']['htmlawed'] = $this->styleHooks;

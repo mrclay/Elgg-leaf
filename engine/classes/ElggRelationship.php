@@ -156,7 +156,7 @@ class ElggRelationship extends \ElggData implements
 		$url = '';
 		// @todo remove when elgg_register_relationship_url_handler() has been removed
 		if ($this->id) {
-			global $CONFIG;
+			$CONFIG = \Elgg\Config::$global;
 
 			$subtype = $this->getSubtype();
 

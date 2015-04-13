@@ -219,7 +219,7 @@ function thewire_get_hashtags($text) {
  * @return string
  */
 function thewire_filter($text) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 
 	$text = ' ' . $text;
 
@@ -475,7 +475,7 @@ function thewire_owner_block_menu($hook, $type, $return, $params) {
  * @return array
  */
 function thewire_test($hook, $type, $value, $params) {
-	global $CONFIG;
+	$CONFIG = \Elgg\Config::$global;
 	$value[] = $CONFIG->pluginspath . 'thewire/tests/regex.php';
 	return $value;
 }
