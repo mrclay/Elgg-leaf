@@ -21,6 +21,9 @@ class Input {
 
 	/**
 	 * Constructor
+	 *
+	 * @internal Devs should not use this
+	 * @access private
 	 */
 	public function __construct() {
 		global $CONFIG;
@@ -32,25 +35,25 @@ class Input {
 	 *
 	 * Note: this function does not handle nested arrays (ex: form input of param[m][n])
 	 *
-	 * @param string          $variable The name of the variable
-	 * @param string|string[] $value    The value of the variable
+	 * @param string          $name  The name of the variable
+	 * @param string|string[] $value The value of the variable
 	 *
 	 * @return void
 	 */
-	public function set($variable, $value) {
-		
+	public function set($name, $value) {
 		if (!isset($this->CONFIG->input)) {
 			$this->CONFIG->input = array();
 		}
 	
 		if (is_array($value)) {
-			array_walk_recursive($value, create_function('&$v, $k', '$v = trim($v);'));
-			$this->CONFIG->input[trim($variable)] = $value;
+			array_walk_recursive($value, function (&$v, $k) {
+				$v = trim($v);
+			});
+			$this->CONFIG->input[trim($name)] = $value;
 		} else {
-			$this->CONFIG->input[trim($variable)] = trim($value);
+			$this->CONFIG->input[trim($name)] = trim($value);
 		}
 	}
-	
 	
 	/**
 	 * Get some input from variables passed submitted through GET or POST.
@@ -63,29 +66,25 @@ class Input {
 	 * because of the filtering done in htmlawed from the filter_tags call.
 	 * @todo Is this ^ still true?
 	 *
-	 * @param string $variable      The variable name we want.
+	 * @param string $name          The variable name we want.
 	 * @param mixed  $default       A default value for the variable if it is not found.
 	 * @param bool   $filter_result If true, then the result is filtered for bad tags.
 	 *
 	 * @return mixed
 	 */
-	function get($variable, $default = null, $filter_result = true) {
-			
-		
-	
+	public function get($name, $default = null, $filter_result = true) {
 		$result = $default;
+
+		_elgg_services()->context->push('input');
 	
-		elgg_push_context('input');
-	
-		if (isset($this->CONFIG->input[$variable])) {
+		if (isset($this->CONFIG->input[$name])) {
 			// a plugin has already set this variable
-			$result = $this->CONFIG->input[$variable];
+			$result = $this->CONFIG->input[$name];
 			if ($filter_result) {
 				$result = filter_tags($result);
 			}
 		} else {
-			$request = _elgg_services()->request;
-			$value = $request->get($variable);
+			$value = _elgg_services()->request->get($name);
 			if ($value !== null) {
 				$result = $value;
 				if (is_string($result)) {
@@ -99,8 +98,8 @@ class Input {
 			}
 		}
 	
-		elgg_pop_context();
-	
+		_elgg_services()->context->pop();
+
 		return $result;
 	}
 
