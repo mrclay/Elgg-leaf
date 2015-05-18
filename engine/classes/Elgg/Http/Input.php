@@ -102,6 +102,56 @@ class Input {
 		elgg_pop_context();
 	
 		return $result;
+	}
 
+	/**
+	 * Get a positive integer from input. The input must be a simple integer string.
+	 *
+	 * @param string $name Variable name
+	 *
+	 * @return int returns 0 if missing/invalid
+	 */
+	public function getInt($name) {
+		$val = $this->get($name, null, false);
+		if (is_string($val)) {
+			return preg_match('~^[1-9]\d*$~', $val) ? (int)$val : 0;
+		}
+		if (is_int($val) && $val > 0) {
+			return $val;
+		}
+		return 0;
+	}
+
+	/**
+	 * Get an array of positive integers from input. The input can alternately be a delimited string
+	 * created via join().
+	 *
+	 * @param string $name      Variable name
+	 * @param string $delimiter Delimiter used to explode the input if given a string
+	 *
+	 * @return int[] returns [] if missing/invalid
+	 */
+	public function getInts($name, $delimiter = ',') {
+		$val = $this->get($name, null, false);
+		if ($val === null) {
+			return [];
+		}
+		if (is_string($val)) {
+			$val = explode($delimiter, $val);
+		}
+		foreach ($val as $i => $num) {
+			if (is_string($num)) {
+				if (preg_match('~^[1-9]\d*$~', $num)) {
+					$val[$i] = (int)$num;
+					continue;
+				}
+				return [];
+			}
+			if (is_int($num) && $num > 0) {
+				continue;
+			}
+			return [];
+		}
+		return $val;
 	}
 }
