@@ -205,6 +205,10 @@ class ViewsService {
 		}
 
 		// Get the current viewtype
+		if ($viewtype === '' && 0 === strpos($view, 'resources/')) {
+			$viewtype = 'default';
+		}
+
 		if ($viewtype === '' || !_elgg_is_valid_viewtype($viewtype)) {
 			$viewtype = elgg_get_viewtype();
 		}

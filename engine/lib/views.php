@@ -56,10 +56,13 @@ global $CURRENT_SYSTEM_VIEWTYPE;
 $CURRENT_SYSTEM_VIEWTYPE = "";
 
 /**
- * Manually set the viewtype.
+ * Set the default viewtype used by elgg_view()
  *
- * View types are detected automatically.  This function allows
+ * View types are detected automatically. This function allows
  * you to force subsequent views to use a different viewtype.
+ *
+ * @note Despite using this function, "resource/*" views always
+ *       default to the "default" viewtype.
  *
  * @tip Call elgg_set_viewtype() with no parameter to reset.
  *
@@ -326,19 +329,11 @@ function elgg_view_exists($view, $viewtype = '', $recurse = true) {
  *
  * Views are called with a special $vars variable set,
  * which includes any variables passed as the second parameter.
- * For backward compatbility, the following variables are also set but we
- * recommend that you do not use them:
- *  - $vars['config'] The $CONFIG global. (Use {@link elgg_get_config()} instead).
- *  - $vars['url'] The site URL. (use {@link elgg_get_site_url()} instead).
- *  - $vars['user'] The logged in user. (use {@link elgg_get_logged_in_user_entity()} instead).
  *
  * Custom template handlers can be set with {@link set_template_handler()}.
  *
  * The output of views can be intercepted by registering for the
  * view, $view_name plugin hook.
- *
- * @warning Any variables in $_SESSION will override passed vars
- * upon name collision.  See https://github.com/Elgg/Elgg/issues/2124
  *
  * @param string  $view     The name and location of the view to use
  * @param array   $vars     Variables to pass to the view.
@@ -347,7 +342,9 @@ function elgg_view_exists($view, $viewtype = '', $recurse = true) {
  *                          hand off to this if requested (see set_template_handler)
  * @param boolean $ignored  This argument is ignored and will be removed eventually
  * @param string  $viewtype If set, forces the viewtype for the elgg_view call to be
- *                          this value (default: standard detection)
+ *                          this value. Otherwise this is pulled from elgg_get_viewtype()
+ *                          unless the view starts with "resources/", in which case the
+ *                          default is "default".
  *
  * @return string The parsed view
  */
