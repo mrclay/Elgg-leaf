@@ -62,7 +62,7 @@ class ViewsServiceTest extends \PHPUnit_Framework_TestCase {
 	}
 		
 	public function testStoresDirectoryForViewLocation() {
-		$this->assertEquals("$this->viewsDir/", $this->views->getViewLocation('js/interpreted.js', 'default'));
+		$this->assertEquals("$this->viewsDir/", $this->views->getViewDir('js/interpreted.js', 'default'));
 	}
 	
 	public function testViewtypesCanFallBack() {

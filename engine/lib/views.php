@@ -281,7 +281,7 @@ function elgg_unregister_external_view($view) {
  * @return string
  */
 function elgg_get_view_location($view, $viewtype = '') {
-	return _elgg_services()->views->getViewLocation($view, $viewtype);
+	return _elgg_services()->views->getViewDir($view, $viewtype);
 }
 
 /**
@@ -301,7 +301,7 @@ function elgg_get_view_location($view, $viewtype = '') {
  * @return void
  */
 function elgg_set_view_location($view, $location, $viewtype = '') {
-	_elgg_services()->views->setViewLocation($view, $location, $viewtype);
+	_elgg_services()->views->setViewDir($view, $location, $viewtype);
 }
 
 /**
@@ -391,9 +391,7 @@ function elgg_view_deprecated($view, array $vars, $suggestion, $version) {
  *
  * @param string $view           The view to extend.
  * @param string $view_extension This view is added to $view
- * @param int    $priority       The priority, from 0 to 1000,
- *                               to add at (lowest numbers displayed first)
- * @param string $viewtype       I'm not sure why this is here @todo
+ * @param int    $priority       The priority, from 0 to 1000, to add at (lowest numbers displayed first)
  *
  * @return void
  * @since 1.7.0
@@ -1624,34 +1622,44 @@ function _elgg_views_send_header_x_frame_options() {
 function elgg_views_boot() {
 	global $CONFIG;
 
-	elgg_register_simplecache_view('js/jquery.min.map');
-	elgg_register_simplecache_view('js/jquery.form.js');
-	elgg_register_simplecache_view('js/sprintf.js');
-	elgg_register_simplecache_view('js/text.js');
-
+	// on every page
 	elgg_register_js('elgg.require_config', elgg_get_simplecache_url('js/elgg/require_config'), 'head');
-	elgg_register_js('require', elgg_get_simplecache_url('js/require.js'), 'head');
-	elgg_register_js('jquery', elgg_get_simplecache_url('js/jquery.js'), 'head');
-	elgg_register_js('jquery-migrate', elgg_get_simplecache_url('js/jquery-migrate.js'), 'head');
-	elgg_register_js('jquery-ui', elgg_get_simplecache_url('js/jquery.ui.js'), 'head');
-	elgg_register_js('elgg', elgg_get_simplecache_url('js/elgg'), 'head');
-
 	elgg_load_js('elgg.require_config');
+
+	elgg_register_js('require', elgg_get_simplecache_url('js/require.js'), 'head');
 	elgg_load_js('require');
+
+	elgg_register_js('jquery', elgg_get_simplecache_url('js/jquery.js'), 'head');
 	elgg_load_js('jquery');
+
+	elgg_register_js('jquery-migrate', elgg_get_simplecache_url('js/jquery-migrate.js'), 'head');
 	elgg_load_js('jquery-migrate');
+
+	elgg_register_js('jquery-ui', elgg_get_simplecache_url('js/jquery-ui.js'), 'head');
 	elgg_load_js('jquery-ui');
+
+	elgg_register_js('elgg', elgg_get_simplecache_url('js/elgg'), 'head');
 	elgg_load_js('elgg');
 
-	$lightbox_js_url = elgg_get_simplecache_url('js/lightbox');
-	elgg_register_js('lightbox', $lightbox_js_url);
-
-	elgg_register_css('lightbox', 'vendors/elgg-colorbox-theme/colorbox.css');
-
-	$elgg_css_url = elgg_get_simplecache_url('css/elgg');
-	elgg_register_css('elgg', $elgg_css_url);
-
+	elgg_register_css('elgg', elgg_get_simplecache_url('css/elgg'));
 	elgg_load_css('elgg');
+
+	// optional stuff
+	elgg_register_js('lightbox', elgg_get_simplecache_url('js/lightbox'));
+	elgg_register_css('lightbox', elgg_get_simplecache_url('lightbox.css'));
+
+	elgg_register_js('elgg.autocomplete', elgg_get_simplecache_url('js/ui.autocomplete.js'));
+	elgg_register_js('jquery.ui.autocomplete.html', elgg_get_simplecache_url('js/jquery.ui.autocomplete.html.js'));
+	elgg_define_js('jquery.ui.autocomplete.html', [
+		'deps' => ['jquery-ui'],
+	]);
+
+	elgg_register_js('elgg.friendspicker', elgg_get_simplecache_url('js/ui.friends_picker.js'));
+	elgg_register_js('elgg.avatar_cropper', elgg_get_simplecache_url('js/ui.avatar_cropper.js'));
+	elgg_register_js('elgg.ui.river', elgg_get_simplecache_url('js/ui.river.js'));
+
+	elgg_register_js('jquery.imgareaselect', elgg_get_simplecache_url('js/jquery.imgareaselect.js'));
+	elgg_register_css('jquery.imgareaselect', elgg_get_simplecache_url('jquery.imgareaselect.css'));
 
 	elgg_register_ajax_view('js/languages');
 
@@ -1662,13 +1670,22 @@ function elgg_views_boot() {
 	elgg_register_plugin_hook_handler('output:before', 'layout', 'elgg_views_add_rss_link');
 	elgg_register_plugin_hook_handler('output:before', 'page', '_elgg_views_send_header_x_frame_options');
 
-	// discover the core viewtypes
 	// @todo the cache is loaded in load_plugins() but we need to know viewtypes earlier
 	$view_path = $CONFIG->viewpath;
 	$viewtype_dirs = scandir($view_path);
 	foreach ($viewtype_dirs as $viewtype) {
 		if (_elgg_is_valid_viewtype($viewtype) && is_dir($view_path . $viewtype)) {
 			elgg_register_viewtype($viewtype);
+		}
+	}
+
+	// Declared views. Unlike plugins, Elgg's root views/ is never scanned, so Elgg cannot override
+	// these view traditional view files.
+	$file = dirname(__DIR__) . '/views.php';
+	if (is_file($file)) {
+		$spec = (include $file);
+		if (is_array($spec)) {
+			_elgg_services()->views->mergeViewsSpec($spec);
 		}
 	}
 

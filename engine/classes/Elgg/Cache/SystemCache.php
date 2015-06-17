@@ -151,6 +151,12 @@ class SystemCache {
 		}
 		$this->CONFIG->view_types = unserialize($data);
 
+		$data = $this->load('view_files');
+		if (!is_string($data)) {
+			return;
+		}
+		_elgg_services()->views->setFiles(unserialize($data));
+
 		// Note: We don't need view_overrides for operation. Inspector can pull this from the cache
 	
 		$this->CONFIG->system_cache_loaded = true;
@@ -171,6 +177,7 @@ class SystemCache {
 		if (!$this->CONFIG->system_cache_loaded) {
 			$this->save('view_locations', serialize($this->CONFIG->views->locations));
 			$this->save('view_types', serialize($this->CONFIG->view_types));
+			$this->save('view_files', serialize(_elgg_services()->views->getFiles()));
 
 			// this is saved just for the inspector and is not loaded in loadAll()
 			$this->save('view_overrides', serialize(_elgg_services()->views->getOverriddenLocations()));
