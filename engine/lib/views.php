@@ -1640,6 +1640,7 @@ function elgg_views_boot() {
 
 	elgg_register_js('elgg', elgg_get_simplecache_url('js/elgg'), 'head');
 	elgg_load_js('elgg');
+	elgg_load_css('elgg');
 
 	elgg_register_css('elgg', elgg_get_simplecache_url('css/elgg'));
 	elgg_load_css('elgg');
@@ -1700,6 +1701,15 @@ function elgg_views_boot() {
 			'master' => array('w' => 550, 'h' => 550, 'square' => false, 'upscale' => false),
 		);
 		elgg_set_config('icon_sizes', $icon_sizes);
+	}
+
+	// declarative views
+	$file = dirname(__DIR__) . '/views.php';
+	if (is_file($file)) {
+		$spec = (include $file);
+		if (is_array($spec)) {
+			_elgg_services()->views->mergeViewsSpec($spec);
+		}
 	}
 }
 

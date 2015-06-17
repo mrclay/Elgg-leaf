@@ -831,6 +831,14 @@ class ElggPlugin extends \ElggObject {
 				array($this->getID(), $this->guid, $failed_dir));
 			throw new \PluginException($msg);
 		}
+
+		$file = "{$this->path}/views.php";
+		if (is_file($file)) {
+			$spec = (include $file);
+			if (is_array($spec)) {
+				$views->mergeViewsSpec($spec);
+			}
+		}
 	}
 
 	/**
