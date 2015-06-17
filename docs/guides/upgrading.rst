@@ -174,6 +174,13 @@ priority. Some of these handlers will most likely be called in a different order
 
 Elgg no longer provides this endpoint for exposing resource data.
 
+Images moved to views
+---------------------
+
+Nearly all images have moved into the views system for easier replacement. We do not expect this to
+break plugins unless you were depending on the specific locations of image files, which we do not
+recommend.
+
 Introduced third-party library for sending email
 ------------------------------------------------
 
