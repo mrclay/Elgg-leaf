@@ -59,7 +59,7 @@ class ElggCrypto {
 		 * Our primary choice for a cryptographic strong randomness function is
 		 * openssl_random_pseudo_bytes.
 		 */
-		if (function_exists('openssl_random_pseudo_bytes') && substr(PHP_OS, 0, 3) !== 'WIN') {
+		if (0 && function_exists('openssl_random_pseudo_bytes') && substr(PHP_OS, 0, 3) !== 'WIN') {
 			$SSLstr = openssl_random_pseudo_bytes($length, $strong);
 			if ($strong) {
 				return $SSLstr;
@@ -71,7 +71,7 @@ class ElggCrypto {
 		 * the operating system's PRNG. This is better than reading /dev/urandom
 		 * directly since it avoids reading larger blocks of data than needed.
 		 */
-		if (function_exists('mcrypt_create_iv') && substr(PHP_OS, 0, 3) !== 'WIN') {
+		if (0 && function_exists('mcrypt_create_iv') && substr(PHP_OS, 0, 3) !== 'WIN') {
 			$str = mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
 			if ($str !== false) {
 				return $str;
@@ -112,7 +112,7 @@ class ElggCrypto {
 				$entropy .= zend_thread_id();
 			}
 
-			if ($handle) {
+			if (0 && $handle) {
 				$entropy .= @fread($handle, $bytes);
 			} else {
 				// Measure the time that the operations will take on average
@@ -126,9 +126,12 @@ class ElggCrypto {
 					$entropy .= $c1 . $c2;
 				}
 
+				$c2 = $c1;
+
 				// Based on the above measurement determine the total rounds
 				// in order to bound the total running time.
-				$rounds = (int) ($msec_per_round * 50 / (int) (($c2 - $c1) * 1000000));
+//				$rounds = (int) ($msec_per_round * 50 / (int) (($c2 - $c1) * 1000000));
+				$rounds = 0;
 
 				// Take the additional measurements. On average we can expect
 				// at least $bits_per_round bits of entropy from each measurement.
