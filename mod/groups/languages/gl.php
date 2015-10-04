@@ -58,6 +58,7 @@ return array(
 	'groups:cantcreate' => 'Só os administradores poden crear grupos.',
 	'groups:cantedit' => 'Non pode editar o grupo.',
 	'groups:saved' => 'Gardouse o grupo.',
+	'groups:save_error' => 'Group could not be saved',
 	'groups:featured' => 'Grupos destacados',
 	'groups:makeunfeatured' => 'Deixar de destacar',
 	'groups:makefeatured' => 'Descatar',

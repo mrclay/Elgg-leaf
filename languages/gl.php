@@ -41,6 +41,7 @@ return array(
 	'actionunauthorized' => 'Non ten permisos para realizar a acción.',
 	
 	'ajax:error' => 'Produciuse un erro inesperado durante a execución dunha chamada mediante AJAX. Pode que se perdese a conexión co servidor.',
+	'ajax:not_is_xhr' => 'You cannot access AJAX views directly',
 
 	'PluginException:MisconfiguredPlugin' => "O complemento %s (guid: %s) está mal configurado e desactivouse. Consulte o wiki de Elgg (http://learn.elgg.org/) para intentar determinar a causa do problema.",
 	'PluginException:CannotStart' => 'O complemento «%s» (GUID: %s) non pode iniciarse e foi desactivado. Motivo: %s',
@@ -112,6 +113,10 @@ return array(
 
 	'error:default:title' => 'Ups…',
 	'error:default:content' => 'Ups… algo non foi ben.',
+	'error:400:title' => 'Bad request',
+	'error:400:content' => 'Sorry. The request is invalid or incomplete.',
+	'error:403:title' => 'Forbidden',
+	'error:403:content' => 'Sorry. You are not allowed to access the requested page.',
 	'error:404:title' => 'Non se atopou a páxina',
 	'error:404:content' => 'Non foi posíbel atopar a páxina que solicitou.',
 
@@ -711,6 +716,7 @@ Os cambios só afectarán a novos usuarios.',
 	'admin:robots.txt:instructions' => "Edite a continuación o ficheiro «robots.txt» do sitio.",
 	'admin:robots.txt:plugins' => "Os complementos están a engadir o seguinte contido ao ficheiro «robots.txt».",
 	'admin:robots.txt:subdir' => "A ferramenta de «robots.txt» non vai funcionar porque Elgg está instalado nun subdirectorio.",
+	'admin:robots.txt:physical' => "The robots.txt tool will not work because a physical robots.txt is present",
 
 	'admin:maintenance_mode:default_message' => 'O sitio está pechado por mantemento',
 	'admin:maintenance_mode:instructions' => 'Use o modo de mantemento para anovar o sitio ou realizar outros cambios importantes.
@@ -1251,6 +1257,8 @@ Non responda a esta mensaxe.",
 
 	'entity:delete:success' => 'Eliminouse a entidade %s',
 	'entity:delete:fail' => 'Non foi posíbel eliminar a entidade %s.',
+	
+	'entity:can_delete:invaliduser' => 'Can not check canDelete for user_guid [%s] as the user does not exist.',
 
 /**
  * Action gatekeeper
@@ -1322,6 +1330,7 @@ Non responda a esta mensaxe.",
 	"es" => "Castelán",
 	"et" => "Estonian",
 	"eu" => "Éuscara",
+	"eu_es" => "Basque (Spain)",
 	"fa" => "Persa",
 	"fi" => "Finlandés",
 	"fj" => "Fidxian",
@@ -1386,11 +1395,12 @@ Non responda a esta mensaxe.",
 	"pl" => "Polaco",
 	"ps" => "Pashto",
 	"pt" => "Portugués",
-	"pt_br" => 'Portugués do Brasil',
+	"pt_br" => "Portuguese (Brazil)",
 	"qu" => "Quechua",
 	"rm" => "Retorromance",
 	"rn" => "Rundi",
 	"ro" => "Romanés",
+	"ro_ro" => "Romanian (Romania)",
 	"ru" => "Rus",
 	"rw" => "Ruandés",
 	"sa" => "Sánscrito",
@@ -1405,6 +1415,7 @@ Non responda a esta mensaxe.",
 	"so" => "Somaí",
 	"sq" => "Albanés",
 	"sr" => "Serbi",
+	"sr_latin" => "Serbian (Latin)",
 	"ss" => "Swati",
 	"st" => "Sotho do norte",
 	"su" => "Sudanés",
@@ -1436,5 +1447,6 @@ Non responda a esta mensaxe.",
 	"yo" => "Ioruba; yoruba",
 	"za" => "Zhuang; chuang",
 	"zh" => "Chinés",
+	"zh_hans" => "Chinese Simplified",
 	"zu" => "Zulú",
 );
