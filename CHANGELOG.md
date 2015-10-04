@@ -1,3 +1,17 @@
+<a name="1.12.5"></a>
+### 1.12.5  (2015-10-04)
+
+#### Contributors
+
+* Steve Clay (2)
+* iionly (1)
+
+#### Bug Fixes
+
+* **bookmarks:** bookmark pin copies title into form ([50881370](https://github.com/Elgg/Elgg/commit/50881370cac4fd10ca707aea2c83a25659eef03a), closes [#8995](https://github.com/Elgg/Elgg/issues/8995))
+* **site_notifications:** no ajax error without reason on auto-deletion of site notifications ([7aa55a81](https://github.com/Elgg/Elgg/commit/7aa55a819c0824dc97a5752658260cea6b2f1a2f))
+
+
 <a name="1.12.4"></a>
 ### 1.12.4  (2015-09-20)
 
