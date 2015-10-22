@@ -67,9 +67,12 @@ class Application {
 		 *
 		 * @global float
 		 */
-		global $START_MICROTIME;
-		if (!isset($START_MICROTIME)) {
-			$START_MICROTIME = microtime(true);
+		if (!isset($GLOBALS['START_MICROTIME'])) {
+			$GLOBALS['START_MICROTIME'] = microtime(true);
+		}
+
+		if (!isset($GLOBALS['_ELGG_MICROTIMES'])) {
+			$GLOBALS['_ELGG_MICROTIMES'][':begin'] = microtime();
 		}
 
 		/**
@@ -79,9 +82,8 @@ class Application {
 		 *
 		 * @access private
 		 */
-		global $_ELGG;
-		if (!isset($_ELGG)) {
-			$_ELGG = new \stdClass();
+		if (!isset($GLOBALS['_ELGG'])) {
+			$GLOBALS['_ELGG'] = new \stdClass();
 		}
 
 		$this->engine_dir = __DIR__ . '/../..';
@@ -254,11 +256,12 @@ class Application {
 		// Load the plugins that are active
 		$this->services->plugins->load();
 
-		if (Directory\Local::root()->getPath() != self::elggDir()->getPath()) {
+		$root = Directory\Local::root();
+		if ($root->getPath() != self::elggDir()->getPath()) {
 			// Elgg is installed as a composer dep, so try to treat the root directory
 			// as a custom plugin that is always loaded last and can't be disabled...
 			if (!elgg_get_config('system_cache_loaded')) {
-				$viewsFile = Directory\Local::root()->getFile('views.php');
+				$viewsFile = $root->getFile('views.php');
 				if ($viewsFile->exists()) {
 					$viewsSpec = $viewsFile->includeFile();
 					if (is_array($viewsSpec)) {
@@ -266,15 +269,18 @@ class Application {
 					}
 				}
 
-				_elgg_services()->views->registerPluginViews(Directory\Local::root()->getPath());
+				_elgg_services()->views->registerPluginViews($root->getPath());
 			}
 			
 			if (!elgg_get_config('i18n_loaded_from_cache')) {
-				_elgg_services()->translator->registerPluginTranslations(Directory\Local::root()->getPath());
+				_elgg_services()->translator->registerPluginTranslations($root->getPath());
 			}
 			
 			// This is root directory start.php, not elgg/engine/start.php
-			@include_once Directory\Local::root()->getPath("start.php");
+			$root_start = $root->getPath("start.php");
+			if (is_file($root_start)) {
+				include $root_start;
+			}
 		}
 		
 
@@ -287,6 +293,7 @@ class Application {
 		}
 
 		// @todo deprecate as plugins can use 'init', 'system' event
+
 		$events->trigger('plugins_boot', 'system');
 
 		// Complete the boot process for both engine and plugins

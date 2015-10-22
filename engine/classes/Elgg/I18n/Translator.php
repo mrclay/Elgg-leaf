@@ -174,7 +174,7 @@ class Translator {
 	 * @access private
 	 */
 	function loadTranslations() {
-		
+		$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':begin'] = microtime();
 	
 		if ($this->CONFIG->system_cache_enabled) {
 			$loaded = true;
@@ -192,12 +192,16 @@ class Translator {
 				$GLOBALS['_ELGG']->i18n_loaded_from_cache = true;
 				// this is here to force 
 				$GLOBALS['_ELGG']->language_paths[$this->defaultPath] = true;
+
+				$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':end'] = microtime();
 				return;
 			}
 		}
 	
 		// load core translations from languages directory
 		$this->registerTranslations($this->defaultPath);
+
+		$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':end'] = microtime();
 	}
 	
 	/**

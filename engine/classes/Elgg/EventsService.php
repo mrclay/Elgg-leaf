@@ -25,6 +25,11 @@ class EventsService extends \Elgg\HooksRegistrationService {
 	 * @access private
 	 */
 	public function trigger($event, $type, $object = null, array $options = array()) {
+		static $inspector;
+		if ($inspector === null) {
+			$inspector = new Inspector();
+		}
+
 		$options = array_merge(array(
 			self::OPTION_STOPPABLE => true,
 			self::OPTION_DEPRECATION_MESSAGE => '',
@@ -46,14 +51,23 @@ class EventsService extends \Elgg\HooksRegistrationService {
 		foreach ($events as $callback) {
 			if (!is_callable($callback)) {
 				if ($this->logger) {
-					$inspector = new Inspector();
 					$this->logger->warn("handler for event [$event, $type] is not callable: "
 										. $inspector->describeCallable($callback));
 				}
 				continue;
 			}
 
-			$return = call_user_func_array($callback, $args);
+
+			if ($type === 'system' && $event !== 'shutdown') {
+				$callback_as_string = $inspector->describeCallable($callback) . "()";
+
+				$GLOBALS['_ELGG_MICROTIMES']["$event,$type"][$callback_as_string][':begin'] = microtime();
+				$return = call_user_func_array($callback, $args);
+				$GLOBALS['_ELGG_MICROTIMES']["$event,$type"][$callback_as_string][':end'] = microtime();
+			} else {
+				$return = call_user_func_array($callback, $args);
+			}
+
 			if (!empty($options[self::OPTION_STOPPABLE]) && ($return === false)) {
 				return false;
 			}

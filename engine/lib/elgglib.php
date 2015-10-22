@@ -1460,12 +1460,10 @@ function _elgg_normalize_plural_options_array($options, $singulars) {
  * @access private
  */
 function _elgg_shutdown_hook() {
-	global $START_MICROTIME;
-
 	try {
 		elgg_trigger_event('shutdown', 'system');
 
-		$time = (float)(microtime(true) - $START_MICROTIME);
+		$time = (float)(microtime(true) - $GLOBALS['START_MICROTIME']);
 		$uri = _elgg_services()->request->server->get('REQUEST_URI', 'CLI');
 		// demoted to NOTICE from DEBUG so javascript is not corrupted
 		elgg_log("Page {$uri} generated in $time seconds", 'INFO');
@@ -1936,6 +1934,10 @@ function _elgg_init() {
 
 		return $result;
 	});
+
+	if (_elgg_services()->config->getVolatile('enable_profiling')) {
+		elgg_register_plugin_hook_handler('output', 'page', [\Elgg\Profiler::class, 'handlePageOutput'], 999);
+	}
 
 	// Trigger the shutdown:system event upon PHP shutdown.
 	register_shutdown_function('_elgg_shutdown_hook');

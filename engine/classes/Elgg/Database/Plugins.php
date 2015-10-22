@@ -308,6 +308,8 @@ class Plugins {
 	 * @access private
 	 */
 	function load() {
+		$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':begin'] = microtime();
+
 		$plugins_path = elgg_get_plugins_path();
 		$start_flags = ELGG_PLUGIN_INCLUDE_START |
 						ELGG_PLUGIN_REGISTER_VIEWS |
@@ -355,6 +357,8 @@ class Plugins {
 		}
 
 		$this->active_ids_known = true;
+
+		$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':end'] = microtime();
 		return $return;
 	}
 	

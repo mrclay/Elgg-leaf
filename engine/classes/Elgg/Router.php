@@ -61,6 +61,9 @@ class Router {
 			'handler' => $identifier, // backward compatibility
 			'segments' => $segments,
 		);
+
+		$GLOBALS['_ELGG_MICROTIMES']['build page'][':begin'] = microtime();
+
 		$result = $this->hooks->trigger('route', $identifier, $result, $result);
 		if ($result === false) {
 			return true;

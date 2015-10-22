@@ -415,6 +415,10 @@ function elgg_unextend_view($view, $view_extension) {
  * @since  1.8
  */
 function elgg_view_page($title, $body, $page_shell = 'default', $vars = array()) {
+	if (!isset($GLOBALS['_ELGG_MICROTIMES']['build page'][':end'])) {
+		$GLOBALS['_ELGG_MICROTIMES']['build page'][':end'] = microtime();
+	}
+	$GLOBALS['_ELGG_MICROTIMES'][__FUNCTION__][':begin'] = microtime();
 
 	$params = array();
 	$params['identifier'] = _elgg_services()->request->getFirstUrlSegment();
@@ -456,7 +460,10 @@ function elgg_view_page($title, $body, $page_shell = 'default', $vars = array())
 	$vars['page_shell'] = $page_shell;
 
 	// Allow plugins to modify the output
-	return elgg_trigger_plugin_hook('output', 'page', $vars, $output);
+	$output = elgg_trigger_plugin_hook('output', 'page', $vars, $output);
+
+	$GLOBALS['_ELGG_MICROTIMES'][__FUNCTION__][':end'] = microtime();
+	return $output;
 }
 
 /**
@@ -627,6 +634,10 @@ function _elgg_views_prepare_head($title) {
  * @return string The layout
  */
 function elgg_view_layout($layout_name, $vars = array()) {
+	if (!isset($GLOBALS['_ELGG_MICROTIMES']['build page'][':end'])) {
+		$GLOBALS['_ELGG_MICROTIMES']['build page'][':end'] = microtime();
+	}
+	$GLOBALS['_ELGG_MICROTIMES'][__FUNCTION__][':begin'] = microtime();
 
 	$params = array();
 	$params['identifier'] = _elgg_services()->request->getFirstUrlSegment();
@@ -646,7 +657,10 @@ function elgg_view_layout($layout_name, $vars = array()) {
 		$output = elgg_view("page/layouts/default", $params);
 	}
 
-	return elgg_trigger_plugin_hook('output:after', 'layout', $params, $output);
+	$output = elgg_trigger_plugin_hook('output:after', 'layout', $params, $output);
+
+	$GLOBALS['_ELGG_MICROTIMES'][__FUNCTION__][':end'] = microtime();
+	return $output;
 }
 
 /**

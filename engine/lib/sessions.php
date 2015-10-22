@@ -406,6 +406,7 @@ function logout() {
  * @access private
  */
 function _elgg_session_boot() {
+	$GLOBALS['_ELGG_MICROTIMES'][__FUNCTION__][':begin'] = microtime();
 
 	elgg_register_action('login', '', 'public');
 	elgg_register_action('logout');
@@ -448,5 +449,6 @@ function _elgg_session_boot() {
 		return false;
 	}
 
+	$GLOBALS['_ELGG_MICROTIMES'][__FUNCTION__][':end'] = microtime();
 	return true;
 }

@@ -408,7 +408,19 @@ class Database {
 		$this->queryCount++;
 
 		try {
-			return $connection->query($query);
+			// don't want to eat memory. need to opt-in to this by setting
+			// $GLOBALS['_ELGG_MICROTIMES']['SQL'] to empty array.
+			if (!isset($GLOBALS['_ELGG_MICROTIMES']['SQL'])) {
+				return $connection->query($query);
+			}
+
+			$timer_key = preg_replace('~\\s+~', ' ', trim($query));
+
+			$GLOBALS['_ELGG_MICROTIMES']['SQL'][$timer_key][':begin'] = microtime();
+			$value = $connection->query($query);
+			$GLOBALS['_ELGG_MICROTIMES']['SQL'][$timer_key][':end'] = microtime();
+
+			return $value;
 		} catch (\Exception $e) {
 			throw new \DatabaseException($e->getMessage() . "\n\n QUERY: $query");
 		}

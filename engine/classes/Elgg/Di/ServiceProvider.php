@@ -127,6 +127,9 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		});
 
 		$this->setFactory('db', function(ServiceProvider $c) {
+			if ($c->config->getVolatile('profiling_sql')) {
+				$GLOBALS['_ELGG_MICROTIMES']['SQL'] = [];
+			}
 			$db_config = new \Elgg\Database\Config($c->config->getStorageObject());
 
 			// we inject the logger in _elgg_engine_boot()

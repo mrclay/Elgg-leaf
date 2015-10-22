@@ -134,6 +134,8 @@ class SystemCache {
 	 * @access private
 	 */
 	function loadAll() {
+		$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':begin'] = microtime();
+
 		$this->CONFIG->system_cache_loaded = false;
 
 		if (!_elgg_services()->views->configureFromCache($this)) {
@@ -149,6 +151,8 @@ class SystemCache {
 		// Note: We don't need view_overrides for operation. Inspector can pull this from the cache
 	
 		$this->CONFIG->system_cache_loaded = true;
+
+		$GLOBALS['_ELGG_MICROTIMES'][__METHOD__][':end'] = microtime();
 	}
 	
 	/**
