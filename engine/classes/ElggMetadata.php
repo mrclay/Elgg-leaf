@@ -45,6 +45,8 @@ class ElggMetadata extends \ElggExtender {
 				$this->attributes[$key] = $value;
 			}
 		}
+
+		$this->attributes['access_id'] = ACCESS_PUBLIC;
 	}
 
 	/**

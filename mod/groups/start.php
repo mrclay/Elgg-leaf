@@ -353,7 +353,7 @@ function groups_set_url($hook, $type, $url, $params) {
 function groups_set_icon_url($hook, $type, $url, $params) {
 
 	$entity = elgg_extract('entity', $params);
-	/* @var $group \ElggGroup */
+	/* @var $entity \ElggGroup */
 
 	$size = elgg_extract('size', $params, 'medium');
 
@@ -362,8 +362,8 @@ function groups_set_icon_url($hook, $type, $url, $params) {
 		// handle missing metadata (pre 1.7 installations)
 		$icon = $entity->getIcon('large');
 		$icontime = $icon->exists() ? time() : 0;
-		create_metadata($entity->guid, 'icontime', $icontime, 'integer', $entity->owner_guid, ACCESS_PUBLIC);
-}
+		create_metadata($entity->guid, 'icontime', $icontime, 'integer', $entity->owner_guid);
+	}
 
 	$icon = $entity->getIcon($size);
 	$url = elgg_get_inline_url($icon, true); // binding to session due to complexity in group access controls

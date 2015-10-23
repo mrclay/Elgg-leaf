@@ -10,6 +10,7 @@
  * @uses vars['entity']
  */
 $entity = elgg_extract('entity', $vars);
+/* @var ElggUser $entity */
 
 echo elgg_view_input('text', array(
 	'name' => 'name',
@@ -23,24 +24,19 @@ $sticky_values = elgg_get_sticky_values('profile:edit');
 $profile_fields = elgg_get_config('profile_fields');
 if (is_array($profile_fields) && count($profile_fields) > 0) {
 	foreach ($profile_fields as $shortname => $valtype) {
-		$metadata = elgg_get_metadata(array(
-			'guid' => $entity->guid,
-			'metadata_name' => $shortname,
-			'limit' => false
-		));
-		if ($metadata) {
-			if (is_array($metadata)) {
-				$value = '';
-				foreach ($metadata as $md) {
-					if (!empty($value)) {
-						$value .= ', ';
-					}
-					$value .= $md->value;
-					$access_id = $md->access_id;
+
+		$annotations = $entity->getAnnotations([
+			'annotation_names' => "profile:$shortname",
+			'limit' => false,
+		]);
+		if ($annotations) {
+			$value = '';
+			foreach ($annotations as $annotation) {
+				if (!empty($value)) {
+					$value .= ', ';
 				}
-			} else {
-				$value = $metadata->value;
-				$access_id = $metadata->access_id;
+				$value .= $annotation->value;
+				$access_id = $annotation->access_id;
 			}
 		} else {
 			$value = '';

@@ -12,6 +12,16 @@ See the administrator guides for :doc:`how to upgrade a live site </admin/upgrad
 From 2.x to 3.0
 ===============
 
+Changed data model
+------------------
+
+Metadata no longer are access-controlled
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Metadata is available in all contexts. If your plugin created metadata with restricted access, those restirctions will not be honored. You should use annotations or entities instead, which do provide access control.
+
+Do not read or write to the ``access_id`` property on ElggMetadata objects.
+
 Removed classes
 ---------------
 

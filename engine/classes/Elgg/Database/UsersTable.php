@@ -122,7 +122,7 @@ class UsersTable {
 			return false;
 		}
 
-		create_metadata($user_guid, 'ban_reason', $reason, '', 0, ACCESS_PUBLIC);
+		create_metadata($user_guid, 'ban_reason', $reason);
 
 		_elgg_invalidate_cache_for_entity($user_guid);
 		_elgg_invalidate_memcache_for_entity($user_guid);
@@ -177,7 +177,7 @@ class UsersTable {
 			return false;
 		}
 
-		create_metadata($user_guid, 'ban_reason', '', '', 0, ACCESS_PUBLIC);
+		create_metadata($user_guid, 'ban_reason', '');
 
 		_elgg_invalidate_cache_for_entity($user_guid);
 		_elgg_invalidate_memcache_for_entity($user_guid);
@@ -482,8 +482,8 @@ class UsersTable {
 	 * @return bool
 	 */
 	public function setValidationStatus($user_guid, $status, $method = '') {
-		$result1 = create_metadata($user_guid, 'validated', $status, '', 0, ACCESS_PUBLIC, false);
-		$result2 = create_metadata($user_guid, 'validated_method', $method, '', 0, ACCESS_PUBLIC, false);
+		$result1 = create_metadata($user_guid, 'validated', $status);
+		$result2 = create_metadata($user_guid, 'validated_method', $method);
 		if ($result1 && $result2) {
 			return true;
 		} else {

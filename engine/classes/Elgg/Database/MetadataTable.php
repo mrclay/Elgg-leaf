@@ -108,13 +108,13 @@ class MetadataTable {
 	 * @param string $value          Value of the metadata
 	 * @param string $value_type     'text', 'integer', or '' for automatic detection
 	 * @param int    $owner_guid     GUID of entity that owns the metadata. Default is logged in user.
-	 * @param int    $access_id      Default is ACCESS_PRIVATE
+	 * @param int    $ignored        This argument is not used
 	 * @param bool   $allow_multiple Allow multiple values for one key. Default is false
 	 *
 	 * @return int|false id of metadata or false if failure
 	 */
 	function create($entity_guid, $name, $value, $value_type = '', $owner_guid = 0,
-			$access_id = ACCESS_PRIVATE, $allow_multiple = false) {
+			$ignored = ACCESS_PRIVATE, $allow_multiple = false) {
 
 		$entity_guid = (int)$entity_guid;
 		// name and value are encoded in add_metastring()
@@ -131,8 +131,8 @@ class MetadataTable {
 			$owner_guid = $this->session->getLoggedInUserGuid();
 		}
 	
-		$access_id = (int) $access_id;
-	
+		$access_id = ACCESS_PUBLIC;
+
 		$query = "SELECT * FROM {$this->table}
 			WHERE entity_guid = :entity_guid and name_id = :name_id LIMIT 1";
 
@@ -144,7 +144,7 @@ class MetadataTable {
 		$existing = $this->db->getDataRow($query, null, $params);
 		if ($existing && !$allow_multiple) {
 			$id = (int)$existing->id;
-			$result = $this->update($id, $name, $value, $value_type, $owner_guid, $access_id);
+			$result = $this->update($id, $name, $value, $value_type, $owner_guid);
 	
 			if (!$result) {
 				return false;
@@ -207,11 +207,10 @@ class MetadataTable {
 	 * @param string $value      Metadata value
 	 * @param string $value_type Value type
 	 * @param int    $owner_guid Owner guid
-	 * @param int    $access_id  Access ID
 	 *
 	 * @return bool
 	 */
-	function update($id, $name, $value, $value_type, $owner_guid, $access_id) {
+	function update($id, $name, $value, $value_type, $owner_guid) {
 		$id = (int)$id;
 	
 		if (!$md = $this->get($id)) {
@@ -228,7 +227,7 @@ class MetadataTable {
 			$owner_guid = $this->session->getLoggedInUserGuid();
 		}
 	
-		$access_id = (int)$access_id;
+		$access_id = ACCESS_PUBLIC;
 	
 		// Support boolean types (as integers)
 		if (is_bool($value)) {
@@ -290,17 +289,17 @@ class MetadataTable {
 	 * @param array  $name_and_values Associative array - a value can be a string, number, bool
 	 * @param string $value_type      'text', 'integer', or '' for automatic detection
 	 * @param int    $owner_guid      GUID of entity that owns the metadata
-	 * @param int    $access_id       Default is ACCESS_PRIVATE
+	 * @param int    $ignored         This argument is not used
 	 * @param bool   $allow_multiple  Allow multiple values for one key. Default is false
 	 *
 	 * @return bool
 	 */
 	function createFromArray($entity_guid, array $name_and_values, $value_type, $owner_guid,
-			$access_id = ACCESS_PRIVATE, $allow_multiple = false) {
+							$ignored = ACCESS_PRIVATE, $allow_multiple = false) {
 	
 		foreach ($name_and_values as $k => $v) {
 			$result = $this->create($entity_guid, $k, $v, $value_type, $owner_guid,
-				$access_id, $allow_multiple);
+				null, $allow_multiple);
 			if (!$result) {
 				return false;
 			}
@@ -550,11 +549,6 @@ class MetadataTable {
 		// only supported on values.
 		$binary = ($case_sensitive) ? ' BINARY ' : '';
 	
-		$access = _elgg_get_access_where_sql(array(
-			'table_alias' => 'n_table',
-			'guid_column' => 'entity_guid',
-		));
-	
 		$return = array (
 			'joins' => array (),
 			'wheres' => array(),
@@ -612,11 +606,11 @@ class MetadataTable {
 		}
 	
 		if ($names_where && $values_where) {
-			$wheres[] = "($names_where AND $values_where AND $access)";
+			$wheres[] = "($names_where AND $values_where)";
 		} elseif ($names_where) {
-			$wheres[] = "($names_where AND $access)";
+			$wheres[] = "($names_where)";
 		} elseif ($values_where) {
-			$wheres[] = "($values_where AND $access)";
+			$wheres[] = "($values_where)";
 		}
 	
 		// add pairs
@@ -665,11 +659,6 @@ class MetadataTable {
 				// for comparing
 				$trimmed_operand = trim(strtolower($operand));
 	
-				$access = _elgg_get_access_where_sql(array(
-					'table_alias' => "n_table{$i}",
-					'guid_column' => 'entity_guid',
-				));
-
 				// certain operands can't work well with strings that can be interpreted as numbers
 				// for direct comparisons like IN, =, != we treat them as strings
 				// gt/lt comparisons need to stay unencapsulated because strings '5' > '15'
@@ -716,7 +705,7 @@ class MetadataTable {
 					on n_table{$i}.value_id = msv{$i}.id";
 	
 				$pair_wheres[] = "(msn{$i}.string = '$name' AND {$pair_binary}msv{$i}.string
-					$operand $value AND $access)";
+					$operand $value)";
 	
 				$i++;
 			}
@@ -762,12 +751,7 @@ class MetadataTable {
 					$return['joins'][] = "JOIN {$this->metastringsTable->getTableName()} msv{$i}
 						on n_table{$i}.value_id = msv{$i}.id";
 	
-					$access = _elgg_get_access_where_sql(array(
-						'table_alias' => "n_table{$i}",
-						'guid_column' => 'entity_guid',
-					));
-	
-					$return['wheres'][] = "(msn{$i}.string = '$name' AND $access)";
+					$return['wheres'][] = "(msn{$i}.string = '$name')";
 					if (isset($order_by['as']) && $order_by['as'] == 'integer') {
 						$return['orders'][] = "CAST(msv{$i}.string AS SIGNED) $direction";
 					} else {
