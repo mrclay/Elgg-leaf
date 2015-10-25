@@ -322,7 +322,7 @@ function _elgg_notify_user($to, $from, $subject, $message, array $params = null,
 		$to = array((int)$to);
 	}
 	$from = (int)$from;
-	//$subject = sanitise_string($subject);
+	//$subject = sanitize_string($subject);
 
 	// Get notification methods
 	if (($methods_override) && (!is_array($methods_override))) {
@@ -563,7 +563,7 @@ function get_user_notification_settings($user_guid = 0) {
  */
 function set_user_notification_setting($user_guid, $method, $value) {
 	$user_guid = (int)$user_guid;
-	$method = sanitise_string($method);
+	$method = _elgg_services()->db->sanitizeString($method);
 
 	$user = get_entity($user_guid);
 	if (!$user) {

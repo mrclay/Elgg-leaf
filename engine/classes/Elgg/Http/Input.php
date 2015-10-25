@@ -70,12 +70,9 @@ class Input {
 	 * @return mixed
 	 */
 	function get($variable, $default = null, $filter_result = true) {
-			
-		
-	
 		$result = $default;
-	
-		elgg_push_context('input');
+
+		_elgg_services()->context->push('input');
 	
 		if (isset($this->CONFIG->input[$variable])) {
 			// a plugin has already set this variable
@@ -98,8 +95,8 @@ class Input {
 				}
 			}
 		}
-	
-		elgg_pop_context();
+
+		_elgg_services()->context->pop();
 	
 		return $result;
 

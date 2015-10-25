@@ -42,11 +42,11 @@ function get_system_log($by_user = "", $event = "", $class = "", $type = "", $su
 		$by_user = (int)$by_user;
 	}
 	
-	$event = sanitise_string($event);
-	$class = sanitise_string($class);
-	$type = sanitise_string($type);
-	$subtype = sanitise_string($subtype);
-	$ip_address = sanitise_string($ip_address);
+	$event = _elgg_services()->db->sanitizeString($event);
+	$class = _elgg_services()->db->sanitizeString($class);
+	$type = _elgg_services()->db->sanitizeString($type);
+	$subtype = _elgg_services()->db->sanitizeString($subtype);
+	$ip_address = _elgg_services()->db->sanitizeString($ip_address);
 	if ($limit === null) {
 		$limit = elgg_get_config('default_limit');
 	}
@@ -212,9 +212,9 @@ function system_log($object, $event) {
 		$object_class = get_class($object);
 		$object_type = $object->getType();
 		$object_subtype = $object->getSubtype();
-		$event = sanitise_string($event);
+		$event = _elgg_services()->db->sanitizeString($event);
 		$time = time();
-		$ip_address = sanitize_string(_elgg_services()->request->getClientIp());
+		$ip_address = _elgg_services()->db->sanitizeString(_elgg_services()->request->getClientIp());
 		if (!$ip_address) {
 			$ip_address = '0.0.0.0';
 		}

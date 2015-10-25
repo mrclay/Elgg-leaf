@@ -35,7 +35,7 @@ class DatabaseSessionHandler implements \SessionHandlerInterface {
 	 */
 	public function read($session_id) {
 		
-		$id = sanitize_string($session_id);
+		$id = $this->db->sanitizeString($session_id);
 		$query = "SELECT * FROM {$this->db->getTablePrefix()}users_sessions WHERE session='$id'";
 		$result = $this->db->getDataRow($query);
 		if ($result) {
@@ -49,9 +49,9 @@ class DatabaseSessionHandler implements \SessionHandlerInterface {
 	 * {@inheritDoc}
 	 */
 	public function write($session_id, $session_data) {
-		$id = sanitize_string($session_id);
+		$id = $this->db->sanitizeString($session_id);
 		$time = time();
-		$sess_data_sanitised = sanitize_string($session_data);
+		$sess_data_sanitised = $this->db->sanitizeString($session_data);
 
 		$query = "REPLACE INTO {$this->db->getTablePrefix()}users_sessions
 			(session, ts, data) VALUES
@@ -76,7 +76,7 @@ class DatabaseSessionHandler implements \SessionHandlerInterface {
 	 */
 	public function destroy($session_id) {
 		
-		$id = sanitize_string($session_id);
+		$id = $this->db->sanitizeString($session_id);
 		$query = "DELETE FROM {$this->db->getTablePrefix()}users_sessions WHERE session='$id'";
 		return (bool) $this->db->deleteData($query);
 	}

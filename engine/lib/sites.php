@@ -55,7 +55,7 @@ function get_site_entity_as_row($guid) {
 function get_site_by_url($url) {
 	global $CONFIG;
 
-	$url = sanitise_string($url);
+	$url = _elgg_services()->db->sanitizeString($url);
 
 	$row = get_data_row("SELECT * from {$CONFIG->dbprefix}sites_entity where url='$url'");
 

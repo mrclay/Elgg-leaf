@@ -266,7 +266,7 @@ class ElggCoreMetadataAPITest extends \ElggCoreUnitTest {
 		global $CONFIG, $METASTRINGS_CACHE;
 		$METASTRINGS_CACHE = array();
 
-		$string = sanitise_string($string);
+		$string = _elgg_services()->db->sanitizeString($string);
 		_elgg_services()->db->deleteData("
 			DELETE FROM {$CONFIG->dbprefix}metastrings WHERE string = BINARY '$string'
 		");
@@ -276,7 +276,7 @@ class ElggCoreMetadataAPITest extends \ElggCoreUnitTest {
 		global $CONFIG, $METASTRINGS_CACHE;
 		$METASTRINGS_CACHE = array();
 
-		$string = sanitise_string($string);
+		$string = _elgg_services()->db->sanitizeString($string);
 		$id = _elgg_services()->db->insertData("
 			INSERT INTO {$CONFIG->dbprefix}metastrings (string) VALUES ('$string')
 		");

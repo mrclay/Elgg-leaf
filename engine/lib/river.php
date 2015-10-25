@@ -402,8 +402,8 @@ function elgg_get_river(array $options = array()) {
 	}
 
 	// Make sure that user has access to all the entities referenced by each river item
-	$object_access_where = _elgg_get_access_where_sql(array('table_alias' => 'oe'));
-	$target_access_where = _elgg_get_access_where_sql(array('table_alias' => 'te'));
+	$object_access_where = _elgg_services()->accessCollections->getWhereSql(array('table_alias' => 'oe'));
+	$target_access_where = _elgg_services()->accessCollections->getWhereSql(array('table_alias' => 'te'));
 
 	// We use LEFT JOIN with entities table but the WHERE clauses are used
 	// regardless if a JOIN is successfully made. The "te.guid IS NULL" is
@@ -411,12 +411,12 @@ function elgg_get_river(array $options = array()) {
 	$query .= "$object_access_where AND ($target_access_where OR te.guid IS NULL) ";
 
 	if (!$options['count']) {
-		$options['group_by'] = sanitise_string($options['group_by']);
+		$options['group_by'] = _elgg_services()->db->sanitizeString($options['group_by']);
 		if ($options['group_by']) {
 			$query .= " GROUP BY {$options['group_by']}";
 		}
 
-		$options['order_by'] = sanitise_string($options['order_by']);
+		$options['order_by'] = _elgg_services()->db->sanitizeString($options['order_by']);
 		$query .= " ORDER BY {$options['order_by']}";
 
 		if ($options['limit']) {
@@ -586,7 +586,7 @@ function _elgg_get_river_type_subtype_where_sql($table, $types, $subtypes, $pair
 				$types = array($types);
 			}
 			foreach ($types as $type) {
-				$type = sanitise_string($type);
+				$type = _elgg_services()->db->sanitizeString($type);
 				$types_wheres[] = "({$table}.type = '$type')";
 			}
 		}
@@ -596,7 +596,7 @@ function _elgg_get_river_type_subtype_where_sql($table, $types, $subtypes, $pair
 				$subtypes = array($subtypes);
 			}
 			foreach ($subtypes as $subtype) {
-				$subtype = sanitise_string($subtype);
+				$subtype = _elgg_services()->db->sanitizeString($subtype);
 				$subtypes_wheres[] = "({$table}.subtype = '$subtype')";
 			}
 		}
@@ -614,16 +614,16 @@ function _elgg_get_river_type_subtype_where_sql($table, $types, $subtypes, $pair
 	} else {
 		// using type/subtype pairs
 		foreach ($pairs as $paired_type => $paired_subtypes) {
-			$paired_type = sanitise_string($paired_type);
+			$paired_type = _elgg_services()->db->sanitizeString($paired_type);
 			if (is_array($paired_subtypes)) {
-				$paired_subtypes = array_map('sanitise_string', $paired_subtypes);
+				$paired_subtypes = array_map('sanitize_string', $paired_subtypes);
 				$paired_subtype_str = implode("','", $paired_subtypes);
 				if ($paired_subtype_str) {
 					$wheres[] = "({$table}.type = '$paired_type'"
 						. " AND {$table}.subtype IN ('$paired_subtype_str'))";
 				}
 			} else {
-				$paired_subtype = sanitise_string($paired_subtypes);
+				$paired_subtype = _elgg_services()->db->sanitizeString($paired_subtypes);
 				$wheres[] = "({$table}.type = '$paired_type'"
 					. " AND {$table}.subtype = '$paired_subtype')";
 			}
@@ -653,14 +653,14 @@ function _elgg_river_get_action_where_sql($types) {
 	}
 
 	if (!is_array($types)) {
-		$types = sanitise_string($types);
+		$types = _elgg_services()->db->sanitizeString($types);
 		return "(rv.action_type = '$types')";
 	}
 
 	// sanitize types array
 	$types_sanitized = array();
 	foreach ($types as $type) {
-		$types_sanitized[] = sanitise_string($type);
+		$types_sanitized[] = _elgg_services()->db->sanitizeString($type);
 	}
 
 	$type_str = implode("','", $types_sanitized);
@@ -682,14 +682,14 @@ function _elgg_river_get_view_where_sql($views) {
 	}
 
 	if (!is_array($views)) {
-		$views = sanitise_string($views);
+		$views = _elgg_services()->db->sanitizeString($views);
 		return "(rv.view = '$views')";
 	}
 
 	// sanitize views array
 	$views_sanitized = array();
 	foreach ($views as $view) {
-		$views_sanitized[] = sanitise_string($view);
+		$views_sanitized[] = _elgg_services()->db->sanitizeString($view);
 	}
 
 	$view_str = implode("','", $views_sanitized);

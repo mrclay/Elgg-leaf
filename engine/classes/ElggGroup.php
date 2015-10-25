@@ -538,8 +538,8 @@ class ElggGroup extends \ElggEntity
 		}
 		
 		$guid = (int)$this->guid;
-		$name = sanitize_string($this->name);
-		$description = sanitize_string($this->description);
+		$name = $this->getDatabase()->sanitizeString($this->name);
+		$description = $this->getDatabase()->sanitizeString($this->description);
 		
 		$query = "UPDATE {$CONFIG->dbprefix}groups_entity set"
 			. " name='$name', description='$description' where guid=$guid";
@@ -560,8 +560,8 @@ class ElggGroup extends \ElggEntity
 			return false;
 		}
 		
-		$name = sanitize_string($this->name);
-		$description = sanitize_string($this->description);
+		$name = $this->getDatabase()->sanitizeString($this->name);
+		$description = $this->getDatabase()->sanitizeString($this->description);
 
 		$query = "INSERT into {$CONFIG->dbprefix}groups_entity"
 			. " (guid, name, description) values ($guid, '$name', '$description')";

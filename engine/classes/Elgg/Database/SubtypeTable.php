@@ -238,9 +238,9 @@ class SubtypeTable {
 				'class' => $class,
 			);
 	
-			$type = sanitise_string($type);
-			$subtype = sanitise_string($subtype);
-			$class = sanitise_string($class);
+			$type = _elgg_services()->db->sanitizeString($type);
+			$subtype = _elgg_services()->db->sanitizeString($subtype);
+			$class = _elgg_services()->db->sanitizeString($class);
 	
 			$id = _elgg_services()->db->insertData("INSERT INTO {$this->CONFIG->dbprefix}entity_subtypes"
 				. " (type, subtype, class) VALUES ('$type', '$subtype', '$class')");
@@ -270,8 +270,8 @@ class SubtypeTable {
 	function remove($type, $subtype) {
 		global $SUBTYPE_CACHE;
 	
-		$type = sanitise_string($type);
-		$subtype = sanitise_string($subtype);
+		$type = _elgg_services()->db->sanitizeString($type);
+		$subtype = _elgg_services()->db->sanitizeString($subtype);
 	
 		$success = _elgg_services()->db->deleteData("DELETE FROM {$this->CONFIG->dbprefix}entity_subtypes"
 			. " WHERE type = '$type' AND subtype = '$subtype'");
@@ -307,9 +307,9 @@ class SubtypeTable {
 	
 		$unescaped_class = $class;
 	
-		$type = sanitise_string($type);
-		$subtype = sanitise_string($subtype);
-		$class = sanitise_string($class);
+		$type = _elgg_services()->db->sanitizeString($type);
+		$subtype = _elgg_services()->db->sanitizeString($subtype);
+		$class = _elgg_services()->db->sanitizeString($class);
 		
 		$success = _elgg_services()->db->updateData("UPDATE {$this->CONFIG->dbprefix}entity_subtypes
 			SET type = '$type', subtype = '$subtype', class = '$class'

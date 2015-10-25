@@ -31,7 +31,7 @@ if (elgg_is_active_plugin('groups')) {
 	// Force Elgg to discover the new plugin in plugins directory
 	// and create a new \ElggPlugin entity for it so it can be
 	// found with elgg_get_plugin_from_id().
-	_elgg_generate_plugin_entities();
+	_elgg_services()->plugins->generateEntities();
 
 	$plugin = elgg_get_plugin_from_id('discussions');
 	$plugin->activate();

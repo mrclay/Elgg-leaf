@@ -52,7 +52,7 @@ class ConfigTable {
 			unset($this->CONFIG->$name);
 		}
 	
-		$escaped_name = sanitize_string($name);
+		$escaped_name = _elgg_services()->db->sanitizeString($name);
 		$query = "DELETE FROM {$this->CONFIG->dbprefix}config WHERE name = '$escaped_name' AND site_guid = $site_guid";
 	
 		return _elgg_services()->db->deleteData($query) !== false;
@@ -99,8 +99,8 @@ class ConfigTable {
 			$this->CONFIG->$name = $value;
 		}
 	
-		$escaped_name = sanitize_string($name);
-		$escaped_value = sanitize_string(serialize($value));
+		$escaped_name = _elgg_services()->db->sanitizeString($name);
+		$escaped_value = _elgg_services()->db->sanitizeString(serialize($value));
 		$result = _elgg_services()->db->insertData("INSERT INTO {$this->CONFIG->dbprefix}config
 			SET name = '$escaped_name', value = '$escaped_value', site_guid = $site_guid
 			ON DUPLICATE KEY UPDATE value = '$escaped_value'");
@@ -158,7 +158,7 @@ class ConfigTable {
 			return $this->CONFIG->$name;
 		}
 	
-		$escaped_name = sanitize_string($name);
+		$escaped_name = _elgg_services()->db->sanitizeString($name);
 		$result = _elgg_services()->db->getDataRow("SELECT value FROM {$this->CONFIG->dbprefix}config
 			WHERE name = '$escaped_name' AND site_guid = $site_guid");
 	

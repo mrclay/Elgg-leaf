@@ -359,7 +359,7 @@ class Translator {
 		// Ensure that all possible translations are loaded
 		$this->reloadAllTranslations();
 	
-		$language = sanitise_string($language);
+		$language = _elgg_services()->db->sanitizeString($language);
 	
 		$en = count($GLOBALS['_ELGG']->translations['en']);
 	

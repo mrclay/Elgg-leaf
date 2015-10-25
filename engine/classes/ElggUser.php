@@ -133,13 +133,13 @@ class ElggUser extends \ElggEntity
 		global $CONFIG;
 	
 		$guid = parent::create();
-		$name = sanitize_string($this->name);
-		$username = sanitize_string($this->username);
-		$password = sanitize_string($this->password);
-		$salt = sanitize_string($this->salt);
-		$password_hash = sanitize_string($this->password_hash);
-		$email = sanitize_string($this->email);
-		$language = sanitize_string($this->language);
+		$name = $this->getDatabase()->sanitizeString($this->name);
+		$username = $this->getDatabase()->sanitizeString($this->username);
+		$password = $this->getDatabase()->sanitizeString($this->password);
+		$salt = $this->getDatabase()->sanitizeString($this->salt);
+		$password_hash = $this->getDatabase()->sanitizeString($this->password_hash);
+		$email = $this->getDatabase()->sanitizeString($this->email);
+		$language = $this->getDatabase()->sanitizeString($this->language);
 
 		$query = "INSERT into {$CONFIG->dbprefix}users_entity
 			(guid, name, username, password, salt, password_hash, email, language)
@@ -165,13 +165,13 @@ class ElggUser extends \ElggEntity
 		}
 		
 		$guid = (int)$this->guid;
-		$name = sanitize_string($this->name);
-		$username = sanitize_string($this->username);
-		$password = sanitize_string($this->password);
-		$salt = sanitize_string($this->salt);
-		$password_hash = sanitize_string($this->password_hash);
-		$email = sanitize_string($this->email);
-		$language = sanitize_string($this->language);
+		$name = $this->getDatabase()->sanitizeString($this->name);
+		$username = $this->getDatabase()->sanitizeString($this->username);
+		$password = $this->getDatabase()->sanitizeString($this->password);
+		$salt = $this->getDatabase()->sanitizeString($this->salt);
+		$password_hash = $this->getDatabase()->sanitizeString($this->password_hash);
+		$email = $this->getDatabase()->sanitizeString($this->email);
+		$language = $this->getDatabase()->sanitizeString($this->language);
 
 		$query = "UPDATE {$CONFIG->dbprefix}users_entity
 			SET name='$name', username='$username', password='$password', salt='$salt',

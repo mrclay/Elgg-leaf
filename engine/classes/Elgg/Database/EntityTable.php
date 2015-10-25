@@ -50,7 +50,7 @@ class EntityTable {
 		}
 	
 		$guid = (int) $guid;
-		$access = _elgg_get_access_where_sql(array('table_alias' => ''));
+		$access = _elgg_services()->accessCollections->getWhereSql(array('table_alias' => ''));
 	
 		return _elgg_services()->db->getDataRow("SELECT * from {$this->CONFIG->dbprefix}entities where guid=$guid and $access");
 	}
@@ -441,7 +441,7 @@ class EntityTable {
 		}
 	
 		// Add access controls
-		$query .= _elgg_get_access_where_sql();
+		$query .= _elgg_services()->accessCollections->getWhereSql();
 	
 		// reverse order by
 		if ($options['reverse_order_by']) {
@@ -1057,20 +1057,20 @@ class EntityTable {
 			}
 	
 			if (isset($pair['operand'])) {
-				$operand = sanitize_string($pair['operand']);
+				$operand = _elgg_services()->db->sanitizeString($pair['operand']);
 			} else {
 				$operand = '=';
 			}
 	
 			if (is_numeric($pair['value'])) {
-				$value = sanitize_string($pair['value']);
+				$value = _elgg_services()->db->sanitizeString($pair['value']);
 			} else if (is_array($pair['value'])) {
 				$values_array = array();
 				foreach ($pair['value'] as $pair_value) {
 					if (is_numeric($pair_value)) {
-						$values_array[] = sanitize_string($pair_value);
+						$values_array[] = _elgg_services()->db->sanitizeString($pair_value);
 					} else {
-						$values_array[] = "'" . sanitize_string($pair_value) . "'";
+						$values_array[] = "'" . _elgg_services()->db->sanitizeString($pair_value) . "'";
 					}
 				}
 	
@@ -1080,10 +1080,10 @@ class EntityTable {
 				}
 	
 			} else {
-				$value = "'" . sanitize_string($pair['value']) . "'";
+				$value = "'" . _elgg_services()->db->sanitizeString($pair['value']) . "'";
 			}
 	
-			$name = sanitize_string($pair['name']);
+			$name = _elgg_services()->db->sanitizeString($pair['name']);
 	
 			// case sensitivity can be specified per pair
 			$pair_binary = '';
@@ -1132,7 +1132,7 @@ class EntityTable {
 		$where = array();
 	
 		if ($type != "") {
-			$type = sanitise_string($type);
+			$type = _elgg_services()->db->sanitizeString($type);
 			$where[] = "type='$type'";
 		}
 	
@@ -1141,7 +1141,7 @@ class EntityTable {
 			if (sizeof($subtype)) {
 				foreach ($subtype as $typekey => $subtypearray) {
 					foreach ($subtypearray as $subtypeval) {
-						$typekey = sanitise_string($typekey);
+						$typekey = _elgg_services()->db->sanitizeString($typekey);
 						if (!empty($subtypeval)) {
 							if (!$subtypeval = (int) get_subtype_id($typekey, $subtypeval)) {
 								return false;
@@ -1185,7 +1185,7 @@ class EntityTable {
 			$where[] = "site_guid = {$site_guid}";
 		}
 	
-		$where[] = _elgg_get_access_where_sql(array('table_alias' => ''));
+		$where[] = _elgg_services()->accessCollections->getWhereSql(array('table_alias' => ''));
 	
 		$sql = "SELECT DISTINCT EXTRACT(YEAR_MONTH FROM FROM_UNIXTIME(time_created)) AS yearmonth
 			FROM {$this->CONFIG->dbprefix}entities where ";

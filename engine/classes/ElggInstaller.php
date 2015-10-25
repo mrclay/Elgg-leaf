@@ -1517,7 +1517,7 @@ class ElggInstaller {
 	 * @return void
 	 */
 	protected function enablePlugins() {
-		_elgg_generate_plugin_entities();
+		_elgg_services()->plugins->generateEntities();
 		$plugins = elgg_get_plugins('any');
 		foreach ($plugins as $plugin) {
 			if ($plugin->getManifest()) {

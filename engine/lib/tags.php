@@ -123,7 +123,7 @@ function elgg_get_tags(array $options = array()) {
 
 	$sanitised_tags = array();
 	foreach ($options['tag_names'] as $tag) {
-		$sanitised_tags[] = '"' . sanitise_string($tag) . '"';
+		$sanitised_tags[] = '"' . _elgg_services()->db->sanitizeString($tag) . '"';
 	}
 	$tags_in = implode(',', $sanitised_tags);
 	$wheres[] = "(msn.string IN ($tags_in))";
@@ -183,7 +183,7 @@ function elgg_get_tags(array $options = array()) {
 	}
 
 	// Add access controls
-	$query .= _elgg_get_access_where_sql();
+	$query .= _elgg_services()->accessCollections->getWhereSql();
 
 	$threshold = sanitise_int($options['threshold']);
 	$query .= " GROUP BY msv.string HAVING total >= {$threshold} ";

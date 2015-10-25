@@ -420,8 +420,8 @@ class Annotations {
 		);
 	
 		$options = array_merge($defaults, $options);
-	
-		$function = sanitize_string(elgg_extract('calculation', $options, 'sum', false));
+
+		$function = _elgg_services()->db->sanitizeString(elgg_extract('calculation', $options, 'sum', false));
 	
 		// you must cast this as an int or it sorts wrong.
 		$options['selects'][] = 'e.*';
@@ -460,7 +460,7 @@ class Annotations {
 	
 		$entity_guid = sanitize_int($entity_guid);
 		$owner_guid = sanitize_int($owner_guid);
-		$annotation_type = sanitize_string($annotation_type);
+		$annotation_type = _elgg_services()->db->sanitizeString($annotation_type);
 	
 		$sql = "SELECT a.id FROM {$this->CONFIG->dbprefix}annotations a" .
 				" JOIN {$this->CONFIG->dbprefix}metastrings m ON a.name_id = m.id" .

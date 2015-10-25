@@ -126,8 +126,8 @@ class ElggObject extends \ElggEntity {
 			// Is returning false the correct thing to do
 			return false;
 		}
-		$title = sanitize_string($this->title);
-		$description = sanitize_string($this->description);
+		$title = $this->getDatabase()->sanitizeString($this->title);
+		$description = $this->getDatabase()->sanitizeString($this->description);
 		
 		$query = "INSERT into {$CONFIG->dbprefix}objects_entity
 			(guid, title, description) values ($guid, '$title', '$description')";
@@ -152,8 +152,8 @@ class ElggObject extends \ElggEntity {
 		}
 		
 		$guid = (int)$this->guid;
-		$title = sanitize_string($this->title);
-		$description = sanitize_string($this->description);
+		$title = $this->getDatabase()->sanitizeString($this->title);
+		$description = $this->getDatabase()->sanitizeString($this->description);
 
 		$query = "UPDATE {$CONFIG->dbprefix}objects_entity
 			set title='$title', description='$description' where guid=$guid";

@@ -207,7 +207,7 @@ function input_livesearch_page_handler($page) {
 
 	$input_name = get_input('name', 'members');
 
-	$q = sanitise_string($q);
+	$q = _elgg_services()->db->sanitizeString($q);
 
 	// replace mysql vars with escaped strings
 	$q = str_replace(array('_', '%'), array('\_', '\%'), $q);

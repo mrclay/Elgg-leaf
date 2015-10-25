@@ -244,8 +244,8 @@ class UsersTable {
 		// this is harmless.
 		$username = rawurldecode($username);
 	
-		$username = sanitise_string($username);
-		$access = _elgg_get_access_where_sql();
+		$username = _elgg_services()->db->sanitizeString($username);
+		$access = _elgg_services()->accessCollections->getWhereSql();
 	
 		// Caching
 		if ((isset($USERNAME_TO_GUID_MAP_CACHE[$username]))
@@ -277,9 +277,9 @@ class UsersTable {
 	function getByEmail($email) {
 		
 	
-		$email = sanitise_string($email);
+		$email = _elgg_services()->db->sanitizeString($email);
 	
-		$access = _elgg_get_access_where_sql();
+		$access = _elgg_services()->accessCollections->getWhereSql();
 	
 		$query = "SELECT e.* FROM {$this->CONFIG->dbprefix}entities e
 			JOIN {$this->CONFIG->dbprefix}users_entity u ON e.guid = u.guid

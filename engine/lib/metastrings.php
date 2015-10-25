@@ -246,7 +246,7 @@ function _elgg_get_metastring_based_objects($options) {
 		$wheres = array_merge($wheres, $metastring_clauses['wheres']);
 		$joins = array_merge($joins, $metastring_clauses['joins']);
 	} else {
-		$wheres[] = _elgg_get_access_where_sql(array('table_alias' => 'n_table'));
+		$wheres[] = _elgg_services()->accessCollections->getWhereSql(array('table_alias' => 'n_table'));
 	}
 
 	$distinct = $options['distinct'] ? "DISTINCT " : "";
@@ -285,7 +285,7 @@ function _elgg_get_metastring_based_objects($options) {
 	}
 
 	// Add access controls
-	$query .= _elgg_get_access_where_sql(array('table_alias' => 'e'));
+	$query .= _elgg_services()->accessCollections->getWhereSql(array('table_alias' => 'e'));
 
 	// reverse order by
 	if (isset($options['reverse_order_by']) && $options['reverse_order_by']) {
@@ -294,12 +294,12 @@ function _elgg_get_metastring_based_objects($options) {
 
 	if ($options['metastring_calculation'] === ELGG_ENTITIES_NO_VALUE && !$options['count']) {
 		if (isset($options['group_by'])) {
-			$options['group_by'] = sanitise_string($options['group_by']);
+			$options['group_by'] = _elgg_services()->db->sanitizeString($options['group_by']);
 			$query .= " GROUP BY {$options['group_by']}";
 		}
 
 		if (isset($options['order_by']) && $options['order_by']) {
-			$options['order_by'] = sanitise_string($options['order_by']);
+			$options['order_by'] = _elgg_services()->db->sanitizeString($options['order_by']);
 			$query .= " ORDER BY {$options['order_by']}, n_table.id";
 		}
 
@@ -375,7 +375,7 @@ function _elgg_get_metastring_sql($table, $names = null, $values = null,
 			if (!$name) {
 				$name = '0';
 			}
-			$sanitised_names[] = '\'' . sanitise_string($name) . '\'';
+			$sanitised_names[] = '\'' . _elgg_services()->db->sanitizeString($name) . '\'';
 		}
 
 		if ($names_str = implode(',', $sanitised_names)) {
@@ -397,7 +397,7 @@ function _elgg_get_metastring_sql($table, $names = null, $values = null,
 			if (!$value) {
 				$value = 0;
 			}
-			$sanitised_values[] = '\'' . sanitise_string($value) . '\'';
+			$sanitised_values[] = '\'' . _elgg_services()->db->sanitizeString($value) . '\'';
 		}
 
 		if ($values_str = implode(',', $sanitised_values)) {
@@ -426,7 +426,7 @@ function _elgg_get_metastring_sql($table, $names = null, $values = null,
 		$wheres[] = $values_where;
 	}
 
-	$wheres[] = _elgg_get_access_where_sql(array('table_alias' => $table));
+	$wheres[] = _elgg_services()->accessCollections->getWhereSql(array('table_alias' => $table));
 
 	if ($where = implode(' AND ', $wheres)) {
 		$return['wheres'][] = "($where)";

@@ -478,7 +478,7 @@ class ElggPluginPackage {
 	 * @return bool
 	 */
 	private function checkDepPlugin(array $dep, array $plugins, $inverse = false) {
-		$r = _elgg_check_plugins_provides('plugin', $dep['name'], $dep['version'], $dep['comparison']);
+		$r = _elgg_services()->plugins->checkProvides('plugin', $dep['name'], $dep['version'], $dep['comparison']);
 
 		if ($inverse) {
 			$r['status'] = !$r['status'];
@@ -621,7 +621,7 @@ class ElggPluginPackage {
 
 		// some php extensions can be emulated, so check provides.
 		if ($status == false) {
-			$provides = _elgg_check_plugins_provides('php_extension', $name, $version, $comparison);
+			$provides = _elgg_services()->plugins->checkProvides('php_extension', $name, $version, $comparison);
 			$status = $provides['status'];
 			$ext_version = $provides['value'];
 		}

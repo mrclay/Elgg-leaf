@@ -82,7 +82,7 @@ class ElggPlugin extends \ElggObject {
 			}
 		}
 
-		_elgg_cache_plugin_by_id($this);
+		_elgg_services()->plugins->cache($this);
 	}
 
 	/**
@@ -181,7 +181,7 @@ class ElggPlugin extends \ElggObject {
 	 * @return int
 	 */
 	public function getPriority() {
-		$name = _elgg_namespace_plugin_private_setting('internal', 'priority');
+		$name = _elgg_services()->plugins->namespacePrivateSetting('internal', 'priority');
 		return $this->$name;
 	}
 
@@ -200,11 +200,11 @@ class ElggPlugin extends \ElggObject {
 		}
 
 		$db_prefix = _elgg_services()->configTable->get('dbprefix');
-		$name = _elgg_namespace_plugin_private_setting('internal', 'priority');
+		$name = _elgg_services()->plugins->namespacePrivateSetting('internal', 'priority');
 		// if no priority assume a priority of 1
 		$old_priority = (int) $this->getPriority();
 		$old_priority = (!$old_priority) ? 1 : $old_priority;
-		$max_priority = _elgg_get_max_plugin_priority();
+		$max_priority = _elgg_services()->plugins->getMaxPriority();
 
 		// can't use switch here because it's not strict and
 		// php evaluates +1 == 1
@@ -293,8 +293,8 @@ class ElggPlugin extends \ElggObject {
 
 		$db_prefix = _elgg_services()->config->get('dbprefix');
 		// need to remove all namespaced private settings.
-		$us_prefix = _elgg_namespace_plugin_private_setting('user_setting', '', $this->getID());
-		$is_prefix = _elgg_namespace_plugin_private_setting('internal', '', $this->getID());
+		$us_prefix = _elgg_services()->plugins->namespacePrivateSetting('user_setting', '', $this->getID());
+		$is_prefix = _elgg_services()->plugins->namespacePrivateSetting('internal', '', $this->getID());
 
 		// Get private settings for user
 		$q = "SELECT * FROM {$db_prefix}private_settings
@@ -362,8 +362,8 @@ class ElggPlugin extends \ElggObject {
 	 */
 	public function unsetAllSettings() {
 		$db_prefix = _elgg_services()->configTable->get('dbprefix');
-		$us_prefix = _elgg_namespace_plugin_private_setting('user_setting', '', $this->getID());
-		$is_prefix = _elgg_namespace_plugin_private_setting('internal', '', $this->getID());
+		$us_prefix = _elgg_services()->plugins->namespacePrivateSetting('user_setting', '', $this->getID());
+		$is_prefix = _elgg_services()->plugins->namespacePrivateSetting('internal', '', $this->getID());
 
 		$q = "DELETE FROM {$db_prefix}private_settings
 			WHERE entity_guid = $this->guid
@@ -398,7 +398,7 @@ class ElggPlugin extends \ElggObject {
 			return false;
 		}
 
-		$name = _elgg_namespace_plugin_private_setting('user_setting', $name, $this->getID());
+		$name = _elgg_services()->plugins->namespacePrivateSetting('user_setting', $name, $this->getID());
 		
 		$val = get_private_setting($user->guid, $name);
 		return $val !== null ? $val : $default;
@@ -427,7 +427,7 @@ class ElggPlugin extends \ElggObject {
 
 		$db_prefix = _elgg_services()->config->get('dbprefix');
 		// send an empty name so we just get the first part of the namespace
-		$ps_prefix = _elgg_namespace_plugin_private_setting('user_setting', '', $this->getID());
+		$ps_prefix = _elgg_services()->plugins->namespacePrivateSetting('user_setting', '', $this->getID());
 		$ps_prefix_len = strlen($ps_prefix);
 
 		// Get private settings for user
@@ -484,7 +484,7 @@ class ElggPlugin extends \ElggObject {
 		), $value);
 
 		// set the namespaced name.
-		$name = _elgg_namespace_plugin_private_setting('user_setting', $name, $this->getID());
+		$name = _elgg_services()->plugins->namespacePrivateSetting('user_setting', $name, $this->getID());
 
 		return set_private_setting($user->guid, $name, $value);
 	}
@@ -510,7 +510,7 @@ class ElggPlugin extends \ElggObject {
 		}
 
 		// set the namespaced name.
-		$name = _elgg_namespace_plugin_private_setting('user_setting', $name, $this->getID());
+		$name = _elgg_services()->plugins->namespacePrivateSetting('user_setting', $name, $this->getID());
 
 		return remove_private_setting($user->guid, $name);
 	}
@@ -529,7 +529,7 @@ class ElggPlugin extends \ElggObject {
 	 */
 	public function unsetAllUserSettings($user_guid) {
 		$db_prefix = _elgg_services()->configTable->get('dbprefix');
-		$ps_prefix = _elgg_namespace_plugin_private_setting('user_setting', '', $this->getID());
+		$ps_prefix = _elgg_services()->plugins->namespacePrivateSetting('user_setting', '', $this->getID());
 
 		$q = "DELETE FROM {$db_prefix}private_settings
 			WHERE entity_guid = $user_guid
@@ -548,7 +548,7 @@ class ElggPlugin extends \ElggObject {
 	 */
 	public function unsetAllUsersSettings() {
 		$db_prefix = _elgg_services()->configTable->get('dbprefix');
-		$ps_prefix = _elgg_namespace_plugin_private_setting('user_setting', '', $this->getID());
+		$ps_prefix = _elgg_services()->plugins->namespacePrivateSetting('user_setting', '', $this->getID());
 
 		$q = "DELETE FROM {$db_prefix}private_settings
 			WHERE name LIKE '$ps_prefix%'";
@@ -964,7 +964,7 @@ class ElggPlugin extends \ElggObject {
 			$result = remove_entity_relationship($this->guid, 'active_plugin', $site->guid);
 		}
 
-		_elgg_invalidate_plugins_provides_cache();
+		_elgg_services()->plugins->invalidateProvidesCache();
 
 		return $result;
 	}

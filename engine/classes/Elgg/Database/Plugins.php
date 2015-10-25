@@ -196,7 +196,7 @@ class Plugins {
 	 */
 	function get($plugin_id) {
 		return $this->plugins_by_id->get($plugin_id, function () use ($plugin_id) {
-			$plugin_id = sanitize_string($plugin_id);
+			$plugin_id = _elgg_services()->db->sanitizeString($plugin_id);
 			$db_prefix = get_config('dbprefix');
 
 			$options = array(

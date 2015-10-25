@@ -132,9 +132,9 @@ class ElggSite extends \ElggEntity {
 
 		$guid = parent::create();
 
-		$name = sanitize_string($this->attributes['name']);
-		$description = sanitize_string($this->attributes['description']);
-		$url = sanitize_string($this->attributes['url']);
+		$name = $this->getDatabase()->sanitizeString($this->attributes['name']);
+		$description = $this->getDatabase()->sanitizeString($this->attributes['description']);
+		$url = $this->getDatabase()->sanitizeString($this->attributes['url']);
 
 		$query = "INSERT into {$CONFIG->dbprefix}sites_entity
 			(guid, name, description, url) values ($guid, '$name', '$description', '$url')";
@@ -166,9 +166,9 @@ class ElggSite extends \ElggEntity {
 		}
 
 		$guid = (int)$this->guid;
-		$name = sanitize_string($this->name);
-		$description = sanitize_string($this->description);
-		$url = sanitize_string($this->url);
+		$name = $this->getDatabase()->sanitizeString($this->name);
+		$description = $this->getDatabase()->sanitizeString($this->description);
+		$url = $this->getDatabase()->sanitizeString($this->url);
 
 		$query = "UPDATE {$CONFIG->dbprefix}sites_entity
 			SET name='$name', description='$description', url='$url' WHERE guid=$guid";
