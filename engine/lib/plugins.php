@@ -47,21 +47,6 @@ define('ELGG_PLUGIN_USER_SETTING_PREFIX', 'plugin:user_setting:');
  */
 define('ELGG_PLUGIN_INTERNAL_PREFIX', 'elgg:internal:');
 
-
-/**
- * Returns a list of plugin directory names from a base directory.
- *
- * @param string $dir A dir to scan for plugins. Defaults to config's plugins_path.
- *                    Must have a trailing slash.
- *
- * @return array Array of directory names (not full paths)
- * @since 1.8.0
- * @access private
- */
-function _elgg_get_plugin_dirs_in_dir($dir = null) {
-	return _elgg_services()->plugins->getDirsInDir($dir);
-}
-
 /**
  * Discovers plugins in the plugins_path setting and creates \ElggPlugin
  * entities for them if they don't exist.  If there are plugins with entities
@@ -74,17 +59,6 @@ function _elgg_get_plugin_dirs_in_dir($dir = null) {
  */
 function _elgg_generate_plugin_entities() {
 	return _elgg_services()->plugins->generateEntities();
-}
-
-/**
- * Cache a reference to this plugin by its ID
- *
- * @param \ElggPlugin $plugin
- *
- * @access private
- */
-function _elgg_cache_plugin_by_id(\ElggPlugin $plugin) {
-	return _elgg_services()->plugins->cache($plugin);
 }
 
 /**
@@ -146,108 +120,6 @@ function elgg_is_active_plugin($plugin_id, $site_guid = null) {
  */
 function elgg_get_plugins($status = 'active', $site_guid = null) {
 	return _elgg_services()->plugins->find($status, $site_guid);
-}
-
-/**
- * Reorder plugins to an order specified by the array.
- * Plugins not included in this array will be appended to the end.
- *
- * @note This doesn't use the \ElggPlugin->setPriority() method because
- *       all plugins are being changed and we don't want it to automatically
- *       reorder plugins.
- *
- * @param array $order An array of plugin ids in the order to set them
- * @return bool
- * @since 1.8.0
- * @access private
- */
-function _elgg_set_plugin_priorities(array $order) {
-	return _elgg_services()->plugins->setPriorities($order);
-}
-
-/**
- * Reindexes all plugin priorities starting at 1.
- *
- * @todo Can this be done in a single sql command?
- * @return bool
- * @since 1.8.0
- * @access private
- */
-function _elgg_reindex_plugin_priorities() {
-	return _elgg_services()->plugins->reindexPriorities();
-}
-
-/**
- * Namespaces a string to be used as a private setting name for a plugin.
- *
- * For user_settings, two namespaces are added: a user setting namespace and the
- * plugin id.
- *
- * For internal (plugin priority), there is a single internal namespace added.
- *
- * @param string $type The type of setting: user_setting or internal.
- * @param string $name The name to namespace.
- * @param string $id   The plugin's ID to namespace with.  Required for user_setting.
- * @return string
- * @since 1.8.0
- * @access private
- */
-function _elgg_namespace_plugin_private_setting($type, $name, $id = null) {
-	return _elgg_services()->plugins->namespacePrivateSetting($type, $name, $id);
-}
-
-/**
- * Returns an array of all provides from all active plugins.
- *
- * Array in the form array(
- * 	'provide_type' => array(
- * 		'provided_name' => array(
- * 			'version' => '1.8',
- * 			'provided_by' => 'provider_plugin_id'
- *  	)
- *  )
- * )
- *
- * @param string $type The type of provides to return
- * @param string $name A specific provided name to return. Requires $provide_type.
- *
- * @return array
- * @since 1.8.0
- * @access private
- */
-function _elgg_get_plugins_provides($type = null, $name = null) {
-	return _elgg_services()->plugins->getProvides($type, $name);
-}
-
-/**
- * Deletes all cached data on plugins being provided.
- *
- * @return boolean
- * @since 1.9.0
- * @access private
- */
-function _elgg_invalidate_plugins_provides_cache() {
-	return _elgg_services()->plugins->invalidateProvidesCache();
-}
-
-/**
- * Checks if a plugin is currently providing $type and $name, and optionally
- * checking a version.
- *
- * @param string $type       The type of the provide
- * @param string $name       The name of the provide
- * @param string $version    A version to check against
- * @param string $comparison The comparison operator to use in version_compare()
- *
- * @return array An array in the form array(
- * 	'status' => bool Does the provide exist?,
- * 	'value' => string The version provided
- * )
- * @since 1.8.0
- * @access private
- */
-function _elgg_check_plugins_provides($type, $name, $version = null, $comparison = 'ge') {
-	return _elgg_services()->plugins->checkProvides($type, $name, $version, $comparison);
 }
 
 /**
