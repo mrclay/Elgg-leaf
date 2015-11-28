@@ -63,9 +63,11 @@ elgg.ui.toggles = function(event) {
 		target = $this.attr('href');
 	}
 
+	var $target = $(target);
+
 	$this.toggleClass('elgg-state-active');
 
-	$(target).each(function(index, elem) {
+	$target.each(function(index, elem) {
 		var $elem = $(elem);
 		if ($elem.data().toggleSlide != false) {
 			$elem.slideToggle('medium');
@@ -73,6 +75,11 @@ elgg.ui.toggles = function(event) {
 			$elem.toggle();
 		}
 	});
+
+	$(document).trigger('elgg.ui.toggle', [{
+		$toggler: $this,
+		$target: $target
+	}]);
 };
 
 /**
