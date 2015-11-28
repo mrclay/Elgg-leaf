@@ -188,6 +188,15 @@ elgg.ui.toggleMenu = function(event) {
 };
 
 /**
+ * Forgot the contents of all hover menus
+ *
+ * @return void
+ */
+elgg.ui.resetHoverMenus = function () {
+	$(".elgg-menu-hover").remove();
+};
+
+/**
  * Initialize the hover menu
  *
  * @param {Object} parent
@@ -196,27 +205,26 @@ elgg.ui.toggleMenu = function(event) {
 elgg.ui.initHoverMenu = function(parent) {
 
 	/**
-	 * For a menu clicked, load the menu into all matching placeholders
+	 * Populate a hover menu
 	 *
-	 * @param {String} mac Machine authorization code for the menu clicked
+	 * @param {jQuery} $ul      UL to populate
+	 * @param {Object} data     Data to fetch contents
+	 * @param {jQuery} $trigger Icon clicked to open
 	 */
-	function loadMenu(mac) {
-		var $all_placeholders = $(".elgg-menu-hover[rel='" + mac + "']");
-
-		// find the <ul> that contains data for this menu
-		var $ul = $all_placeholders.filter('[data-elgg-menu-data]');
-
-		if (!$ul.length) {
-			return;
-		}
-
+	function loadMenu($ul, data, $trigger) {
 		elgg.get('ajax/view/navigation/menu/user_hover/contents', {
-			data: $ul.data('elggMenuData'),
+			data: data,
 			success: function(data) {
 				if (data) {
 					// replace all existing placeholders with new menu
-					$all_placeholders.removeClass('elgg-ajax-loader')
+					$ul
+						.removeClass('elgg-ajax-loader')
 						.html($(data).children());
+
+					$(document).trigger('elgg.ui.hoverMenu.show', [{
+						$trigger: $trigger,
+						$menu: $ul
+					}]);
 				}
 			}
 		});
@@ -234,43 +242,57 @@ elgg.ui.initHoverMenu = function(parent) {
 		$(this).children(".elgg-icon-hover-menu").hide();
 	});
 
-
 	// avatar contextual menu
+	var last_icon_clicked;
+
 	$(document).on('click', ".elgg-avatar > .elgg-icon-hover-menu", function(e) {
-		var $placeholder = $(this).parent().find(".elgg-menu-hover.elgg-ajax-loader");
+		var $icon = $(this);
+		var $placeholder = $icon.siblings('.elgg-menu-hover-placeholder');
+		var rel = $placeholder.attr('rel');
+		var $hovermenu = $('body > [rel="' + rel + '"]');
+		var event_is_setup = false;
 
-		if ($placeholder.length) {
-			loadMenu($placeholder.attr("rel"));
-		}
+		if (!$hovermenu.length) {
+			// menu not set up
+			$hovermenu = $('<ul class="elgg-menu elgg-menu-hover elgg-ajax-loader" rel="' + rel + '" />')
+				.hide()
+				.appendTo('body');
 
-		// check if we've attached the menu to this element already
-		var $hovermenu = $(this).data('hovermenu') || null;
+			// only one placeholder has the data, find it
+			var data = $('[rel="' + rel + '"][data-elgg-menu-data]').data('elggMenuData');
 
-		if (!$hovermenu) {
-			$hovermenu = $(this).parent().find(".elgg-menu-hover");
-			$(this).data('hovermenu', $hovermenu);
+			loadMenu($hovermenu, data, $icon);
+			event_is_setup = true;
 		}
 
 		// close hovermenu if arrow is clicked & menu already open
-		if ($hovermenu.css('display') == "block") {
+		if ($hovermenu.css('display') == "block" && (this === last_icon_clicked)) {
 			$hovermenu.fadeOut();
 		} else {
-			$avatar = $(this).closest(".elgg-avatar");
+			var $avatar = $icon.closest(".elgg-avatar");
 
 			// @todo Use jQuery-ui position library instead -- much simpler
 			var offset = $avatar.offset();
 			var top = $avatar.height() + offset.top + 'px';
 			var left = $avatar.width() - 15 + offset.left + 'px';
 
-			$hovermenu.appendTo('body')
+			$hovermenu
 					.css('position', 'absolute')
 					.css("top", top)
 					.css("left", left)
 					.fadeIn('normal');
+			if (!event_is_setup) {
+				$(document).trigger('elgg.ui.hoverMenu.show', [{
+					$trigger: $icon,
+					$menu: $hovermenu
+				}]);
+			}
 		}
 
 		// hide any other open hover menus
 		$(".elgg-menu-hover:visible").not($hovermenu).fadeOut();
+
+		last_icon_clicked = this;
 	});
 
 	// hide avatar menu when user clicks elsewhere

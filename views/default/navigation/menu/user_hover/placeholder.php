@@ -18,7 +18,7 @@ $mac = elgg_build_hmac($data)->getToken();
 
 $attrs = [
 	"rel" => $mac,
-	"class" => "elgg-menu elgg-menu-hover elgg-ajax-loader",
+	"class" => "elgg-menu-hover-placeholder",
 ];
 
 if (empty($menus_present[$mac])) {
@@ -34,4 +34,4 @@ if (empty($menus_present[$mac])) {
 	elgg_set_config("lazy_hover:menus", $menus_present);
 }
 
-echo elgg_format_element('ul', $attrs);
+echo elgg_format_element('span', $attrs);
