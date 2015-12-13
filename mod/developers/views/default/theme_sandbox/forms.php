@@ -103,6 +103,22 @@ $ipsum = elgg_view('developers/ipsum');
 			'label' => 'Date input (.elgg-input-date):',
 		));
 
+		echo elgg_view_input('date', array(
+			'name' => 'f12-custom',
+			'id' => 'f12-custom',
+			'value' => '1-Jan-2016',
+			'timestamp' => true,
+			'datepicker_options' => array(
+				'dateFormat' => 'd-M-yy',
+				'changeMonth' => false,
+				'changeYear' => false,
+				'minDate' => '1-Jan-2016',
+				'maxDate' => '31-Dec-2016',
+			),
+			'label' => 'Date input (.elgg-input-date) with custom options:',
+			'help' => 'Select a date in year 2016',
+		));
+
 		echo elgg_view_input('userpicker', array(
 			'name' => 'f13',
 			'id' => 'f13',

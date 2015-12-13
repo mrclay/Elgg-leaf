@@ -326,38 +326,13 @@ elgg.ui.loginHandler = function(hook, type, params, options) {
  * @requires jqueryui.datepicker
  */
 elgg.ui.initDatePicker = function() {
-	function loadDatePicker() {
-		$('.elgg-input-date').datepicker({
-			// ISO-8601
-			dateFormat: 'yy-mm-dd',
-			onSelect: function(dateText) {
-				if ($(this).is('.elgg-input-timestamp')) {
-					// convert to unix timestamp
-					var dateParts = dateText.split("-");
-					var timestamp = Date.UTC(dateParts[0], dateParts[1] - 1, dateParts[2]);
-					timestamp = timestamp / 1000;
-
-					var id = $(this).attr('id');
-					$('input[name="' + id + '"]').val(timestamp);
-				}
-			},
-			nextText: '&#xBB;',
-			prevText: '&#xAB;',
-			changeMonth: true,
-			changeYear: true
+	elgg.deprecated_notice('elgg.ui.initDatePicker has been deprecated. Use input/date AMD module instead', '2.1');
+	require(['jquery', 'input/date'], function($, datepicker) {
+		$('.elgg-input-date').each(function() {
+			// instantiating each datepicker separately in order to incorporate parameters passed with data- attributes
+			datepicker.init(this);
 		});
-	}
-
-	if (!$('.elgg-input-date').length) {
-		return;
-	}
-
-	// require language module if necessary
-	var deps = [];
-	if (elgg.get_language() != 'en') {
-		deps.push('jquery-ui/i18n/datepicker-'+ elgg.get_language() + '.min');
-	}
-	require(deps, loadDatePicker);
+	});
 };
 
 /**
@@ -467,6 +442,5 @@ elgg.ui.initAccessInputs = function () {
 };
 
 elgg.register_hook_handler('init', 'system', elgg.ui.init);
-elgg.register_hook_handler('init', 'system', elgg.ui.initDatePicker);
 elgg.register_hook_handler('getOptions', 'ui.popup', elgg.ui.loginHandler);
 elgg.ui.registerTogglableMenuItems('add-friend', 'remove-friend');
