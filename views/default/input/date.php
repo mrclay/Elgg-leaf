@@ -37,10 +37,15 @@ $timestamp = $vars['timestamp'];
 unset($vars['timestamp']);
 
 if ($timestamp) {
-	echo elgg_view('input/hidden', ['name' => $vars['name'], 'value' => $vars['value']]);
-
+	if (!isset($vars['id'])) {
+		$vars['id'] = $vars['name'];
+	}
+	echo elgg_view('input/hidden', [
+		'name' => $vars['name'],
+		'value' => $vars['value'],
+		'rel' => $vars['id'],
+			]);
 	$vars['class'][] = 'elgg-input-timestamp';
-	$vars['id'] = $vars['name'];
 	unset($vars['name']);
 }
 
