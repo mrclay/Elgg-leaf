@@ -28,7 +28,10 @@ $defaults = array(
 	'value' => '',
 	'disabled' => false,
 	'timestamp' => false,
-	'type' => 'text'
+	'type' => 'text',
+
+	// tell elgg.ui._initDatePicker not to initialize this input
+	'data-skip-datepicker-init' => '1',
 );
 
 $vars = array_merge($defaults, $vars);

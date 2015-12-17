@@ -37,6 +37,8 @@ elgg.ui.init = function () {
 	// Allow element to be highlighted using CSS if its id is found from the URL
 	var elementId = elgg.getSelectorFromUrlFragment(document.URL);
 	$(elementId).addClass('elgg-state-highlight');
+
+	elgg.ui._initDatePicker();
 };
 
 /**
@@ -314,6 +316,17 @@ elgg.ui.loginHandler = function(hook, type, params, options) {
 };
 
 /**
+ * Deprecated input/date initializer.
+ *
+ * @return void
+ * @deprecated Use input/date AMD module instead
+ */
+elgg.ui.initDatePicker = function() {
+	elgg.deprecated_notice('elgg.ui.initDatePicker has been deprecated. Use input/date AMD module instead', '2.1');
+	elgg.ui._initDatePicker();
+};
+
+/**
  * Initialize the date picker
  *
  * Uses the class .elgg-input-date as the selector.
@@ -322,15 +335,22 @@ elgg.ui.loginHandler = function(hook, type, params, options) {
  * method converts the date text to a unix timestamp in seconds. That value is
  * stored in a hidden element indicated by the id on the input field.
  *
+ * @private
  * @return void
  * @requires jqueryui.datepicker
  */
-elgg.ui.initDatePicker = function() {
-	elgg.deprecated_notice('elgg.ui.initDatePicker has been deprecated. Use input/date AMD module instead', '2.1');
+elgg.ui._initDatePicker = function() {
+	var $dates = $('.elgg-input-date');
+	if (!$dates.length) {
+		return;
+	}
 	require(['jquery', 'input/date'], function($, datepicker) {
-		$('.elgg-input-date').each(function() {
+		$dates.each(function() {
 			// instantiating each datepicker separately in order to incorporate parameters passed with data- attributes
-			datepicker.init(this);
+
+			if (!this.hasAttribute('data-skip-datepicker-init')) {
+				datepicker.init(this);
+			}
 		});
 	});
 };
