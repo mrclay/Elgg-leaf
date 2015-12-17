@@ -68,7 +68,7 @@ if (isset($vars['id'])) {
 }
 ?>
 <script>
-	require(['input/date'], function(datepicker) {
-		datepicker.init('<?= $selector ?>');
-	});
+require(['input/date'], function(datepicker) {
+	datepicker.init(<?= json_encode($selector) ?>);
+});
 </script>
