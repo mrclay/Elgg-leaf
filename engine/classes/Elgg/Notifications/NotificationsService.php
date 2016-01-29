@@ -263,6 +263,7 @@ class NotificationsService {
 	protected function sendNotification(\Elgg\Notifications\Event $event, $guid, $method) {
 
 		$recipient = $this->entities->get($guid, 'user');
+		/* @var \ElggUser $recipient */
 		if (!$recipient || $recipient->isBanned()) {
 			return false;
 		}
@@ -291,7 +292,7 @@ class NotificationsService {
 			'object' => $object,
 		);
 
-		$subject =$this->getNotificationSubject($event, $recipient);
+		$subject = $this->getNotificationSubject($event, $recipient);
 		$body = $this->getNotificationBody($event, $recipient);
 
 		$notification = new \Elgg\Notifications\Notification($event->getActor(), $recipient, $language, $subject, $body, '', $params);
@@ -332,13 +333,14 @@ class NotificationsService {
 	 *
 	 *     'notification:subject:publish:object:blog' => '%s published a blog called %s'
 	 *
-	 * @param ElggEvent $event
-	 * @param ElggUser $recipient
+	 * @param Event     $event     Notification event
+	 * @param \ElggUser $recipient Notification recipient
 	 * @return string Notification subject in the recipient's language
 	 */
-	private function getNotificationSubject(ElggEvent $event, ElggUser $recipient) {
+	private function getNotificationSubject(Event $event, \ElggUser $recipient) {
 		$actor = $event->getActor();
 		$object = $event->getObject();
+		/* @var \ElggObject $object */
 		$language = $recipient->language;
 
 		// Check custom notification subject for the action/type/subtype combination
@@ -386,13 +388,14 @@ class NotificationsService {
 	 * Argument swapping can be used to change the order of the parameters.
 	 * See http://php.net/manual/en/function.sprintf.php#example-5427
 	 *
-	 * @param ElggEvent $event
-	 * @param ElggUser $recipient
+	 * @param Event     $event     Notification event
+	 * @param \ElggUser $recipient Notification recipient
 	 * @return string Notification body in the recipient's language
 	 */
-	private function getNotificationBody(ElggEvent $event, ElggUser $recipient) {
+	private function getNotificationBody(Event $event, \ElggUser $recipient) {
 		$actor = $event->getActor();
 		$object = $event->getObject();
+		/* @var \ElggObject $object */
 		$language = $recipient->language;
 
 		// Check custom notification body for the action/type/subtype combination
