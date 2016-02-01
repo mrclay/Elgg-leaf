@@ -597,24 +597,20 @@ function elgg_users_setup_entity_menu($hook, $type, $return, $params) {
 function elgg_profile_fields_setup() {
 	global $CONFIG;
 
-	$profile_defaults = array (
-		'description' => 'longtext',
-		'briefdescription' => 'text',
-		'location' => 'location',
-		'interests' => 'tags',
-		'skills' => 'tags',
-		'contactemail' => 'email',
-		'phone' => 'text',
-		'mobile' => 'text',
-		'website' => 'url',
-		'twitter' => 'text',
-	);
-
+	$profile_defaults = _elgg_get_default_profile_fields();
 	$loaded_defaults = array();
+
+	// if set, will be something like "0,1,3,phone,2"
 	$fieldlist = elgg_get_config('profile_custom_fields');
 	if ($fieldlist || $fieldlist === '0') {
 		$fieldlistarray = explode(',', $fieldlist);
 		foreach ($fieldlistarray as $listitem) {
+			// handle default fields like "phone"
+			if (isset($profile_defaults[$listitem])) {
+				$loaded_defaults[$listitem] = $profile_defaults[$listitem];
+				continue;
+			}
+
 			if ($translation = elgg_get_config("admin_defined_profile_{$listitem}")) {
 				$type = elgg_get_config("admin_defined_profile_type_{$listitem}");
 				$loaded_defaults["admin_defined_profile_{$listitem}"] = $type;
@@ -733,6 +729,27 @@ function users_pagesetup() {
 			'section' => 'alt',
 		));
 	}
+}
+
+/**
+ * Get Elgg's default profile fields
+ *
+ * @return string[]
+ * @access private
+ */
+function _elgg_get_default_profile_fields() {
+	return [
+		'description' => 'longtext',
+		'briefdescription' => 'text',
+		'location' => 'location',
+		'interests' => 'tags',
+		'skills' => 'tags',
+		'contactemail' => 'email',
+		'phone' => 'text',
+		'mobile' => 'text',
+		'website' => 'url',
+		'twitter' => 'text',
+	];
 }
 
 /**

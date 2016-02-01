@@ -5,18 +5,23 @@
  */
 
 $id = get_input('id');
-
-$fieldlist = elgg_get_config('profile_custom_fields');
-if (!$fieldlist) {
-	$fieldlist = '';
+if (!is_string($id) || !preg_match('~^[0-9a-z]+$~', $id)) {
+	register_error(elgg_echo('profile:editdefault:delete:fail'));
+	forward(REFERER);
 }
 
-$fieldlist = str_replace("{$id},", "", $fieldlist);
-$fieldlist = str_replace(",{$id}", "", $fieldlist);
-$fieldlist = str_replace("{$id}", "", $fieldlist);
+$fieldlist = (string)elgg_get_config('profile_custom_fields');
+if ($fieldlist === '') {
+	$fields = [];
+} else {
+	$fields = explode(',', $fieldlist);
+}
 
-if ($id &&
-	unset_config("admin_defined_profile_$id") &&
+$fields = array_diff($fields, [$id]);
+
+$fieldlist = implode(',', $fields);
+
+if (unset_config("admin_defined_profile_$id") &&
 	unset_config("admin_defined_profile_type_$id") &&
 	elgg_save_config('profile_custom_fields', $fieldlist)) {
 	
