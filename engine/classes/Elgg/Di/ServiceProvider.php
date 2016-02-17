@@ -55,16 +55,17 @@ use Zend\Mail\Transport\TransportInterface as Mailer;
  * @property-read \ElggSession                             $session
  * @property-read \Elgg\Cache\SimpleCache                  $simpleCache
  * @property-read \Elgg\Database\SiteSecret                $siteSecret
- * @property-read \Elgg\Forms\StickyForms                  $stickyForms
- * @property-read \Elgg\Database\SubtypeTable              $subtypeTable
- * @property-read \Elgg\Cache\SystemCache                  $systemCache
- * @property-read \Elgg\SystemMessagesService              $systemMessages
- * @property-read \Elgg\Timer                              $timer
- * @property-read \Elgg\I18n\Translator                    $translator
- * @property-read \Elgg\UpgradeService                     $upgrades
- * @property-read \Elgg\Database\UsersTable                $usersTable
- * @property-read \Elgg\ViewsService                       $views
- * @property-read \Elgg\WidgetsService                     $widgets
+ * @property-read \Elgg\Forms\StickyForms     $stickyForms
+ * @property-read \Elgg\Database\SubtypeTable $subtypeTable
+ * @property-read \Elgg\Cache\SystemCache     $systemCache
+ * @property-read \Elgg\SystemMessagesService $systemMessages
+ * @property-read \Elgg\Timer                 $timer
+ * @property-read \Elgg\I18n\Translator       $translator
+ * @property-read \Elgg\UpgradeService        $upgrades
+ * @property-read \Elgg\UrlsService           $urls
+ * @property-read \Elgg\Database\UsersTable   $usersTable
+ * @property-read \Elgg\ViewsService          $views
+ * @property-read \Elgg\WidgetsService        $widgets
  *
  * @package Elgg.Core
  * @access private

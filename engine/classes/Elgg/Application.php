@@ -4,6 +4,7 @@ namespace Elgg;
 
 use Elgg\Di\ServiceProvider;
 use Elgg\Filesystem\Directory;
+use Elgg\Services\Urls;
 
 /**
  * Load, boot, and implement a front controller for an Elgg application
@@ -14,6 +15,8 @@ use Elgg\Filesystem\Directory;
  * The full path is necessary to work around this: https://bugs.php.net/bug.php?id=55726
  *
  * @since 2.0.0
+ *
+ * @property-read Urls $urls
  */
 class Application {
 
@@ -41,6 +44,7 @@ class Application {
 	 */
 	private static $public_services = [
 		//'config' => true,
+		'urls' => true,
 	];
 
 	/**
@@ -594,5 +598,6 @@ class Application {
 
 		$this->services->setValue('request', $new);
 		_elgg_set_initial_context($new);
+		$this->services->urls->setRequest($new);
 	}
 }
