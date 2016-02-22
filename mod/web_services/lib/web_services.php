@@ -44,6 +44,33 @@ function authenticate_method($method) {
 	return true;
 }
 
+function _api_detect_methods() {
+	if (elgg_get_config(__FUNCTION__ . ':called')) {
+		return;
+	}
+
+	$methods = elgg_trigger_plugin_hook('methods', 'web_services', null, []);
+	foreach ($methods as $method) {
+		if (!$method instanceof \ElggWebServices\Method) {
+			throw new APIException("The hook [methods, web_services] must return an array of ElggWebServices\\Method");
+		}
+
+		$params = $method->getParams()->toArray();
+		elgg_ws_expose_function(
+			$method->getName(),
+			$method,
+			$params,
+			$method->getDescription(),
+			$method->getMethod(),
+			$method->requireApiAuth(),
+			$method->requireUserAuth(),
+			true
+		);
+	}
+
+	elgg_set_config(__FUNCTION__ . ':called', true);
+}
+
 /**
  * Executes a method.
  * A method is a function which has previously been exposed using {@link elgg_ws_expose_function()}

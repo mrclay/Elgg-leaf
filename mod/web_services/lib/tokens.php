@@ -16,22 +16,21 @@ function create_user_token($username, $expire = 60) {
 
 	$site_guid = $CONFIG->site_id;
 	$user = get_user_by_username($username);
-	$time = time();
-	$time += 60 * $expire;
-	$token = md5(rand() . microtime() . $username . $time . $site_guid);
-
 	if (!$user) {
 		return false;
 	}
 
-	if (insert_data("INSERT into {$CONFIG->dbprefix}users_apisessions
-				(user_guid, site_guid, token, expires) values
-				({$user->guid}, $site_guid, '$token', '$time')
-				on duplicate key update token='$token', expires='$time'")) {
-		return $token;
-	}
+	$expires = time() + (60 * $expire);
+	$token = _elgg_services()->crypto->getRandomString(32);
 
-	return false;
+	$id = insert_data("
+		INSERT INTO {$CONFIG->dbprefix}users_apisessions
+			   (user_guid,     site_guid,  token,    expires)
+		VALUES ({$user->guid}, $site_guid, '$token', '$expires')
+		ON DUPLICATE KEY UPDATE token = '$token', expires = '$expires'
+	");
+
+	return $id ? $token : false;
 }
 
 /**
@@ -54,10 +53,12 @@ function get_user_tokens($user_guid, $site_guid) {
 	$site_guid = (int)$site_guid;
 	$user_guid = (int)$user_guid;
 
-	$tokens = get_data("SELECT * from {$CONFIG->dbprefix}users_apisessions
-		where user_guid=$user_guid and site_guid=$site_guid");
-
-	return $tokens;
+	return get_data("
+		SELECT *
+		FROM {$CONFIG->dbprefix}users_apisessions
+		WHERE user_guid = $user_guid
+			AND site_guid = $site_guid
+	");
 }
 
 /**
@@ -80,17 +81,17 @@ function validate_user_token($token, $site_guid) {
 
 	$site_guid = (int)$site_guid;
 	$token = sanitise_string($token);
-
 	$time = time();
 
-	$user = get_data_row("SELECT * from {$CONFIG->dbprefix}users_apisessions
-		where token='$token' and site_guid=$site_guid and $time < expires");
+	$user = get_data_row("
+		SELECT *
+		FROM {$CONFIG->dbprefix}users_apisessions
+		WHERE token = '$token'
+			AND site_guid = $site_guid
+			AND $time < expires
+	");
 
-	if ($user) {
-		return $user->user_guid;
-	}
-
-	return false;
+	return $user ? $user->user_guid : false;
 }
 
 /**
@@ -112,8 +113,11 @@ function remove_user_token($token, $site_guid) {
 	$site_guid = (int)$site_guid;
 	$token = sanitise_string($token);
 
-	return delete_data("DELETE from {$CONFIG->dbprefix}users_apisessions
-		where site_guid=$site_guid and token='$token'");
+	return delete_data("
+		DELETE FROM {$CONFIG->dbprefix}users_apisessions
+		WHERE site_guid = $site_guid
+			AND token = '$token'
+	");
 }
 
 /**
@@ -126,11 +130,13 @@ function remove_expired_user_tokens() {
 	global $CONFIG;
 
 	$site_guid = $CONFIG->site_id;
-
 	$time = time();
 
-	return delete_data("DELETE from {$CONFIG->dbprefix}users_apisessions
-		where site_guid=$site_guid and expires < $time");
+	return delete_data("
+		DELETE FROM {$CONFIG->dbprefix}users_apisessions
+		WHERE site_guid = $site_guid
+			AND expires < $time
+	");
 }
 
 /**

@@ -3,6 +3,8 @@
  * Elgg web services API plugin
  */
 
+use ElggWebServices\Method;
+
 elgg_register_event_handler('init', 'system', 'ws_init');
 
 function ws_init() {
@@ -21,27 +23,26 @@ function ws_init() {
 	// The name rest is a misnomer as they are not RESTful
 	elgg_ws_register_service_handler('rest', 'ws_rest_handler');
 
-	// expose the list of api methods
-	elgg_ws_expose_function("system.api.list", "list_all_apis", null,
-		elgg_echo("system.api.list"), "GET", false, false);
-
-	// The authentication token api
-	elgg_ws_expose_function(
-		"auth.gettoken",
-		"auth_gettoken",
-		array(
-			'username' => array ('type' => 'string'),
-			'password' => array ('type' => 'string'),
-		),
-		elgg_echo('auth.gettoken'),
-		'POST',
-		false,
-		false
-	);
+	elgg_register_plugin_hook_handler('methods', 'web_services', 'ws_default_methods', 0);
 
 	elgg_register_plugin_hook_handler('unit_test', 'system', 'ws_unit_test');
 
 	elgg_register_plugin_hook_handler('rest:output', 'system.api.list', 'ws_system_api_list_hook');
+}
+
+/**
+ * Register default methods
+ *
+ * @param string   $hook    "methods"
+ * @param string   $type    "web_services"
+ * @param Method[] $methods API methods
+ * @param null     $params  Hook params
+ * @return Method[]
+ */
+function ws_default_methods($hook, $type, $methods, $params) {
+	$methods[] = new \ElggWebServices\Methods\ListAll();
+	$methods[] = new \ElggWebServices\Methods\GetAuthToken();
+	return $methods;
 }
 
 /**
@@ -274,6 +275,8 @@ function ws_rest_handler() {
 
 	// Register a default exception handler
 	set_exception_handler('_php_api_exception_handler');
+
+	_api_detect_methods();
 
 	// plugins should return true to control what API and user authentication handlers are registered
 	if (elgg_trigger_plugin_hook('rest', 'init', null, false) == false) {
