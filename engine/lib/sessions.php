@@ -9,12 +9,6 @@
  */
 
 /**
- * Elgg magic session
- * @deprecated 1.9
- */
-global $SESSION;
-
-/**
  * Gets Elgg's session object
  *
  * @return \ElggSession
@@ -329,16 +323,12 @@ function login(\ElggUser $user, $persistent = false) {
 		throw new \LoginException(elgg_echo('LoginException:Unknown'));
 	}
 
-	// #5933: set logged in user early so code in login event will be able to
-	// use elgg_get_logged_in_user_entity().
 	$session->setLoggedInUser($user);
 
-	// deprecate event
-	$message = "The 'login' event was deprecated. Register for 'login:before' or 'login:after'";
-	$version = "1.9";
-	if (!elgg_trigger_deprecated_event('login', 'user', $user, $message, $version)) {
-		$session->removeLoggedInUser();
-		throw new \LoginException(elgg_echo('LoginException:Unknown'));
+	// warn about old event
+	if (_elgg_services()->events->hasHandler('login', 'user')) {
+		$msg = 'The event [login, user] is no longer triggered. Use login:before or login:after.';
+		_elgg_services()->logger->warn($msg);
 	}
 
 	// if remember me checked, set cookie with token and store hash(token) for user
@@ -380,11 +370,9 @@ function logout() {
 		return false;
 	}
 
-	// deprecate event
-	$message = "The 'logout' event was deprecated. Register for 'logout:before' or 'logout:after'";
-	$version = "1.9";
-	if (!elgg_trigger_deprecated_event('logout', 'user', $user, $message, $version)) {
-		return false;
+	if (_elgg_services()->events->hasHandler('logout', 'user')) {
+		$msg = "The [logout, user] event is no longer triggered. Use logout:before or logout:after.";
+		_elgg_services()->logger->warn($msg);
 	}
 
 	_elgg_services()->persistentLogin->removePersistentLogin();
@@ -437,10 +425,6 @@ function _elgg_session_boot() {
 	if ($session->has('guid')) {
 		set_last_action($session->get('guid'));
 	}
-
-	// initialize the deprecated global session wrapper
-	global $SESSION;
-	$SESSION = new \Elgg\DeprecationWrapper($session, "\$SESSION is deprecated", 1.9);
 
 	// logout a user with open session who has been banned
 	$user = $session->getLoggedInUser();

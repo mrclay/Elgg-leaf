@@ -16,13 +16,21 @@ Removed views
 -------------
 
  * ``resources/file/download``
+ * ``export/entity`` (default and json viewtypes)
+ * ``export/metadata`` (default and json viewtypes)
+ * ``export/relationship`` (default and json viewtypes)
+ * ``navigation/topbar_tools``
+ * ``output/pulldown``
+ * ``page/layouts/two_column_left_sidebar``
 
 Removed functions/methods
 -------------------------
 
 All the functions in ``engine/lib/deprecated-1.9.php`` were removed. See https://github.com/Elgg/Elgg/blob/2.x/engine/lib/deprecated-1.9.php for these functions. Each ``@deprecated`` declaration includes instructions on what to use instead.
 
+ * ``developers_clear_strings``
  * ``get_default_filestore``
+ * ``messages_notifier``
  * ``set_default_filestore``
  * ``ElggFile::setFilestore``: ElggFile objects can no longer use custom filestores.
  * ``ElggFile::size``: Use ``getSize``
@@ -50,13 +58,21 @@ All the functions in ``engine/lib/deprecated-1.9.php`` were removed. See https:/
 Removed global vars
 -------------------
 
+ * ``$jsonexport``
  * ``$DEFAULT_FILE_STORE``
+ * ``$SESSION``: Use ``elgg_get_session()``
 
 Removed classes/interfaces
 --------------------------
 
  * ``Exportable`` and its methods ``export`` and ``getExportableValues``: Use ``toObject``
- * ``Importable`` and its method ``import``.
+ * ``Importable`` and its method ``import``
+ * ``ODD``
+ * ``ODDDocument``
+ * ``ODDEntity``
+ * ``ODDMetaData``
+ * ``ODDRelationship``
+ * ``XmlElement``
 
 Inheritance changes
 -------------------
@@ -65,6 +81,7 @@ Inheritance changes
  * ``ElggEntity`` no longer implements ``Importable``
  * ``ElggGroup`` no longer implements ``Friendable``
  * ``ElggRelationship`` no longer implements ``Importable``
+ * ``ElggSession`` no longer implements ``ArrayAccess``. Use its explicit methods
 
 Removed hooks/events
 --------------------
@@ -72,6 +89,11 @@ Removed hooks/events
  * Hook **index, system**: Override the ``resources/index`` view
  * Hook **object:notifications, <type>**: Use the hook **send:before, notifications**
  * Event **delete, annotations**: Use **delete, annotation**
+
+Removed actions
+---------------
+
+ * ``import/opendd``
 
 APIs that now accept only an ``$options`` array
 -----------------------------------------------
@@ -117,7 +139,8 @@ Miscellaneous API changes
  * ``elgg_list_entities`` no longer supports the option ``view_type_toggle``
  * ``elgg_list_registered_entities`` no longer supports the option ``view_type_toggle``
  * ``elgg_log`` no longer accepts the level ``"DEBUG"``
-
+ * ``$CONFIG`` is no longer implicitly available in ``start.php`` files.
+ * Layout views no longer output ``$vars['area1']``
 
 From 2.0 to 2.1
 ===============
