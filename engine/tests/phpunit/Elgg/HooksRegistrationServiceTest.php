@@ -47,6 +47,7 @@ class HooksRegistrationServiceTest extends \PHPUnit_Framework_TestCase {
 		$this->mock->registerHandler('foo', 'bar', [$o, '__invoke'], 300);
 		$this->mock->registerHandler('foo', 'bar', [$o, '__invoke'], 300);
 		$this->mock->registerHandler('foo', 'bar', [$o, '__invoke'], 300);
+		$this->mock->registerHandler('foo', 'bar', 'foo->bar', 400);
 
 		$this->assertTrue($this->mock->unregisterHandler(
 			'foo', 'bar', 'callback2'));
@@ -56,6 +57,8 @@ class HooksRegistrationServiceTest extends \PHPUnit_Framework_TestCase {
 			'foo', 'bar', [HooksRegistrationServiceTest_invokable::KLASS, '__invoke']));
 		$this->assertTrue($this->mock->unregisterHandler(
 			'foo', 'bar', [$o, '__invoke']));
+		$this->assertTrue($this->mock->unregisterHandler(
+			'foo', 'bar', 'foo->bar'));
 
 		$expected = [
 			'foo' => [
@@ -122,6 +125,21 @@ class HooksRegistrationServiceTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertSame($expected_foo_bar, $this->mock->getOrderedHandlers('foo', 'bar'));
 		$this->assertSame($expected_foo_baz, $this->mock->getOrderedHandlers('foo', 'baz'));
+	}
+
+	public function testOrderedHandlersResolvesServices() {
+		$foo = new \stdClass();
+		elgg()->services->setValue('foo', $foo);
+
+		$this->mock->registerHandler('foo', 'bar', 'foo->bar');
+
+		$expected = [
+			[$foo, 'bar'],
+		];
+
+		$this->assertSame($expected, $this->mock->getOrderedHandlers('foo', 'bar'));
+
+		elgg()->services->remove('foo');
 	}
 
 	public function testCanBackupAndRestoreRegistrations() {

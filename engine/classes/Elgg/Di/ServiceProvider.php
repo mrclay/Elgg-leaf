@@ -59,6 +59,7 @@ use Zend\Mail\Transport\TransportInterface as Mailer;
  * @property-read \Elgg\Database\SiteSecret                $siteSecret
  * @property-read \Elgg\Forms\StickyForms                  $stickyForms
  * @property-read \Elgg\Database\SubtypeTable              $subtypeTable
+ * @property-read DiContainer                              $services
  * @property-read \Elgg\Cache\SystemCache                  $systemCache
  * @property-read \Elgg\SystemMessagesService              $systemMessages
  * @property-read \Elgg\Timer                              $timer
@@ -305,6 +306,8 @@ class ServiceProvider extends \Elgg\Di\DiContainer {
 		$this->setFactory('subtypeTable', function(ServiceProvider $c) {
 			return new \Elgg\Database\SubtypeTable($c->db);
 		});
+
+		$this->setClassName('services', DiContainer::class);
 
 		$this->setFactory('systemCache', function (ServiceProvider $c) {
 			$cache = new \Elgg\Cache\SystemCache();

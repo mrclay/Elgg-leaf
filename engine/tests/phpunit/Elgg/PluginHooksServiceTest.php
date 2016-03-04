@@ -7,22 +7,37 @@ class PluginHooksServiceTest extends \PHPUnit_Framework_TestCase {
 	public function testTriggerCallsRegisteredHandlers() {
 		$hooks = new \Elgg\PluginHooksService();
 		
-		$this->setExpectedException('InvalidArgumentException');
+		$this->setExpectedException(\InvalidArgumentException::class);
 		
-		$hooks->registerHandler('foo', 'bar', array('\Elgg\PluginHooksServiceTest', 'throwInvalidArg'));
+		$hooks->registerHandler('foo', 'bar', [\Elgg\PluginHooksServiceTest::class, 'throwInvalidArg']);
 
 		$hooks->trigger('foo', 'bar');
 	}
 	
 	public function testCanPassParamsAndChangeReturnValue() {
 		$hooks = new \Elgg\PluginHooksService();
-		$hooks->registerHandler('foo', 'bar', array('\Elgg\PluginHooksServiceTest', 'changeReturn'));
+		$hooks->registerHandler('foo', 'bar', [\Elgg\PluginHooksServiceTest::class, 'changeReturn']);
 		
 		$returnval = $hooks->trigger('foo', 'bar', array(
 			'testCase' => $this,
 		), 1);
 		
 		$this->assertEquals(2, $returnval);
+	}
+
+	public function testCanCallService() {
+		elgg()->services->setValue('foo', $this);
+
+		$hooks = new \Elgg\PluginHooksService();
+		$hooks->registerHandler('foo', 'bar', 'foo->changeReturn');
+
+		$returnval = $hooks->trigger('foo', 'bar', array(
+			'testCase' => $this,
+		), 1);
+
+		$this->assertEquals(2, $returnval);
+
+		elgg()->services->remove('foo');
 	}
 
 	public function testNullReturnDoesntChangeValue() {

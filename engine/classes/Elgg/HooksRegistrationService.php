@@ -218,7 +218,14 @@ abstract class HooksRegistrationService {
 
 		$handlers = [];
 		foreach ($registrations as $registration) {
-			$handlers[] = $registration[self::REG_KEY_HANDLER];
+			$handler = $registration[self::REG_KEY_HANDLER];
+
+			if (is_string($handler) && substr_count($handler, '->') === 1) {
+				list($service, $method) = explode('->', $handler);
+				$handler = [_elgg_services()->services->{$service}, $method];
+			}
+
+			$handlers[] = $handler;
 		}
 
 		return $handlers;

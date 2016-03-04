@@ -13,7 +13,7 @@ use Elgg\Filesystem\Directory;
  *
  * The full path is necessary to work around this: https://bugs.php.net/bug.php?id=55726
  *
- * @since 2.0.0
+ * @property-read \Elgg\Di\DiContainer $services Container for plugin services
  */
 class Application {
 
@@ -24,12 +24,12 @@ class Application {
 	/**
 	 * @var ServiceProvider
 	 */
-	private $services;
+	private $_services;
 
 	/**
 	 * @var string
 	 */
-	private $engine_dir;
+	private $_engine_dir;
 
 	/**
 	 * Property names of the service provider to be exposed via __get()
@@ -41,6 +41,7 @@ class Application {
 	 */
 	private static $public_services = [
 		//'config' => true,
+		'services' => true,
 	];
 
 	/**
@@ -60,7 +61,7 @@ class Application {
 	 * @param ServiceProvider $services Elgg services provider
 	 */
 	public function __construct(ServiceProvider $services) {
-		$this->services = $services;
+		$this->_services = $services;
 
 		/**
 		 * The time with microseconds when the Elgg engine was started.
@@ -84,7 +85,7 @@ class Application {
 			$GLOBALS['_ELGG'] = new \stdClass();
 		}
 
-		$this->engine_dir = __DIR__ . '/../..';
+		$this->_engine_dir = __DIR__ . '/../..';
 	}
 
 	/**
@@ -96,7 +97,7 @@ class Application {
 	 * @return void
 	 */
 	public function loadSettings() {
-		$this->services->config->loadSettingsFile();
+		$this->_services->config->loadSettingsFile();
 	}
 
 	/**
@@ -192,10 +193,10 @@ class Application {
 			self::$_instance = $this;
 
 			// set up autoloading and DIC
-			_elgg_services($this->services);
+			_elgg_services($this->_services);
 
-			$events = $this->services->events;
-			$hooks = $this->services->hooks;
+			$events = $this->_services->events;
+			$hooks = $this->_services->hooks;
 
 			// run setups
 			foreach ($setups as $func) {
@@ -230,7 +231,7 @@ class Application {
 	 */
 	public function bootCore() {
 
-		$config = $this->services->config;
+		$config = $this->_services->config;
 
 		if ($config->getVolatile('Elgg\Application_phpunit')) {
 			throw new \RuntimeException('Unit tests should not call ' . __METHOD__);
@@ -250,14 +251,14 @@ class Application {
 		// in case not loaded already
 		$this->loadCore();
 
-		$events = $this->services->events;
+		$events = $this->_services->events;
 
 		// Connect to database, load language files, load configuration, init session
 		// Plugins can't use this event because they haven't been loaded yet.
 		$events->trigger('boot', 'system');
 
 		// Load the plugins that are active
-		$this->services->plugins->load();
+		$this->_services->plugins->load();
 
 		$root = Directory\Local::root();
 		if ($root->getPath() != self::elggDir()->getPath()) {
@@ -322,7 +323,7 @@ class Application {
 	 */
 	public function getDb() {
 		$this->loadSettings();
-		return $this->services->db;
+		return $this->_services->db;
 	}
 
 	/**
@@ -334,7 +335,7 @@ class Application {
 	 */
 	public function __get($name) {
 		if (isset(self::$public_services[$name])) {
-			return $this->services->{$name};
+			return $this->_services->{$name};
 		}
 		trigger_error("Undefined property: " . __CLASS__ . ":\${$name}");
 	}
@@ -389,21 +390,21 @@ class Application {
 
 		if (php_sapi_name() === 'cli-server') {
 			$www_root = "http://{$_SERVER['SERVER_NAME']}:{$_SERVER['SERVER_PORT']}/";
-			$this->services->config->set('wwwroot', $www_root);
+			$this->_services->config->set('wwwroot', $www_root);
 		}
 
 		if (0 === strpos($path, '/cache/')) {
-			(new Application\CacheHandler($this, $this->services->config, $_SERVER))->handleRequest($path);
+			(new Application\CacheHandler($this, $this->_services->config, $_SERVER))->handleRequest($path);
 			return true;
 		}
 
 		if (0 === strpos($path, '/serve-file/')) {
-			$this->services->serveFileHandler->getResponse($this->services->request)->send();
+			$this->_services->serveFileHandler->getResponse($this->_services->request)->send();
 			return true;
 		}
 
 		if (0 === strpos($path, '/download-file/')) {
-			(new Application\DownloadFileHandler($this))->getResponse($this->services->request)->send();
+			(new Application\DownloadFileHandler($this))->getResponse($this->_services->request)->send();
 			return true;
 		}
 
@@ -425,7 +426,7 @@ class Application {
 		// TODO use formal Response object instead
 		header("Content-Type: text/html;charset=utf-8");
 
-		if (!$this->services->router->route($this->services->request)) {
+		if (!$this->_services->router->route($this->_services->request)) {
 			forward('', '404');
 		}
 	}
@@ -440,18 +441,18 @@ class Application {
 	 */
 	public static function getDataPath() {
 		$app = self::create();
-		$app->services->config->loadSettingsFile();
+		$app->_services->config->loadSettingsFile();
 
 		if ($GLOBALS['_ELGG']->dataroot_in_settings) {
-			return $app->services->config->getVolatile('dataroot');
+			return $app->_services->config->getVolatile('dataroot');
 		}
 
-		$dataroot = $app->services->datalist->get('dataroot');
+		$dataroot = $app->_services->datalist->get('dataroot');
 		if (!$dataroot) {
 			throw new \InstallationException('The datalists table lacks a value for "dataroot".');
 		}
 		$dataroot = rtrim($dataroot, '/\\') . DIRECTORY_SEPARATOR;
-		$app->services->config->set('dataroot', $dataroot);
+		$app->_services->config->set('dataroot', $dataroot);
 		return $dataroot;
 	}
 
@@ -586,13 +587,13 @@ class Application {
 	 * @return void
 	 */
 	private function allowPathRewrite() {
-		$request = $this->services->request;
-		$new = $this->services->router->allowRewrite($request);
+		$request = $this->_services->request;
+		$new = $this->_services->router->allowRewrite($request);
 		if ($new === $request) {
 			return;
 		}
 
-		$this->services->setValue('request', $new);
+		$this->_services->setValue('request', $new);
 		_elgg_set_initial_context($new);
 	}
 }
