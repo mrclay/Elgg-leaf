@@ -127,6 +127,26 @@ class Database {
 	}
 
 	/**
+	 * Auto-prefix Elgg table names if the query uses parameters
+	 *
+	 * @param string $sql    The query with table names like "{entities}"
+	 * @param array  $params Query params. If empty, no processing will be done for safety.
+	 *
+	 * @return string Query with table names like "elgg_entities".
+	 */
+	protected function prefixTableNames($sql, array $params = []) {
+		static $map;
+		if ($map === null) {
+			$schema = (require __DIR__ . '/../../schema/schema.php');
+			foreach ($schema['table_names'] as $name) {
+				$map["{" . $name . "}"] = "{$this->tablePrefix}$name";
+			}
+		}
+
+		return $params ? strtr($sql, $map) : $sql;
+	}
+
+	/**
 	 * Establish database connections
 	 *
 	 * If the configuration has been set up for multiple read/write databases, set those
@@ -200,6 +220,7 @@ class Database {
 	 * @throws \DatabaseException
 	 */
 	public function getData($query, $callback = null, array $params = []) {
+		$query = $this->prefixTableNames($query, $params);
 		return $this->getResults($query, $callback, false, $params);
 	}
 
@@ -218,6 +239,7 @@ class Database {
 	 * @throws \DatabaseException
 	 */
 	public function getDataRow($query, $callback = null, array $params = []) {
+		$query = $this->prefixTableNames($query, $params);
 		return $this->getResults($query, $callback, true, $params);
 	}
 
@@ -234,6 +256,7 @@ class Database {
 	 * @throws \DatabaseException
 	 */
 	public function insertData($query, array $params = []) {
+		$query = $this->prefixTableNames($query, $params);
 
 		if ($this->logger) {
 			$this->logger->info("DB query $query");
@@ -260,6 +283,7 @@ class Database {
 	 * @throws \DatabaseException
 	 */
 	public function updateData($query, $get_num_rows = false, array $params = []) {
+		$query = $this->prefixTableNames($query, $params);
 
 		if ($this->logger) {
 			$this->logger->info("DB query $query");
@@ -287,6 +311,7 @@ class Database {
 	 * @throws \DatabaseException
 	 */
 	public function deleteData($query, array $params = []) {
+		$query = $this->prefixTableNames($query, $params);
 
 		if ($this->logger) {
 			$this->logger->info("DB query $query");
@@ -553,6 +578,7 @@ class Database {
 
 			try {
 
+				$query = $this->prefixTableNames($query, $params);
 				$stmt = $this->executeQuery($query, $this->getConnection($type), $params);
 
 				if (is_callable($handler)) {
@@ -620,8 +646,7 @@ class Database {
 		}
 
 		try {
-			$sql = "SELECT value FROM {$this->tablePrefix}datalists WHERE name = 'installed'";
-			$this->getConnection('read')->query($sql);
+			$this->getData("SELECT value FROM {datalists} WHERE name = ?", null, ['installed']);
 		} catch (\DatabaseException $e) {
 			throw new \InstallationException("Unable to handle this request. This site is not configured or the database is down.");
 		}

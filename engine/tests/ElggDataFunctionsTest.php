@@ -234,4 +234,33 @@ class ElggDataFunctionsTest extends \ElggCoreUnitTest {
 		$rows = $captured->fetchAll(\PDO::FETCH_OBJ);
 		$this->assertEqual($rows[0]->username, $this->user->username);
 	}
+
+	public function testCanAutoPrefixTables() {
+		$db = _elgg_services()->db;
+		$prefix = $db->getTablePrefix();
+
+		$ref = new \ReflectionObject($db);
+		$method = $ref->getMethod('prefixTableNames');
+		$method->setAccessible(true);
+
+		$tests = [
+			[
+				// no params, no prefixing
+				"SELECT * FROM foo WHERE bar = 'Do not alter {entities}'",
+				[],
+				"SELECT * FROM foo WHERE bar = 'Do not alter {entities}'",
+			],
+			[
+				"SELECT * FROM {entities} WHERE guid = ?",
+				[123],
+				"SELECT * FROM {$prefix}entities WHERE guid = ?",
+			],
+		];
+
+		foreach ($tests as $test) {
+			list($sql_in, $params, $sql_out) = $test;
+
+			$this->assertEqual($sql_out, $method->invoke($db, $sql_in, $params));
+		}
+	}
 }
