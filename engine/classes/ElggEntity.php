@@ -305,11 +305,49 @@ abstract class ElggEntity extends \ElggData implements
 	abstract public function setDisplayName($displayName);
 
 	/**
-	 * Return the value of a piece of metadata.
+	 * Return the last value of a set of metadata.
+	 *
+	 * @param string $name    Name
+	 * @param mixed  $default Value to return if not found
+	 *
+	 * @return string|int|null The value, or null if not found.
+	 */
+	public function getOneMetadata($name, $default = null) {
+		$value = $this->getMetadata($name);
+		if ($value === null) {
+			return $default;
+		}
+		return is_array($value) ? end($value) : $value;
+	}
+
+	/**
+	 * Return the set of metadata as an array.
+	 *
+	 * @param string $name    Name
+	 * @param mixed  $default Value to return if not found
+	 *
+	 * @return string[]|int[] Empty array if not found.
+	 */
+	public function getManyMetadata($name, $default = []) {
+		$value = $this->getMetadata($name);
+		if ($value === null) {
+			return $default;
+		}
+		return is_array($value) ? $value : [$value];
+	}
+
+	/**
+	 * Return the value(s) of a piece of metadata.
+	 *
+	 * As metadata can be returned as a scalar, an array, or null, it's often preferrable to use
+	 * getOneMetadata() or getManyMetadata()
+	 *
+	 * @see getOneMetadata use if you want a single value
+	 * @see getManyMetadata use if you want an array
 	 *
 	 * @param string $name Name
 	 *
-	 * @return mixed The value, or null if not found.
+	 * @return mixed The value (string|int|array), or null if not found.
 	 */
 	public function getMetadata($name) {
 		$guid = $this->getGUID();
