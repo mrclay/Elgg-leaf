@@ -107,6 +107,7 @@ Examples
 **Example 2:** Modify the ``entity`` menu for the ``ElggBlog`` objects
  - Remove the thumb icon
  - Change the "Edit" text into a custom icon
+ - In this case we'll use the ``RegisterHelper`` object
 
 .. code-block:: php
 
@@ -128,23 +129,42 @@ Examples
 		// We want to modify only the ElggBlog objects, so we
 		// return immediately if the entity is something else
 		if (!$entity instanceof ElggBlog) {
-			return $menu;
+			return $items;
 		}
 
-		foreach ($items as $key => $item) {
-			switch ($item->getName()) {
-				case 'likes':
-					// Remove the "likes" menu item
-					unset($items[$key]);
-					break;
-				case 'edit':
-					// Change the "Edit" text into a custom icon
-					$item->setText(elgg_view_icon('pencil'));
-					break;
-			}
+		// we could walk through the $items directly, but this helper provides
+		// useful methods.
+		$helper = new Elgg\Menu\RegisterHelper($items);
+
+		$helper->remove('likes');
+
+		// Change the "Edit" text into a custom icon
+		if ($item = $helper->get('edit')) {
+			$item->setText(elgg_view_icon('pencil'));
 		}
 
-		return $items;
+		return $helper->toArray();
+	}
+
+**Example 3:** Modifications within a ``prepare`` hook handler:
+ - The prepare hook receives a set of sections
+ - We can use the ``PrepareHelper`` to make this easier
+
+.. code-block:: php
+
+	function my_prepare_menu_handler($hook, $type, $sections, $params) {
+		$helper = new Elgg\Menu\PrepareHelper($sections);
+
+		if ($section = $helper->getSection('default')) {
+			$section->remove('unwanted');
+		}
+
+		if ($section = $helper->getSection('more')) {
+			// move final to the end
+			$section->move('final', -1);
+		}
+
+		return $helper->toArray();
 	}
 
 Creating a new menu
