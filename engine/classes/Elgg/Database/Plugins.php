@@ -5,6 +5,7 @@ use Elgg\Cache\Pool;
 use Elgg\Profilable;
 use Exception;
 use Elgg\Cache\PluginSettingsCache;
+use Elgg\Cache\SystemCache;
 
 /**
  * Persistent, installation-wide key-value storage.
@@ -47,6 +48,13 @@ class Plugins {
 	 * @var PluginSettingsCache
 	 */
 	private $settings_cache;
+
+	/**
+	 * @var array|null null if not loaded from system cache
+	 *
+	 * @internal This is lazy-loaded. Use getStaticConfigs() for reading
+	 */
+	private $static_configs_by_id = null;
 
 	/**
 	 * Constructor
@@ -362,18 +370,16 @@ class Plugins {
 		if (!empty($GLOBALS['_ELGG']->i18n_loaded_from_cache)) {
 			$start_flags = $start_flags & ~ELGG_PLUGIN_REGISTER_LANGUAGES;
 		}
-	
-		$plugins = $this->boot_plugins;
-		if (!$plugins) {
-			$this->active_guids_known = true;
-			return true;
-		}
 
+		$static_config = $this->getStaticConfigs();
+	
 		$return = true;
-		foreach ($plugins as $plugin) {
+		foreach ($this->boot_plugins as $plugin) {
 			$id = $plugin->getID();
+			$config = isset($static_config[$id]) ? $static_config[$id] : null;
+
 			try {
-				$plugin->start($start_flags);
+				$plugin->start($start_flags, $config);
 				$this->active_guids[$id] = $plugin->guid;
 			} catch (Exception $e) {
 				$plugin->deactivate();
@@ -1094,5 +1100,45 @@ class Plugins {
 		$options['private_setting_name_prefix'] = $prefix;
 	
 		return elgg_get_entities_from_private_settings($options);
+	}
+
+	/**
+	 * Configure static configs from the cache
+	 *
+	 * @param SystemCache $cache The system cache
+	 * @return void
+	 * @access private
+	 */
+	public function configureFromCache(SystemCache $cache) {
+		$data = $cache->load('static_configs');
+		if (!is_string($data)) {
+			return;
+		}
+
+		$this->static_configs_by_id = unserialize($data);
+		if (!is_array($this->static_configs_by_id)) {
+			$this->static_configs_by_id = null;
+		}
+	}
+
+	/**
+	 * Get the array of all static config data
+	 *
+	 * @return array plugin_id => data array
+	 * @access private
+	 */
+	public function getStaticConfigs() {
+		if ($this->static_configs_by_id === null) {
+			$this->static_configs_by_id = [];
+
+			foreach ($this->boot_plugins as $plugin) {
+				$val = $plugin->readStaticConfig();
+				if ($val !== null) {
+					$this->static_configs_by_id[$plugin->getID()] = $val;
+				}
+			}
+		}
+
+		return $this->static_configs_by_id;
 	}
 }

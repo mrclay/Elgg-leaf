@@ -151,6 +151,8 @@ class SystemCache {
 
 		$this->CONFIG->system_cache_loaded = false;
 
+		_elgg_services()->plugins->configureFromCache($this);
+
 		if (!_elgg_services()->views->configureFromCache($this)) {
 			return;
 		}

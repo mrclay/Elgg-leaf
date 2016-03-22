@@ -9,21 +9,33 @@ use Elgg\Filesystem\Directory;
 
 /**
  * Tells \ElggPlugin::start() to include the start.php file.
+ *
+ * @access private
+ * @internal Plugins should not use this constant
  */
 define('ELGG_PLUGIN_INCLUDE_START', 1);
 
 /**
  * Tells \ElggPlugin::start() to automatically register the plugin's views.
+ *
+ * @access private
+ * @internal Plugins should not use this constant
  */
 define('ELGG_PLUGIN_REGISTER_VIEWS', 2);
 
 /**
  * Tells \ElggPlugin::start() to automatically register the plugin's languages.
+ *
+ * @access private
+ * @internal Plugins should not use this constant
  */
 define('ELGG_PLUGIN_REGISTER_LANGUAGES', 4);
 
 /**
  * Tells \ElggPlugin::start() to automatically register the plugin's classes.
+ *
+ * @access private
+ * @internal Plugins should not use this constant
  */
 define('ELGG_PLUGIN_REGISTER_CLASSES', 8);
 
@@ -37,6 +49,9 @@ define('ELGG_PLUGIN_REGISTER_CLASSES', 8);
 
 /**
  * Prefix for plugin user setting names
+ *
+ * @access private
+ * @internal Plugins should not use this constant
  */
 define('ELGG_PLUGIN_USER_SETTING_PREFIX', 'plugin:user_setting:');
 
@@ -44,6 +59,9 @@ define('ELGG_PLUGIN_USER_SETTING_PREFIX', 'plugin:user_setting:');
  * Internal settings prefix
  *
  * @todo This could be resolved by promoting \ElggPlugin to a 5th type.
+ *
+ * @access private
+ * @internal Plugins should not use this constant
  */
 define('ELGG_PLUGIN_INTERNAL_PREFIX', 'elgg:internal:');
 

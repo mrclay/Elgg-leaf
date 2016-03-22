@@ -5,6 +5,8 @@
  * This class is currently a stub, allowing a plugin to
  * save settings in an object's private settings for each site.
  *
+ * @note This object is serialized in Elgg\BootData between requests
+ *
  * @package    Elgg.Core
  * @subpackage Plugins.Settings
  */
@@ -808,6 +810,43 @@ class ElggPlugin extends \ElggObject {
 		}
 
 		return include $filepath;
+	}
+
+	/**
+	 * Get the value of elgg-plugin.php
+	 *
+	 * @return array|null Null if file missing
+	 */
+	public function readStaticConfig() {
+		$file = "$this->path/elgg-plugin.php";
+
+		if (!is_file($file)) {
+			return null;
+		}
+
+		if (!is_readable($file)) {
+			return [
+				'error' => 'elgg-plugin.php is not readable',
+			];
+		}
+
+		try {
+			ob_start();
+			$val = \Elgg\Includer::includeFile($file);
+			if (ob_get_clean() !== '') {
+				throw new \Exception('elgg-config.php sent output');
+			}
+			$val = @unserialize(serialize($val));
+			if (!is_array($val)) {
+				throw new \Exception('elgg-config.php return value was not array, or could not be serialized');
+			}
+		} catch (\Exception $e) {
+			$val = [
+				'error' => $e->getMessage(),
+			];
+		}
+
+		return $val;
 	}
 
 	/**
