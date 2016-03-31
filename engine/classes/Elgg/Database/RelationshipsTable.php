@@ -36,6 +36,11 @@ class RelationshipsTable {
 	private $events;
 
 	/**
+	 * @var string
+	 */
+	private $table;
+
+	/**
 	 * Constructor
 	 *
 	 * @param Database      $db       Elgg Database
@@ -48,6 +53,7 @@ class RelationshipsTable {
 		$this->entities = $entities;
 		$this->metadata = $metadata;
 		$this->events = $events;
+		$this->table = "{$db->getTablePrefix()}entity_relationships";
 	}
 
 	/**
@@ -77,7 +83,7 @@ class RelationshipsTable {
 	public function getRow($id) {
 		$id = (int)$id;
 
-		return $this->db->getDataRow("SELECT * FROM {$this->db->getTablePrefix()}entity_relationships WHERE id = $id");
+		return $this->db->getDataRow("SELECT * FROM {$this->table} WHERE id = $id");
 	}
 
 	/**
@@ -92,12 +98,15 @@ class RelationshipsTable {
 		$id = (int)$id;
 
 		$relationship = $this->get($id);
+		if (!$relationship) {
+			return false;
+		}
 
 		if ($call_event && !$this->events->trigger('delete', 'relationship', $relationship)) {
 			return false;
 		}
 
-		return $this->db->deleteData("DELETE FROM {$this->db->getTablePrefix()}entity_relationships WHERE id = $id");
+		return $this->db->deleteData("DELETE FROM {$this->table} WHERE id = $id");
 	}
 
 	/**
@@ -126,7 +135,7 @@ class RelationshipsTable {
 		}
 
 		$sql = "
-			INSERT INTO {$this->db->getTablePrefix()}entity_relationships
+			INSERT INTO {$this->table}
 			       (guid_one, relationship, guid_two, time_created)
 			VALUES (:guid1, :relationship, :guid2, :time)
 				ON DUPLICATE KEY UPDATE time_created = :time
@@ -167,7 +176,8 @@ class RelationshipsTable {
 	 */
 	public function check($guid_one, $relationship, $guid_two) {
 		$query = "
-			SELECT * FROM {$this->db->getTablePrefix()}entity_relationships
+			SELECT *
+			FROM {$this->table}
 			WHERE guid_one = :guid1
 			  AND relationship = :relationship
 			  AND guid_two = :guid2
@@ -233,7 +243,6 @@ class RelationshipsTable {
 				$join = "JOIN {$this->db->getTablePrefix()}entities e ON e.guid = er.guid_two";
 			} else {
 				$join = "JOIN {$this->db->getTablePrefix()}entities e ON e.guid = er.guid_one";
-				$where .= " AND ";
 			}
 			$where .= " AND e.type = :type";
 			$params[':type'] = $type;
@@ -244,7 +253,7 @@ class RelationshipsTable {
 		$guid_col = $inverse_relationship ? "guid_two" : "guid_one";
 
 		$this->db->deleteData("
-			DELETE er FROM {$this->db->getTablePrefix()}entity_relationships AS er
+			DELETE er FROM {$this->table} AS er
 			$join
 			WHERE $guid_col = $guid
 			$where
@@ -263,13 +272,62 @@ class RelationshipsTable {
 	 * @return \ElggRelationship[]
 	 */
 	public function getAll($guid, $inverse_relationship = false) {
+		$column = $inverse_relationship ? 'guid_two' : 'guid_one';
+
+		$sql = "
+			SELECT *
+			FROM {$this->table}
+			WHERE $column = :guid
+		";
 		$params[':guid'] = (int)$guid;
 
-		$where = ($inverse_relationship ? "guid_two = :guid" : "guid_one = :guid");
+		return $this->db->getData($sql, [$this, 'rowToElggRelationship'], $params);
+	}
 
-		$query = "SELECT * from {$this->db->getTablePrefix()}entity_relationships WHERE {$where}";
+	/**
+	 * Get all relationships matching the given options
+	 *
+	 * @param array $options See elgg_get_relationships()
+	 * @return \ElggRelationship[]|int
+	 */
+	public function getRelationships($options) {
+		$defaults = array(
+			'offset' => 0,
+			'limit' => 50,
+			'count' => false,
+			'order_by' => 'r.id DESC',
+			'callback' => [$this, 'rowToElggRelationship'],
+		);
 
-		return $this->db->getData($query, [$this, 'rowToElggRelationship'], $params);
+		$options = array_merge($defaults, $options);
+
+		$qb = $this->db->buildQuery();
+		$qb->select($options['count'] ? 'COUNT(*) AS cnt' : 'r.*');
+		$qb->from('{entity_relationships}', 'r');
+
+		foreach (['relationship', 'guid_one', 'guid_two'] as $column) {
+			if (empty($options[$column])) {
+				continue;
+			}
+
+			$type = ($column === 'relationship') ? \PDO::PARAM_STR : \PDO::PARAM_INT;
+			$qb->andWhere("$column IN " . $qb->createSet($options[$column], $type));
+		}
+
+		if ($options['count']) {
+			return (int)$qb->execute(null, true)->cnt;
+		}
+
+		if ($options['offset']) {
+			$qb->setFirstResult($options['offset']);
+		}
+		if ($options['limit']) {
+			$qb->setMaxResults($options['limit']);
+		}
+
+		$qb->setOrderFromOptions($options);
+
+		return $qb->execute($options['callback']);
 	}
 
 	/**
@@ -401,9 +459,9 @@ class RelationshipsTable {
 		$group_by = '';
 
 		if ($inverse_relationship) {
-			$joins[] = "JOIN {$this->db->getTablePrefix()}entity_relationships r on r.guid_one = $column";
+			$joins[] = "JOIN {$this->table} r ON r.guid_one = $column";
 		} else {
-			$joins[] = "JOIN {$this->db->getTablePrefix()}entity_relationships r on r.guid_two = $column";
+			$joins[] = "JOIN {$this->table} r ON r.guid_two = $column";
 		}
 
 		if ($relationship) {

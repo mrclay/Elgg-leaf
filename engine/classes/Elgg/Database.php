@@ -5,6 +5,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Elgg\Database\QueryBuilder;
 
 /**
  * An object representing a single Elgg database.
@@ -115,8 +116,10 @@ class Database {
 	 *
 	 * @return Connection
 	 * @throws \DatabaseException
+	 * @access private
+	 * @internal
 	 */
-	protected function getConnection($type) {
+	public function getConnection($type) {
 		if (isset($this->connections[$type])) {
 			return $this->connections[$type];
 		} else if (isset($this->connections['readwrite'])) {
@@ -125,6 +128,17 @@ class Database {
 			$this->setupConnections();
 			return $this->getConnection($type);
 		}
+	}
+
+	/**
+	 * Get an Elgg query builder instance (based on Doctrine DBAL)
+	 *
+	 * @return \Elgg\Database\QueryBuilder
+	 * @internal
+	 * @access private
+	 */
+	public function buildQuery() {
+		return new QueryBuilder($this->getConnection('readwrite'), $this);
 	}
 
 	/**
@@ -656,6 +670,19 @@ class Database {
 	 */
 	public function getTablePrefix() {
 		return $this->tablePrefix;
+	}
+
+	/**
+	 * Convert a string like "{table}" to "elgg_table". Strings without leading "{" are returned as is.
+	 *
+	 * @param string $table Table name. E.g. "custom_table" or "{table}"
+	 * @return string
+	 */
+	public function prefixTable($table) {
+		if ($table[0] === '{') {
+			return $this->tablePrefix . trim($table, '{}');
+		}
+		return $table;
 	}
 
 	/**

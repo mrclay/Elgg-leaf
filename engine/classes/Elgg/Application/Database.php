@@ -92,6 +92,10 @@ class Database extends ElggDb {
 		return $this->db->sanitizeString($value);
 	}
 
+	// @todo in 3.0, stop extending \Elgg\Database and remove the following methods:
+
+	// These exist because they were exposed in 2.0 via elgg()->getDb()
+
 	/**
 	 * {@inheritdoc}
 	 *
@@ -220,5 +224,34 @@ class Database extends ElggDb {
 	public function getServerVersion($type) {
 		elgg_deprecated_notice(__METHOD__ . " was deprecated and will be removed in 3.0", '2.1');
 		return $this->db->getServerVersion($type);
+	}
+
+	// These exist to keep plugins from accessing the parent methods
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @access private
+	 */
+	public function getConnection($type) {
+		throw new \BadMethodCallException(__METHOD__ . ' is not for public use and will be removed in 3.0');
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @access private
+	 */
+	public function buildQuery() {
+		throw new \BadMethodCallException(__METHOD__ . ' is not for public use and will be removed in 3.0');
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
+	 * @access private
+	 */
+	public function prefixTable($table) {
+		throw new \BadMethodCallException(__METHOD__ . ' is not for public use and will be removed in 3.0');
 	}
 }

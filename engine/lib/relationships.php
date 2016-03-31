@@ -105,6 +105,31 @@ function get_entity_relationships($guid, $inverse_relationship = false) {
 }
 
 /**
+ * Get relationships matching the given options
+ *
+ * @param array $options Array in format:
+ *
+ *  relationship => null|array Relationship name(s) (relationship IN ("relationship1", ...))
+ *
+ *  guid_one => null|array GUID(s) for entity one (guid_one IN (GUID1, ...)
+ *
+ *  guid_two => null|array GUID(s) for entity two (guid_two IN (GUID1, ...)
+ *
+ *  offset => int (default 0) Number to skip
+ *
+ *  limit => int (default 50) Number to return
+ *
+ *  callback => callable Function to process returned rows
+ *
+ *  count => bool (default false) Return a count?
+ *
+ * @return \ElggRelationship[]|int
+ */
+function elgg_get_relationships(array $options = []) {
+	return _elgg_services()->relationshipsTable->getRelationships($options);
+}
+
+/**
  * Return entities matching a given query joining against a relationship.
  *
  * By default the function finds relationship targets. E.g.:
