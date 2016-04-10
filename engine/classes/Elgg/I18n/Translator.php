@@ -10,6 +10,8 @@ namespace Elgg\I18n;
  */
 class Translator {
 
+	const REFERENCE_PREFIX = '__REF ';
+
 	/**
 	 * Global Elgg configuration
 	 *
@@ -18,7 +20,14 @@ class Translator {
 	private $CONFIG;
 
 	/**
-	 * Initializes new translator
+	 * Keys being resolved by reference. Used to detect circular references
+	 *
+	 * @var string[]
+	 */
+	private $keys_stack = [];
+
+	/**
+	 * Constructor
 	 */
 	public function __construct() {
 		global $CONFIG;
@@ -52,6 +61,8 @@ class Translator {
 			$args = array();
 		}
 
+		$requested_lang = $language;
+
 		if (!$CURRENT_LANGUAGE) {
 			$CURRENT_LANGUAGE = $this->getCurrentLanguage();
 		}
@@ -67,6 +78,24 @@ class Translator {
 		foreach ([$language, 'en'] as $try_lang) {
 			if (isset($GLOBALS['_ELGG']->translations[$try_lang][$message_key])) {
 				$string = $GLOBALS['_ELGG']->translations[$try_lang][$message_key];
+
+				if (0 === strpos($string, self::REFERENCE_PREFIX)) {
+					// dereference, first checking for circular references
+					if (in_array($message_key, $this->keys_stack)) {
+						_elgg_services()->logger->error("Circular reference trying to translate key '$message_key'");
+						return $message_key;
+					}
+					$this->keys_stack[] = $message_key;
+
+					$ret = $this->translate(
+						substr($string, strlen(self::REFERENCE_PREFIX)),
+						$args,
+						$requested_lang
+					);
+
+					array_pop($this->keys_stack);
+					return $ret;
+				}
 
 				// only pass through if we have arguments to allow backward compatibility
 				// with manual sprintf() calls.

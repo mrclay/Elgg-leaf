@@ -82,4 +82,48 @@ class TranslatorTest extends TestCase {
 	public function testDoesNotProcessArgsOnKey() {
 		$this->assertEquals('nonexistent:%s', $this->translator->translate('nonexistent:%s', [1]));
 	}
+
+	public function testCanLookupReference() {
+		$this->translator->addTranslation('en', [
+			"dummy" => "Dummy",
+			"site:dummy" => Translator::REFERENCE_PREFIX . "dummy",
+			"group:dummy" => Translator::REFERENCE_PREFIX . "site:dummy",
+		]);
+
+		$this->assertEquals('Dummy', $this->translator->translate("site:dummy"));
+		$this->assertEquals('Dummy', $this->translator->translate("site:dummy", [], 'es'));
+
+		$this->assertEquals('Dummy', $this->translator->translate("group:dummy"));
+		$this->assertEquals('Dummy', $this->translator->translate("group:dummy", [], 'es'));
+	}
+
+	public function testLanguageCanOverrideReference() {
+		$this->translator->addTranslation('en', [
+			"dummy" => "Dummy",
+			"site:dummy" => Translator::REFERENCE_PREFIX . "dummy",
+		]);
+		$this->translator->addTranslation('es', [
+			"site:dummy" => "Estúpido",
+		]);
+
+		$this->assertEquals('Estúpido', $this->translator->translate("site:dummy", [], 'es'));
+	}
+
+	public function testCatchesCircularRefs() {
+		$this->translator->addTranslation('en', [
+			"a" => Translator::REFERENCE_PREFIX . "b",
+			"b" => Translator::REFERENCE_PREFIX . "a",
+		]);
+
+		_elgg_services()->logger->disable();
+		$this->assertEquals('a', $this->translator->translate("a"));
+		$logged = _elgg_services()->logger->enable();
+
+		$this->assertEquals([
+			[
+				'message' => "Circular reference trying to translate key 'a'",
+				'level' => Logger::ERROR,
+			]
+		], $logged);
+	}
 }

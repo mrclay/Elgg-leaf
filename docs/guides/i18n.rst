@@ -36,6 +36,28 @@ ordered later on the Admin > Plugins page:
 
     Unless you are overriding core's or another plugin's language strings, it is good practice for the language keys to start with your plugin name. For example: ``yourplugin:success``, ``yourplugin:title``, etc. This helps avoid conflicts with other language keys.
 
+Reusing translations
+--------------------
+
+Using different keys in different scenarios allows more granular translation options later. E.g. if you only define ``'blog' => 'Blog'``, you may be tempted to use ``elgg_echo('blog')`` in many places. Later, the need to customize a particular feature would require editing both the language file and the ``elgg_echo`` usage.
+
+Instead, you can specify several keys that reference a single translation:
+
+.. code:: php
+    <?php
+
+    return [
+	    'blog' => 'Blog',
+	    'site_menu:blog' => '__REF blog',
+	    'page_title:blog' => '__REF blog',
+    ];
+
+``__REF blog`` means "refer to the key ``blog``", so all three keys above will be translated to ``Blog``, but with this setup a translator can override the later two keys without affecting the others.
+
+.. note::
+
+    The reference prefix is ``__REF `` (ending with one space before the referenced key).
+
 Server-side API
 ===============
 

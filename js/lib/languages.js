@@ -31,35 +31,64 @@ elgg.get_language = function() {
 	return elgg.config.language;
 };
 
-/**
- * Translates a string
- *
- * @param {String} key      The string to translate
- * @param {Array}  argv     vsprintf support
- * @param {String} language The language to display it in
- *
- * @return {String} The translation
- */
-elgg.echo = function(key, argv, language) {
-	//elgg.echo('str', 'en')
-	if (elgg.isString(argv)) {
-		language = argv;
-		argv = [];
-	}
+!function() {
+	var REFERENCE_PREFIX = '__REF ';
 
-	//elgg.echo('str', [...], 'en')
-	var translations = elgg.config.translations,
-		dlang = elgg.get_language(),
-		map;
+	var keys_stack = [];
 
-	language = language || dlang;
-	argv = argv || [];
 
-	map = translations[language] || translations[dlang];
-	if (map && map[key]) {
-		return vsprintf(map[key], argv);
-	}
+	/**
+	 * Translates a string
+	 *
+	 * @param {String} key      Message key
+	 * @param {Array}  argv     vsprintf() arguments
+	 * @param {String} language Desired language
+	 *
+	 * @return {String} The translation or the given key if no translation available
+	 */
+	elgg.echo = function(key, argv, language) {
 
-	return key;
-};
+		// handle elgg.echo('str', 'en')
+		if (elgg.isString(argv)) {
+			language = argv;
+			argv = [];
+		} else {
+			argv = argv || [];
+		}
 
+		var requested_lang = language;
+
+		language = language || elgg.get_language();
+
+		var translations = elgg.config.translations,
+			list = [language, elgg.get_language()],
+			lang,
+			str;
+
+		while (lang = list.shift()) {
+			if (translations[lang] && elgg.isString(translations[lang][key])) {
+				str = translations[lang][key];
+				if (0 == str.indexOf(REFERENCE_PREFIX)) {
+					// dereference, first checking for circular references
+					if ($.inArray(key, keys_stack) != -1) {
+						return key;
+					}
+
+					keys_stack.push(key);
+					var ret = elgg.echo(str.substring(REFERENCE_PREFIX.length), argv, requested_lang);
+					keys_stack.pop();
+
+					return ret;
+				}
+
+				if (argv.length) {
+					str = vsprintf(str, argv);
+				}
+
+				return str;
+			}
+		}
+
+		return key;
+	};
+}();
