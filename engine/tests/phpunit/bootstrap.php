@@ -41,6 +41,7 @@ $CONFIG = (object)[
 	'simplecache_enabled' => false,
 	'system_cache_enabled' => false,
 	'Elgg\Application_phpunit' => true,
+	'site_config_loaded' => true,
 ];
 
 global $_ELGG;
