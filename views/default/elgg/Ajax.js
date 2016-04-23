@@ -14,12 +14,17 @@ define(function (require) {
 	 * Module constructor
 	 *
 	 * @param {Boolean} use_spinner Use the elgg/spinner module during requests (default true)
+	 * @param {Boolean} use_wrapper (default false) If set to true, the value will be available as the property "value"
+	 *                              on a returned object. The property "error" will be true if the client received any
+	 *                              error messages.
 	 *
 	 * @constructor
 	 */
-	function Ajax(use_spinner) {
+	function Ajax(use_spinner, use_wrapper) {
 
 		use_spinner = elgg.isNullOrUndefined(use_spinner) ? true : !!use_spinner;
+
+		use_wrapper = !!use_wrapper;
 
 		/**
 		 * Fetch a value from an Ajax endpoint.
@@ -33,11 +38,11 @@ define(function (require) {
 		 *
 		 * @param {Object} options   See {@link jQuery#ajax}. The default method is "GET" (or "POST" for actions).
 		 *
-		 *     url   : {String} Path of the Ajax API endpoint (required)
+		 *     url   : {String}   Path of the Ajax API endpoint (required)
 		 *     error : {Function} Error handler. Default is elgg.ajax.handleAjaxError. To cancel this altogether,
 		 *                        pass in function(){}.
-		 *     data  : {Object} Data to send to the server (optional). If set to a string (e.g. $.serialize)
-		 *                      then the request hook will not be called.
+		 *     data  : {Object}   Data to send to the server (optional). If set to a string (e.g. $.serialize)
+		 *                        then the request hook will not be called.
 		 *
 		 * @param {String} hook_type Type of the plugin hooks. If missing, the hooks will not trigger.
 		 *
@@ -55,10 +60,21 @@ define(function (require) {
 					var params = {
 						options: orig_options
 					};
+					if (!$.isPlainObject(data.wrapper)) {
+						data.wrapper = {};
+					}
 					if (hook_type) {
 						data = elgg.trigger_hook(Ajax.RESPONSE_DATA_HOOK, hook_type, params, data);
 					}
-					result = data.value;
+
+					if (use_wrapper) {
+						result = data.wrapper;
+						result.value = data.value;
+					} else {
+						result = data.value;
+					}
+
+					// pass metadata back to caller
 					unwrapped = true;
 				}
 				return result;
@@ -263,7 +279,7 @@ define(function (require) {
 			// /foo/?arg=1 => foo
 			action = action.replace(query_pattern, '').replace(slashes_pattern, '');
 
-			return fetch(options, 'action:' + action);
+			return fetch(options, 'action:' + action, meta);
 		};
 
 		/**
@@ -314,7 +330,8 @@ define(function (require) {
 	 * The returned data object will be passed through this hook, with the endpoint name as hook type
 	 * and params.option will have a copy of the original options object.
 	 *
-	 * data.value will be returned to the caller.
+	 * data.value: the value returned from the ajax endpoint.
+	 * data.wrapper: metadata made available to the caller.
 	 */
 	Ajax.RESPONSE_DATA_HOOK = 'ajax_response_data';
 
@@ -325,7 +342,10 @@ define(function (require) {
 	Ajax._init_hooks = function () {
 		elgg.register_hook_handler(Ajax.RESPONSE_DATA_HOOK, 'all', function (name, type, params, data) {
 			var m = data._elgg_msgs;
-			m && m.error && elgg.register_error(m.error);
+			data.wrapper.error = (m && m.error);
+			if (data.wrapper.error) {
+				elgg.register_error(m.error);
+			}
 			m && m.success && elgg.system_message(m.success);
 			delete data._elgg_msgs;
 

@@ -301,6 +301,52 @@ To capture the metadata send back to the client, we use the client-side ``ajax_r
 .. note:: Elgg uses these same hooks to deliver system messages over ``elgg/Ajax`` responses.
 
 
+Response metadata
+-----------------
+
+By default, the caller receives only the value returned by the endpoint, e.g. a string from a view. If the
+Ajax instance is created with ``use_wrapper`` set, however, the caller receives an object with at least a couple
+properties:
+
+* **value**: (mixed) the value from the endpoint
+* **error**: (boolean) whether any errors were sent from the server
+
+.. code-block:: js
+
+	var Ajax = require('elgg/Ajax');
+
+	// sets the use_wrapper option to true.
+	var ajax = new Ajax(true, true);
+
+	ajax.action('reverse_string', {
+		data: {
+			input: "abcde"
+		},
+	}).done(function (wrapper) {
+		if (wrapper.error) {
+			// uh oh
+			return;
+		}
+		alert(wrapper.value); // "edcba"
+	});
+
+Client-side ``ajax_response`` hook handlers can set other properties on the wrapper by placing them on the hook
+value ``data.wrapper``:
+
+.. code-block:: js
+
+    // in your boot module
+    var Ajax = require('elgg/Ajax');
+    var elgg = require('elgg');
+
+	elgg.register_hook_handler(Ajax.RESPONSE_DATA_HOOK, 'action:reverse_string', function (name, type, params, data) {
+
+		// set a value in the return wrapper
+		data.wrapper.response_length = data.value.length;
+
+		return data;
+	});
+
 Requiring AMD modules
 ---------------------
 
