@@ -1,16 +1,24 @@
 <?php
 namespace Elgg;
 
+use Elgg\Http\Request;
+use Elgg\Http\ResponseFactory;
+use PHPUnit_Framework_TestCase;
+use stdClass;
+use Symfony\Component\HttpFoundation\Response;
 
-class RouterTest extends \PHPUnit_Framework_TestCase {
+/**
+ * @group HttpService
+ */
+class RouterTest extends PHPUnit_Framework_TestCase {
 
 	/**
-	 * @var \Elgg\PluginHooksService
+	 * @var PluginHooksService
 	 */
 	protected $hooks;
 
 	/**
-	 * @var \Elgg\Router
+	 * @var Router
 	 */
 	protected $router;
 
@@ -24,11 +32,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	 */
 	protected $fooHandlerCalls = 0;
 
-	function setUp() {
-		$this->hooks = new \Elgg\PluginHooksService();
-		$this->router = new \Elgg\Router($this->hooks);
+	function setUp() {		
+		$this->hooks = new PluginHooksService();
+		$this->router = new Router($this->hooks);
 		$this->pages = dirname(dirname(__FILE__)) . '/test_files/pages';
 		$this->fooHandlerCalls = 0;
+
+		// reset response factory
+		_elgg_services()->setValue('responseFactory', new ResponseFactory(_elgg_services()->request, $this->hooks, _elgg_services()->ajax));
 	}
 
 	function hello_page_handler($segments, $identifier) {
@@ -43,15 +54,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 		$this->assertTrue($registered);
 
 		$path = "hello/1/\xE2\x82\xAC"; // euro sign
-		$qs = http_build_query(array(Application::GET_PATH_KEY => $path));
-		$request = \Elgg\Http\Request::create("http://localhost/?$qs");
 		
-		ob_start();
-		$handled = $this->router->route($request);
-		$output = ob_get_clean();
-		
+		$handled = $this->router->route(_elgg_testing_request($path));
 		$this->assertTrue($handled);
-		$this->assertEquals($path, $output);
+
+		$response = _elgg_services()->responseFactory->getSentResponse();
+		$this->assertInstanceOf(Response::class, $response);
+
+		$this->assertEquals($path, $response->getContent());
 
 		$this->assertEquals(array(
 			'hello' => array($this, 'hello_page_handler')
@@ -59,7 +69,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	}
 
 	function testFailToRegisterInvalidCallback() {
-		$registered = $this->router->registerPageHandler('hello', new \stdClass());
+		$registered = $this->router->registerPageHandler('hello', new stdClass());
 
 		$this->assertFalse($registered);
 	}
@@ -68,11 +78,12 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 		$this->router->registerPageHandler('hello', array($this, 'hello_page_handler'));
 		$this->router->unregisterPageHandler('hello');
 		
-		$request = \Elgg\Http\Request::create('http://localhost/hello/');
-		
 		ob_start();
-		$handled = $this->router->route($request);
+		$handled = $this->router->route(_elgg_testing_request('hello'));
 		$output = ob_get_clean();
+
+		$response = _elgg_services()->responseFactory->getSentResponse();
+		$this->assertFalse($response);
 
 		// Normally we would expect the router to return false for this request,
 		// but since it checks for headers_sent() and PHPUnit issues output before
@@ -92,14 +103,15 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 	function testRouteSupportsSettingHandlerInHookResultForBackwardsCompatibility() {
 		$this->router->registerPageHandler('foo', array($this, 'foo_page_handler'));
 		$this->hooks->registerHandler('route', 'bar', array($this, 'bar_route_handler'));
-		
-		$query = http_build_query(array(Application::GET_PATH_KEY => 'bar/baz'));
 
 		ob_start();
-		$this->router->route(\Elgg\Http\Request::create("http://localhost/?$query"));
+		$this->router->route(_elgg_testing_request('bar/baz'));
 		ob_end_clean();
 		
 		$this->assertEquals(1, $this->fooHandlerCalls);
+
+		$response = _elgg_services()->responseFactory->getSentResponse();
+		$this->assertInstanceOf(Response::class, $response);
 	}
 
 	/**
@@ -113,28 +125,33 @@ class RouterTest extends \PHPUnit_Framework_TestCase {
 		$this->router->registerPageHandler('foo', array($this, 'foo_page_handler'));
 		$this->hooks->registerHandler('route', 'bar', array($this, 'bar_route_identifier'));
 
-		$query = http_build_query(array(Application::GET_PATH_KEY => 'bar/baz'));
-
 		ob_start();
-		$this->router->route(\Elgg\Http\Request::create("http://localhost/?$query"));
+		$this->router->route(_elgg_testing_request('bar/baz'));
 		ob_end_clean();
 
 		$this->assertEquals(1, $this->fooHandlerCalls);
+
+		$response = _elgg_services()->responseFactory->getSentResponse();
+		$this->assertInstanceOf(Response::class, $response);
+
 	}
 
 	function testRouteOverridenFromHook() {
 		$this->router->registerPageHandler('foo', array($this, 'foo_page_handler'));
 		$this->hooks->registerHandler('route', 'foo', array($this, 'bar_route_override'));
 
-		$query = http_build_query(array(Application::GET_PATH_KEY => 'foo'));
-
 		ob_start();
-		$this->router->route(\Elgg\Http\Request::create("http://localhost/?$query"));
+		$this->router->route(_elgg_testing_request('foo'));
 		$result = ob_get_contents();
 		ob_end_clean();
 
 		$this->assertEquals("Page handler override from hook", $result);
 		$this->assertEquals(0, $this->fooHandlerCalls);
+
+		$response = _elgg_services()->responseFactory->getSentResponse();
+		$this->assertInstanceOf(Response::class, $response);
+
+		$this->assertEquals("Page handler override from hook", $response->getContent());
 	}
 	
 	function foo_page_handler() {

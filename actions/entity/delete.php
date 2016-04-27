@@ -7,13 +7,11 @@ $guid = get_input('guid');
 $entity = get_entity($guid);
 
 if (!$entity instanceof ElggEntity) {
-	register_error(elgg_echo('entity:delete:item_not_found'));
-	forward(REFERRER);
+	return elgg_error_response(elgg_echo('entity:delete:item_not_found'), REFERRER, ELGG_HTTP_NOT_FOUND);
 }
 
 if (!$entity->canDelete()) {
-	register_error(elgg_echo('entity:delete:permission_denied'));
-	forward(REFERRER);
+	return elgg_error_response(elgg_echo('entity:delete:permission_denied'), REFERRER, ELGG_HTTP_FORBIDDEN);
 }
 
 set_time_limit(0);
@@ -28,9 +26,14 @@ $type = $entity->getType();
 $subtype = $entity->getSubtype();
 $container = $entity->getContainerEntity();
 
-if (!$entity->delete()) {
-	register_error(elgg_echo('entity:delete:fail', array($display_name)));
-	forward(REFERRER);
+// Get a reference of an entity to send back to the client
+// Doing this before the entity is deleted to avoid problems with calling ElggEntity::toObject() after it is deleted
+$response_data = [
+	'entity' => (array) $entity->toObject(),
+];
+
+if (!$entity->canDelete() || !$entity->delete()) {
+	return elgg_error_response(elgg_echo('entity:delete:fail', array($display_name)), REFERRER, ELGG_HTTP_FORBIDDEN);
 }
 
 // determine forward URL
@@ -57,10 +60,11 @@ $success_keys = array(
 	"entity:delete:success",
 );
 
+$message = '';
 foreach ($success_keys as $success_key) {
 	if (elgg_language_key_exists($success_key)) {
-		system_message(elgg_echo($success_key, array($display_name)));
-		break;
+		$message = elgg_echo($success_key, array($display_name));
 	}
 }
-forward($forward_url);
+
+return elgg_ok_response($response_data, $message, $forward_url);
