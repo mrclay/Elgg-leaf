@@ -96,6 +96,8 @@ $CONFIG->dbprefix = '{{dbprefix}}';
 //$CONFIG->db['read'][1]['dbname'] = "";
 //$CONFIG->db['read'][1]['dbhost'] = "";
 
+$CONFIG->dbal_url = '{{dbal_url}}';
+
 /**
  * Memcache setup (optional)
  * This is where you may optionally set up memcache.

@@ -34,7 +34,7 @@ class Config {
 	 * @return string
 	 */
 	public function getTablePrefix() {
-		return $this->config->dbprefix;
+		return isset($this->config->dbprefix) ? $this->config->dbprefix : '';
 	}
 
 	/**

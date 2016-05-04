@@ -169,6 +169,8 @@ class ElggInstaller {
 			'language' => 'en',
 			'siteaccess' => ACCESS_PUBLIC,
 			'site_guid' => 1,
+			'dbal_url' => '',
+			'timezone' => 'UTC',
 		);
 		$params = array_merge($defaults, $params);
 
@@ -214,7 +216,7 @@ class ElggInstaller {
 		}
 
 		if (!$this->status['database']) {
-			if (!$this->installDatabase()) {
+			if (!$this->installDatabase($params)) {
 				throw new InstallationException(_elgg_services()->translator->translate('install:error:cannotloadtables'));
 			}
 		}
@@ -653,27 +655,16 @@ class ElggInstaller {
 		}
 
 		// check that the config table has been created
-		$query = "show tables";
-		$result = _elgg_services()->db->getData($query);
-		if ($result) {
-			foreach ($result as $table) {
-				$table = (array) $table;
-				if (in_array("{$this->CONFIG->dbprefix}config", $table)) {
-					$this->status['database'] = TRUE;
-				}
-			}
-			if ($this->status['database'] == FALSE) {
-				return;
-			}
-		} else {
-			// no tables
+		$tables = _elgg_services()->db->getSchemaManager()->listTableNames();
+		$this->status['database'] = in_array($this->CONFIG->dbprefix . 'config', $tables);
+		if (!$this->status['database']) {
 			return;
 		}
 
 		// check that the config table has entries
 		$query = "SELECT COUNT(*) AS total FROM {$this->CONFIG->dbprefix}config";
-		$result = _elgg_services()->db->getData($query);
-		if ($result && $result[0]->total > 0) {
+		$row = _elgg_services()->db->getDataRow($query);
+		if ($row && $row->total > 0) {
 			$this->status['settings'] = TRUE;
 		} else {
 			return;
@@ -681,8 +672,8 @@ class ElggInstaller {
 
 		// check that the users entity table has an entry
 		$query = "SELECT COUNT(*) AS total FROM {$this->CONFIG->dbprefix}users_entity";
-		$result = _elgg_services()->db->getData($query);
-		if ($result && $result[0]->total > 0) {
+		$row = _elgg_services()->db->getDataRow($query);
+		if ($row && $row->total > 0) {
 			$this->status['admin'] = TRUE;
 		} else {
 			return;
@@ -781,53 +772,8 @@ class ElggInstaller {
 		if ($stepIndex > $dbIndex) {
 			// once the database has been created, load rest of engine
 			
-			$lib_dir = \Elgg\Application::elggDir()->chroot('/engine/lib/');
-
 			$this->loadSettingsFile();
 
-			$lib_files = array(
-				// these want to be loaded first apparently?
-				'autoloader.php',
-				'database.php',
-				'actions.php',
-
-				'admin.php',
-				'annotations.php',
-				'cron.php',
-				'entities.php',
-				'extender.php',
-				'filestore.php',
-				'group.php',
-				'mb_wrapper.php',
-				'memcache.php',
-				'metadata.php',
-				'metastrings.php',
-				'navigation.php',
-				'notification.php',
-				'objects.php',
-				'pagehandler.php',
-				'pam.php',
-				'plugins.php',
-				'private_settings.php',
-				'relationships.php',
-				'river.php',
-				'sites.php',
-				'statistics.php',
-				'tags.php',
-				'user_settings.php',
-				'users.php',
-				'upgrade.php',
-				'widgets.php',
-				'deprecated-1.9.php',
-			);
-
-			foreach ($lib_files as $file) {
-				if (!include_once($lib_dir->getPath($file))) {
-					throw new InstallationException('InstallationException:MissingLibrary', array($file));
-				}
-			}
-
-			_elgg_services()->db->setupConnections();
 			_elgg_services()->translator->registerTranslations(\Elgg\Application::elggDir()->getPath("/languages/"));
 			$this->CONFIG->language = 'en';
 
@@ -1309,11 +1255,6 @@ class ElggInstaller {
 			return FALSE;
 		}
 
-		if (!include_once(\Elgg\Application::elggDir()->getPath("engine/lib/database.php"))) {
-			register_error('Could not load database.php');
-			return FALSE;
-		}
-
 		try  {
 			_elgg_services()->db->setupConnections();
 		} catch (DatabaseException $e) {
@@ -1329,11 +1270,18 @@ class ElggInstaller {
 	 *
 	 * @return bool
 	 */
-	protected function installDatabase() {
-		
+	protected function installDatabase(array $params) {
+
+		if (!empty($params['dbal_url'])) {
+			list($type) = explode(':', $params['dbal_url'], 2);
+		} else {
+			$type = 'mysql';
+		}
+
+		$file = \Elgg\Application::elggDir()->getPath("/engine/schema/$type.sql");
 
 		try {
-			_elgg_services()->db->runSqlScript(\Elgg\Application::elggDir()->getPath("/engine/schema/mysql.sql"));
+			_elgg_services()->db->runSqlScript($file);
 		} catch (Exception $e) {
 			$msg = $e->getMessage();
 			if (strpos($msg, 'already exists')) {

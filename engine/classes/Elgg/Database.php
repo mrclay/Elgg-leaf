@@ -5,6 +5,7 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\Statement;
 use Doctrine\DBAL\Driver\ServerInfoAwareConnection;
+use Doctrine\DBAL\Schema\AbstractSchemaManager;
 
 /**
  * An object representing a single Elgg database.
@@ -147,6 +148,15 @@ class Database {
 	}
 
 	/**
+	 * Get the connection schemamanager
+	 *
+	 * @return AbstractSchemaManager
+	 */
+	public function getSchemaManager() {
+		return $this->getConnection('readwrite')->getSchemaManager();
+	}
+
+	/**
 	 * Establish a connection to the database server
 	 *
 	 * Connect to the database server and use the Elgg database for a particular database link
@@ -160,14 +170,20 @@ class Database {
 	public function connect($type = "readwrite") {
 		$conf = $this->config->getConnectionConfig($type);
 
-		$params = [
-			'dbname' => $conf['database'],
-			'user' => $conf['user'],
-			'password' => $conf['password'],
-			'host' => $conf['host'],
-			'charset' => 'utf8',
-			'driver' => 'pdo_mysql',
-		];
+		if (!empty($GLOBALS['CONFIG']->dbal_url)) {
+			$params = [
+				'url' => $GLOBALS['CONFIG']->dbal_url,
+			];
+		} else {
+			$params = [
+				'dbname' => $conf['database'],
+				'user' => $conf['user'],
+				'password' => $conf['password'],
+				'host' => $conf['host'],
+				'charset' => 'utf8',
+				'driver' => 'pdo_mysql',
+			];
+		}
 
 		try {
 			$this->connections[$type] = DriverManager::getConnection($params);
@@ -349,6 +365,9 @@ class Database {
 	 * @throws \DatabaseException
 	 */
 	protected function getResults($query, $callback = null, $single = false, array $params = []) {
+
+		// SQLite hacks
+		$query = str_replace('string = BINARY ', 'string = ', $query);
 
 		// Since we want to cache results of running the callback, we need to
 		// need to namespace the query with the callback and single result request.

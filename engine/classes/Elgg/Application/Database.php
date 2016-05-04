@@ -95,6 +95,16 @@ class Database extends ElggDb {
 	/**
 	 * {@inheritdoc}
 	 *
+	 * @deprecated 2.2 This method will not be available on this class in 3.0
+	 */
+	public function getSchemaManager() {
+		elgg_deprecated_notice(__METHOD__ . " was deprecated and will be removed in 3.0", '2.2');
+		return $this->db->getSchemaManager();
+	}
+
+	/**
+	 * {@inheritdoc}
+	 *
 	 * @deprecated 2.1 This method will not be available on this class in 3.0
 	 */
 	public function fingerprintCallback($callback) {
