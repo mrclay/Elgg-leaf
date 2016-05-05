@@ -953,6 +953,9 @@ class ActionsServiceTest extends PHPUnit_Framework_TestCase {
 		]);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRedirectOnNonAjaxRequest() {
@@ -994,6 +997,9 @@ class ActionsServiceTest extends PHPUnit_Framework_TestCase {
 		]);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	/**
@@ -1020,6 +1026,9 @@ class ActionsServiceTest extends PHPUnit_Framework_TestCase {
 		]);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 }
