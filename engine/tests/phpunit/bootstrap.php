@@ -89,7 +89,7 @@ function _elgg_testing_request($uri = '', $method = 'GET', $parameters = [], $aj
 		$parameters['__elgg_token'] = _elgg_services()->actions->generateActionToken($ts);
 	}
 
-	$request = \Elgg\Http\Request::create("?$path_key=$path", $method, $parameters);
+	$request = \Elgg\Http\Request::create("?$path_key=" . urlencode($path), $method, $parameters);
 
 	$cookie_name = _elgg_services()->config->getCookieConfig()['session']['name'];
 	$session_id = _elgg_services()->session->getId();
