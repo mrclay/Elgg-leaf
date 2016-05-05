@@ -109,6 +109,8 @@ class ActionsService {
 			$forwarder = substr($forwarder, 1);
 		}
 
+		$ob_started = false;
+
 		/**
 		 * Prepare action response
 		 *
@@ -116,8 +118,11 @@ class ActionsService {
 		 * @param int    $status_code HTTP status code
 		 * @return ResponseBuilder
 		 */
-		$forward = function ($error_key = '', $status_code = ELGG_HTTP_OK) use ($action, $forwarder) {
+		$forward = function ($error_key = '', $status_code = ELGG_HTTP_OK) use ($action, $forwarder, &$ob_started) {
 			if ($error_key) {
+				if ($ob_started) {
+					ob_end_clean();
+				}
 				$msg = _elgg_services()->translator->translate($error_key, [$action]);
 				_elgg_services()->systemMessages->addErrorMessage($msg);
 				$response = new \Elgg\Http\ErrorResponse($msg, $status_code);
@@ -154,6 +159,7 @@ class ActionsService {
 		}
 
 		ob_start();
+		$ob_started = true;
 		
 		// To quietly cancel the file, return a falsey value in the "action" hook.
 		if (!_elgg_services()->hooks->trigger('action', $action, null, true)) {
@@ -168,6 +174,7 @@ class ActionsService {
 
 		$result = self::includeFile($file);
 		if ($result instanceof ResponseBuilder) {
+			ob_end_clean();
 			return $result;
 		}
 
@@ -178,7 +185,7 @@ class ActionsService {
 	 * Include an action file with isolated scope
 	 *
 	 * @param string $file File to be interpreted by PHP
-	 * @return void
+	 * @return mixed
 	 */
 	protected static function includeFile($file) {
 		return include $file;
