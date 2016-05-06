@@ -816,6 +816,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 
 		$output = json_encode([
 			'error' => '',
+			'value' => null,
+			'_elgg_msgs' => (object)[],
+			'_elgg_deps' => [],
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
@@ -923,7 +926,10 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		$this->assertContains('application/json', $response->headers->get('Content-Type'));
 
 		$output = json_encode([
-			'error' => ''
+			'error' => '',
+			'value' => null,
+			'_elgg_msgs' => (object) [],
+			'_elgg_deps' => [],
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
@@ -1126,6 +1132,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 
 		$output = json_encode([
 			'error' => "Ajax view 'unallowed' was not registered",
+			'value' => null,
+			'_elgg_msgs' => [
+				'error' => ["Ajax view 'unallowed' was not registered"],
+			],
+			'_elgg_deps' => [],
 				], ELGG_JSON_ENCODING); // Symfony JsonResponse
 
 		$this->assertEquals($output, $response->getContent());
@@ -1270,6 +1281,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 
 		$output = json_encode([
 			'error' => 'good bye',
+			'value' => null,
+			'_elgg_msgs' => [
+				'error' => ["good bye"],
+			],
+			'_elgg_deps' => [],
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
@@ -1306,6 +1322,11 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 		 */
 		$output = json_encode([
 			'error' => 'hello',
+			'value' => null,
+			'_elgg_msgs' => [
+				'error' => ["error"],
+			],
+			'_elgg_deps' => [],
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
@@ -1426,7 +1447,15 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 
 		$output = json_encode([
 			'error' => 'good bye',
-		]);
+			'value' => null,
+			'_elgg_msgs' => [
+				'error' => [
+					"Ajax view 'forms/query_view' was not registered",
+					"good bye",
+				],
+			],
+			'_elgg_deps' => [],
+				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
 	}

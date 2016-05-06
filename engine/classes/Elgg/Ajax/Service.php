@@ -56,16 +56,6 @@ class Service {
 		$this->msgs = $msgs;
 		$this->input = $input;
 		$this->amd_config = $amdConfig;
-
-		if ($this->input->get('elgg_fetch_messages', true)) {
-			$message_filter = [$this, 'appendMessages'];
-			$this->hooks->registerHandler(AjaxResponse::RESPONSE_HOOK, 'all', $message_filter, 999);
-		}
-
-		if ($this->input->get('elgg_fetch_deps', true)) {
-			$deps_filter = [$this, 'appendDeps'];
-			$this->hooks->registerHandler(AjaxResponse::RESPONSE_HOOK, 'all', $deps_filter, 999);
-		}
 	}
 
 	/**
@@ -152,7 +142,13 @@ class Service {
 	 * @return JsonResponse
 	 */
 	public function respondWithError($msg = '', $status = 400) {
-		$response = new JsonResponse(['error' => $msg], $status);
+		$api_response = new Response();
+		$api_response->setData((object)[
+			'error' => $msg,
+			'value' => null,
+		]);
+		$this->prepareClientData($api_response);
+		$response = new JsonResponse($api_response->getData(), $status);
 
 		$this->response_sent = true;
 		return _elgg_services()->responseFactory->send($response);
@@ -176,6 +172,8 @@ class Service {
 				throw new RuntimeException("The value returned by hook [$hook, $hook_type] was not an ApiResponse");
 			}
 		}
+
+		$this->prepareClientData($api_response);
 
 		return $api_response;
 	}
@@ -219,6 +217,24 @@ class Service {
 		}
 		
 		return $response;
+	}
+
+	/**
+	 * Add required AMD modules and system messages to the response metadata
+	 *
+	 * @param AjaxResponse $api_response Ajax response
+	 * @return void
+	 */
+	private function prepareClientData(AjaxResponse $api_response) {
+		$data = $api_response->getData();
+
+		if ($this->input->get('elgg_fetch_messages', true)) {
+			$data->_elgg_msgs = (object)$this->msgs->dumpRegister();
+		}
+
+		if ($this->input->get('elgg_fetch_deps', true)) {
+			$data->_elgg_deps = (array) $this->amd_config->getDependencies();
+		}
 	}
 
 	/**
