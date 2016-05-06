@@ -75,11 +75,11 @@ function _elgg_testing_config(\Elgg\Config $config = null) {
  * @param string $uri             URI of the request
  * @param string $method          HTTP method
  * @param array  $parameters      Query/Post parameters
- * @param bool   $ajax            AJAX api version
+ * @param int    $ajax            AJAX api version (0 for non-ajax)
  * @param bool   $add_csrf_tokens Add CSRF tokens
  * @return \Elgg\Http\Request
  */
-function _elgg_testing_request($uri = '', $method = 'GET', $parameters = [], $ajax = false, $add_csrf_tokens = false) {
+function _elgg_testing_request($uri = '', $method = 'GET', $parameters = [], $ajax = 0, $add_csrf_tokens = false) {
 	$site_url = elgg_get_site_url();
 	$path = substr(elgg_normalize_url($uri), strlen($site_url));
 	$path_key = \Elgg\Application::GET_PATH_KEY;
@@ -100,7 +100,9 @@ function _elgg_testing_request($uri = '', $method = 'GET', $parameters = [], $aj
 
 	if ($ajax) {
 		$request->headers->set('X-Requested-With', 'XMLHttpRequest');
-		$request->headers->set('X-Elgg-Ajax-API', (string) $ajax);
+		if ($ajax >= 2) {
+			$request->headers->set('X-Elgg-Ajax-API', (string) $ajax);
+		}
 	}
 
 	return $request;
