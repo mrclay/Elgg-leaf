@@ -535,6 +535,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjaxRequestFromOkResponseBuilder() {
@@ -617,6 +620,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjaxRequestInNonDefaultViewtype() {
@@ -673,6 +679,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjaxRequestForPageThatForwardsToErrorPage() {
@@ -705,6 +714,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjax2RequestThroughRouteHook() {
@@ -765,6 +777,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjax2RequestFromOkResponseBuilder() {
@@ -847,6 +862,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjax2RequestInNonDefaultViewtype() {
@@ -903,6 +921,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	public function testCanRespondToAjax2RequestForPageThatForwardsToErrorPage() {
@@ -927,6 +948,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	/**
@@ -1108,6 +1132,9 @@ class RouterTest extends PHPUnit_Framework_TestCase {
 				], ELGG_JSON_ENCODING);
 
 		$this->assertEquals($output, $response->getContent());
+
+		// compensate for fact that ResponseFactory::redirect closes a buffer it didn't open
+		ob_start();
 	}
 
 	/**
