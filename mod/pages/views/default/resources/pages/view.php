@@ -36,8 +36,9 @@ elgg_push_breadcrumb($title);
 $content = elgg_view_entity($page, array('full_view' => true));
 $content .= elgg_view_comments($page);
 
-// can add subpage if can edit this page and write to container (such as a group)
-if ($page->canEdit() && $container->canWriteToContainer(0, 'object', 'page')) {
+// can add subpage if can edit this page and write to container
+// group write permissions are checked in the container_permissions_permissions hook
+if ($page->canEdit() && $page->canWriteToContainer(0, 'object', 'page')) {
 	$url = "pages/add/$page->guid";
 	elgg_register_menu_item('title', array(
 			'name' => 'subpage',

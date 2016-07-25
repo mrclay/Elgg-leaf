@@ -369,16 +369,22 @@ function pages_write_permission_check($hook, $entity_type, $returnvalue, $params
  * @return bool
  */
 function pages_container_permission_check($hook, $type, $return, $params) {
-	
-	if (!elgg_in_context('pages')) {
-		return;
-	}
 
 	$user = elgg_extract('user', $params);
 	$container = elgg_extract('container', $params);
 	$subtype = elgg_extract('subtype', $params);
 
 	if ($type !== 'object' || $subtype !== 'page') {
+		return;
+	}
+
+	$parent_container = $container->getContainerEntity();
+	if ($parent_container instanceof ElggGroup) {
+		// Only group members should be allowed to create subpages
+		return $parent_container->canWriteToContainer();
+	}
+
+	if (!elgg_in_context('pages')) {
 		return;
 	}
 
