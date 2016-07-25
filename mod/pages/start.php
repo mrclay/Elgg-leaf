@@ -136,6 +136,7 @@ function pages_page_handler($page) {
 			echo elgg_view_resource('pages/friends');
 			break;
 		case 'view':
+			set_input('page_guid', $page[1]); // required for BC, to determine container permissions
 			echo elgg_view_resource('pages/view', [
 				'guid' => $page[1],
 			]);
@@ -324,21 +325,21 @@ function pages_prepare_notification($hook, $type, $notification, $params) {
  * @return bool
  */
 function pages_write_permission_check($hook, $entity_type, $returnvalue, $params) {
-	if (!pages_is_page($params['entity'])) {
-		return null;
-	}
-	$entity = $params['entity'];
-	/* @var ElggObject $entity */
+	$entity = elgg_extract('entity', $params);
+	$user = elgg_extract('user', $params);
 
+	if (!pages_is_page($entity) || !isset($entity->write_access_id)) {
+		return;
+	}
+	
 	$write_permission = $entity->write_access_id;
-	$user = $params['user'];
 
 	if ($write_permission && $user) {
 		switch ($write_permission) {
 			case ACCESS_PRIVATE:
 				// Elgg's default decision is what we want
-				return null;
 				break;
+				
 			case ACCESS_FRIENDS:
 				$owner = $entity->getOwnerEntity();
 				if (($owner instanceof ElggUser) && $owner->isFriendsWith($user->guid)) {
@@ -346,7 +347,7 @@ function pages_write_permission_check($hook, $entity_type, $returnvalue, $params
 				}
 				break;
 			default:
-				$list = get_access_array($user->guid);
+				$list = _elgg_services()->accessCollections->getAccessArray($user->guid);
 				if (in_array($write_permission, $list)) {
 					// user in the access collection
 					return true;
@@ -357,33 +358,40 @@ function pages_write_permission_check($hook, $entity_type, $returnvalue, $params
 }
 
 /**
- * Extend container permissions checking to extend can_write_to_container for write users.
+ * Check container permissions
+ * For BC, we want to allow users to write 'page' objects to 'user' and 'group' entities.
  *
- * @param string $hook
- * @param string $entity_type
- * @param bool   $returnvalue
- * @param array  $params
+ * @param string $hook   "container_permissions_check"
+ * @param string $type   "object"
+ * @param bool   $return Permission
+ * @param array  $params Hook params
  *
  * @return bool
  */
-function pages_container_permission_check($hook, $entity_type, $returnvalue, $params) {
-	if (elgg_get_context() != "pages") {
-		return null;
+function pages_container_permission_check($hook, $type, $return, $params) {
+	
+	if (!elgg_in_context('pages')) {
+		return;
 	}
-	$container = elgg_get_page_owner_entity();
-	if ($container && $container->canWriteToContainer(0, 'object', 'page')) {
-		return true;
+
+	$user = elgg_extract('user', $params);
+	$container = elgg_extract('container', $params);
+	$subtype = elgg_extract('subtype', $params);
+
+	if ($type !== 'object' || $subtype !== 'page') {
+		return;
 	}
-	if ($page_guid = get_input('page_guid', 0)) {
+
+	if ($page_guid = get_input('page_guid')) {
 		$entity = get_entity($page_guid);
-	} elseif ($parent_guid = get_input('parent_guid', 0)) {
+	} elseif ($parent_guid = get_input('parent_guid')) {
 		$entity = get_entity($parent_guid);
 	}
-	if (isset($entity) && pages_is_page($entity)) {
-		if ($entity->canWriteToContainer(0, 'object', 'page') || in_array($entity->write_access_id, get_access_list())) {
-			return true;
-		}
+	
+	if (pages_is_page($entity) && $entity->canEdit($user->guid)) {
+		return true;
 	}
+
 }
 
 /**
