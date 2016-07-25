@@ -1,8 +1,8 @@
 <?php
+
 namespace Elgg;
 
-
-class LoggerTest extends \PHPUnit_Framework_TestCase {
+class LoggerTest extends \Elgg\TestCase {
 
 	public function testLoggingOff() {
 		$logger = $this->getLoggerInstance();
@@ -25,6 +25,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase {
 		$logger = _elgg_services()->logger;
 		$logger->disable();
 		$hooks = _elgg_services()->hooks;
+		$logger->setHooks($hooks);
 		$hooks->backup();
 
 		$num_processed = 0;
@@ -40,7 +41,7 @@ class LoggerTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals([
 			['message' => 'Testing', 'level' => Logger::ERROR],
-		], $captured);
+				], $captured);
 
 		$hooks->restore();
 	}
@@ -64,11 +65,11 @@ class LoggerTest extends \PHPUnit_Framework_TestCase {
 
 		$this->assertEquals([
 			['message' => 'Test2', 'level' => Logger::WARNING],
-		], $logger->enable());
+				], $logger->enable());
 
 		$this->assertEquals([
 			['message' => 'Test1', 'level' => Logger::ERROR],
-		], $logger->enable());
+				], $logger->enable());
 
 		$this->assertEquals(0, $num_processed);
 
@@ -84,5 +85,5 @@ class LoggerTest extends \PHPUnit_Framework_TestCase {
 		$sp = _elgg_services();
 		return new \Elgg\Logger($mock, $sp->config, $sp->context);
 	}
-}
 
+}

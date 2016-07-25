@@ -254,7 +254,7 @@ class EntityIconService {
 			$square = (bool) elgg_extract('square', $opts);
 			$upscale = (bool) elgg_extract('upscale', $opts);
 
-			if ($cropping_mode && $square === false && $size !== 'large') {
+			if ($type === 'icon' && $cropping_mode && $square === false && $size !== 'large') {
 				// In cropping mode, we want to preserve non-square images the way they are.
 				// For BC, we need to crop the large icon into a square if cropping coordinates are provided.
 				// There is a problem with cropping large icons however. See #9663 and EntityIconServiceTest::testIconDimensionsAfterResize
@@ -262,6 +262,14 @@ class EntityIconService {
 			}
 
 			$icon = $this->getIcon($entity, $size, $type);
+
+			// Save the image without resizing or cropping if the
+			// image size value is an empty array
+			if (is_array($opts) && empty($opts)) {
+				copy($file->getFilenameOnFilestore(), $icon->getFilenameOnFilestore());
+				continue;
+			}
+
 			$image_bytes = get_resized_image_from_existing_file($file->getFilenameOnFilestore(), $width, $height, $square, $x1, $y1, $x2, $y2, $upscale);
 			if ($image_bytes) {
 				$icon->open("write");
@@ -282,7 +290,7 @@ class EntityIconService {
 	 * The icon file may or may not exist on filestore
 	 *
 	 * @note Returned ElggIcon object may be a placeholder. Use ElggIcon::exists() to validate if file has been written to filestore
-	 * 
+	 *
 	 * @param ElggEntity $entity Entity that owns the icon
 	 * @param string     $size   Size of the icon
 	 * @param string     $type   The name of the icon. e.g., 'icon', 'cover_photo'
@@ -417,6 +425,7 @@ class EntityIconService {
 	 * @param string $entity_subtype Entity subtype
 	 * @param string $type           The name of the icon. e.g., 'icon', 'cover_photo'
 	 * @return array
+	 * @throws InvalidParameterException
 	 */
 	public function getSizes($entity_type = null, $entity_subtype = null, $type = 'icon') {
 		$sizes = [];
@@ -433,6 +442,17 @@ class EntityIconService {
 		];
 		if ($entity_type) {
 			$sizes = $this->hooks->trigger("entity:$type:sizes", $entity_type, $params, $sizes);
+		}
+
+		if (!is_array($sizes)) {
+			throw new InvalidParameterException("The icon size configuration for image type '$type' " .
+				"must be an associative array of image size names and their properties");
+		}
+
+		if (empty($sizes)) {
+			$this->logger->error("Failed to find size configuration for image of type '$type' for entity type " .
+				"'$entity_type'. Use the 'entity:$type:sizes, $entity_type' hook to define the icon sizes");
+
 		}
 
 		return $sizes;

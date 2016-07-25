@@ -190,6 +190,12 @@ Action hooks
 **forward, <reason>**
 	Filter the URL to forward a user to when ``forward($url, $reason)`` is called.
 
+**response, action:<action>**
+    Filter an instance of ``\Elgg\Http\ResponseBuilder`` before it is sent to the client.
+    This hook can be used to modify response content, status code, forward URL, or set additional response headers.
+    Note that the ``<action>`` value is parsed from the request URL, therefore you may not be able to filter
+    the responses of `action()` calls if they are nested within the another action script file.
+
 .. _guides/hooks-list#ajax:
 
 Ajax
@@ -214,10 +220,27 @@ Ajax
 	Plugins can alter the output, forward URL, system messages, and errors. For the ``elgg/Ajax`` AMD module,
 	use the ``ajax_response`` hook documented above.
 
+
 .. _guides/hooks-list#permission-hooks:
 
 Permission hooks
 ================
+
+**container_logic_check, <entity_type>**
+	Triggered by ``ElggEntity:canWriteToContainer()`` before triggering ``permissions_check`` and ``container_permissions_check``
+	hooks. Unlike permissions hooks, logic check can be used to prevent certain entity types from being contained
+	by other entity types, e.g. discussion replies should only be contained by discussions. This hook can also be
+	used to apply status logic, e.g. do disallow new replies for closed discussions.
+
+	The handler should return ``false`` to prevent an entity from containing another entity. The default value passed to the hook
+	is ``null``, so the handler can check if another hook has modified the value by checking if return value is set.
+	Should this hook return ``false``, ``container_permissions_check`` and ``permissions_check`` hooks will not be triggered.
+
+	The ``$params`` array will contain:
+
+	 * ``container`` - An entity that will be used as a container
+	 * ``user`` - User who will own the entity to be written to container
+	 * ``subtype`` - Subtype of the entity to be written to container (entity type is assumed from hook type)
 
 **container_permissions_check, <entity_type>**
 	Return boolean for if the user ``$params['user']`` can use the entity ``$params['container']``
@@ -226,6 +249,12 @@ Permission hooks
 	In the rare case where an entity is created with neither the ``container_guid`` nor the ``owner_guid``
 	matching the logged in user, this hook is called *twice*, and in the first call ``$params['container']``
 	will be the *owner*, not the entity's real container.
+
+	The ``$params`` array will contain:
+
+	 * ``container`` - An entity that will be used as a container
+	 * ``user`` - User who will own the entity to be written to container
+	 * ``subtype`` - Subtype of the entity to be written to container (entity type is assumed from hook type)
 
 **permissions_check, <entity_type>**
 	Return boolean for if the user ``$params['user']`` can edit the entity ``$params['entity']``.
@@ -310,13 +339,24 @@ Routing
 **route, <identifier>**
     Allows applying logic or returning a response before the page handler is called. See :doc:`routing`
     for details.
+    Note that plugins using this hook to rewrite paths, will not be able to filter the response object by
+    its final path and should either switch to ``route:rewrite, <identifier>`` hook or use ``response, path:<path>`` hook for
+    the original path.
 
 **route:rewrite, <identifier>**
 	Allows altering the site-relative URL path. See :doc:`routing` for details.
 
+**response, path:<path>**
+    Filter an instance of ``\Elgg\Http\ResponseBuilder`` before it is sent to the client.
+    This hook type will only be used if the path did not start with "action/" or "ajax/".
+    This hook can be used to modify response content, status code, forward URL, or set additional response headers.
+    Note that the ``<path>`` value is parsed from the request URL, therefore plugins using the ``route`` hook should
+    use the original ``<path>`` to filter the response, or switch to using the ``route:rewrite`` hook.
+
 **ajax_response, path:<path>**
     Filters ajax responses before they're sent back to the ``elgg/Ajax`` module. This hook type will
     only be used if the path did not start with "action/" or "ajax/".
+
 
 .. _guides/hooks-list#views:
 
@@ -376,6 +416,16 @@ Views
 **ajax_response, form:<action>**
     Filters ``ajax/form/`` responses before they're sent back to the ``elgg/Ajax`` module.
 
+**response, view:<view_name>**
+    Filter an instance of ``\Elgg\Http\ResponseBuilder`` before it is sent to the client.
+    Applies to request to ``/ajax/view/<view_name>``.
+    This hook can be used to modify response content, status code, forward URL, or set additional response headers.
+
+**response, form:<form_name>**
+    Filter an instance of ``\Elgg\Http\ResponseBuilder`` before it is sent to the client.
+    Applies to request to ``/ajax/form/<form_name>``.
+    This hook can be used to modify response content, status code, forward URL, or set additional response headers.
+
 Files
 =====
 
@@ -389,6 +439,18 @@ Files
     ``document`` or ``image``. The bundled file plugin and other-third party plugins usually store
     ``simpletype`` metadata on file entities and make use of it when serving icons and constructing
     ``ege*`` filters and menus.
+
+**upload, file**
+    Allows plugins to implement custom logic for moving an uploaded file into an instance of ``ElggFile``.
+    The handler must return ``true`` to indicate that the uploaded file was moved.
+    The handler must return ``false`` to indicate that the uploaded file could not be moved.
+    Other returns will indicate that ``ElggFile::acceptUploadedFile`` should proceed with the
+    default upload logic.
+
+    ``$params`` array includes:
+
+     * ``file`` - instance of ``ElggFile`` to write to
+     * ``upload`` - instance of Symfony's ``UploadedFile``
 
 .. _guides/hooks-list#other:
 
@@ -410,7 +472,38 @@ Other
 	``entity_subtype`` will be passed with the ``$params`` array to the callback.
 
 **entity:<icon_type>:sizes, <entity_type>**
-	Allows filtering sizes for custom icon types, see ``entity:icon:sizes, <entity_type>``
+	Allows filtering sizes for custom icon types, see ``entity:icon:sizes, <entity_type>``.
+
+	The hook must return an associative array where keys are the names of the icon sizes
+	(e.g. "large"), and the values are arrays with the following keys:
+
+	 * ``w`` - Width of the image in pixels
+	 * ``h`` - Height of the image in pixels
+	 * ``square`` - Should the aspect ratio be a square (true/false)
+	 * ``upscale`` - Should the image be upscaled in case it is smaller than the given
+           width and height (true/false)
+
+	If the configuration array for an image size is empty, the image will be
+	saved as an exact copy of the source without resizing or cropping.
+
+	Example:
+
+.. code:: php
+
+	return [
+		'small' => [
+			'w' => 60,
+			'h' => 60,
+			'square' => true,
+			'upscale' => true,
+		],
+		'large' => [
+			'w' => 600,
+			'h' => 600,
+			'upscale' => false,
+		],
+		'original' => [],
+	];
 
 **entity:icon:url, <entity_type>**
 	Triggered when entity icon URL is requested, see :ref:`entity icons <guides/database#entity-icons>`. Callback should

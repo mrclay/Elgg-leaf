@@ -241,11 +241,8 @@ function elgg_unregister_ajax_view($view) {
  * @since 1.9.0
  */
 function elgg_register_external_view($view, $cacheable = false) {
-	if (!isset($GLOBALS['_ELGG']->allowed_ajax_views)) {
-		$GLOBALS['_ELGG']->allowed_ajax_views = array();
-	}
-
-	$GLOBALS['_ELGG']->allowed_ajax_views[$view] = true;
+	
+	_elgg_services()->ajax->registerView($view);
 
 	if ($cacheable) {
 		_elgg_services()->views->registerCacheableView($view);
@@ -260,9 +257,7 @@ function elgg_register_external_view($view, $cacheable = false) {
  * @since 1.9.0
  */
 function elgg_unregister_external_view($view) {
-	if (isset($GLOBALS['_ELGG']->allowed_ajax_views[$view])) {
-		unset($GLOBALS['_ELGG']->allowed_ajax_views[$view]);
-	}
+	_elgg_services()->ajax->unregisterView($view);
 }
 
 /**
@@ -270,8 +265,6 @@ function elgg_unregister_external_view($view) {
  *
  * Views are expected to be in plugin_name/views/.  This function can
  * be used to change that location.
- *
- * @note Internal: Core view locations are stored in $CONFIG->view_path.
  *
  * @tip This is useful to optionally register views in a plugin.
  *
@@ -398,6 +391,22 @@ function elgg_extend_view($view, $view_extension, $priority = 501) {
  */
 function elgg_unextend_view($view, $view_extension) {
 	return _elgg_services()->views->unextendView($view, $view_extension);
+}
+
+/**
+ * Get the views (and priorities) that extend a view.
+ *
+ * @note extensions may change anytime, especially during the [init, system] event
+ *
+ * @param string $view View name
+ *
+ * @return string[] Keys returned are view priorities.
+ * @since 2.3
+ */
+function elgg_get_view_extensions($view) {
+	$list = _elgg_services()->views->getViewList($view);
+	unset($list[500]);
+	return $list;
 }
 
 /**
@@ -1328,8 +1337,6 @@ function elgg_view_form($action, $form_vars = array(), $body_vars = array()) {
  */
 function elgg_view_input($input_type, array $vars = array()) {
 
-	static $id_num;
-
 	if (!elgg_view_exists("input/$input_type")) {
 		return '';
 	}
@@ -1340,15 +1347,20 @@ function elgg_view_input($input_type, array $vars = array()) {
 
 	$id = elgg_extract('id', $vars);
 	if (!$id) {
-		$id_num++;
-		$id = "elgg-field-$id_num";
+		$id = "elgg-field-" . base_convert(mt_rand(), 10, 36);
 		$vars['id'] = $id;
 	}
 
 	$vars['input_type'] = $input_type;
 
 	$label = elgg_view('elements/forms/label', $vars);
-	unset($vars['label']);
+	if ($input_type == 'checkbox') {
+		$vars['label'] = $label;
+		$vars['label_tag'] = 'div';
+		$label = false;
+	} else {
+		unset($vars['label']);
+	}
 
 	$help = elgg_view('elements/forms/help', $vars);
 	unset($vars['help']);
@@ -1767,7 +1779,7 @@ function elgg_views_boot() {
 	elgg_register_plugin_hook_handler('head', 'page', '_elgg_views_prepare_favicon_links', 1);
 	
 	// @todo the cache is loaded in load_plugins() but we need to know viewtypes earlier
-	$view_path = $GLOBALS['_ELGG']->view_path;
+	$view_path = _elgg_services()->views->view_path;
 	$viewtype_dirs = scandir($view_path);
 	foreach ($viewtype_dirs as $viewtype) {
 		if (_elgg_is_valid_viewtype($viewtype) && is_dir($view_path . $viewtype)) {
@@ -1872,9 +1884,9 @@ function _elgg_get_js_page_data() {
 
 	$elgg = array(
 		'config' => array(
-			'lastcache' => (int)elgg_get_config('lastcache'),
+			'lastcache' => (int) elgg_get_config('lastcache'),
 			'viewtype' => elgg_get_viewtype(),
-			'simplecache_enabled' => (int)elgg_is_simplecache_enabled(),
+			'simplecache_enabled' => (int) elgg_is_simplecache_enabled(),
 		),
 		'security' => array(
 			'token' => array(
@@ -1884,8 +1896,9 @@ function _elgg_get_js_page_data() {
 		),
 		'session' => array(
 			'user' => null,
+			'token' => _elgg_services()->session->get('__elgg_session'),
 		),
-		'_data' => (object)$data,
+		'_data' => (object) $data,
 	);
 
 	if (elgg_get_config('elgg_load_sync_code')) {
