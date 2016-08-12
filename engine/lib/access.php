@@ -501,36 +501,18 @@ function get_readable_access_level($entity_access_id) {
  * @todo should this be a private function?
  */
 function elgg_check_access_overrides($user_guid = 0) {
-	if (!$user_guid || $user_guid <= 0) {
-		$is_admin = false;
-	} else {
-		$is_admin = elgg_is_admin_user($user_guid);
-	}
-
-	return ($is_admin || _elgg_services()->session->getIgnoreAccess());
+	return _elgg_services()->accessCollections->checkAccessOverrides($user_guid);
 }
-
-/**
- * A flag to set if Elgg's access initialization is finished.
- *
- * @global bool $init_finished
- * @access private
- * @todo This is required to tell the access system to start caching because
- * calls are made while in ignore access mode and before the user is logged in.
- */
-$init_finished = false;
 
 /**
  * A quick and dirty way to make sure the access permissions have been correctly set up
  *
  * @elgg_event_handler init system
- * @todo Invesigate
  *
  * @return void
  */
 function access_init() {
-	global $init_finished;
-	$init_finished = true;
+	_elgg_services()->accessCollections->markInitFinished();
 }
 
 /**
@@ -561,18 +543,7 @@ function elgg_override_permissions($hook, $type, $value, $params) {
 		$user_guid = _elgg_services()->session->getLoggedInUserGuid();
 	}
 
-	// don't do this so ignore access still works with no one logged in
-	//if (!$user instanceof \ElggUser) {
-	//	return false;
-	//}
-
-	// check for admin
-	if ($user_guid && elgg_is_admin_user($user_guid)) {
-		return true;
-	}
-
-	// check access overrides
-	if (elgg_check_access_overrides($user_guid)) {
+	if (_elgg_services()->accessCollections->checkAccessOverrides($user_guid)) {
 		return true;
 	}
 

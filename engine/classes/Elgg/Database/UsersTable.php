@@ -236,6 +236,27 @@ class UsersTable {
 	
 		return false;
 	}
+
+	/**
+	 * Check if the given user has full access.
+	 *
+	 * @todo: Will always return full access if the user is an admin.
+	 *
+	 * @param int $user_guid The user to check
+	 *
+	 * @return bool
+	 */
+	public function isAdminUser($user_guid) {
+		// optimize common case
+		$current_user = _elgg_services()->session->getLoggedInUser();
+		if ($current_user && $current_user->guid == $user_guid) {
+			return $current_user->isAdmin();
+		}
+
+		$row = $this->getRow($user_guid);
+
+		return ($row && $row->admin === 'yes');
+	}
 	
 	/**
 	 * Get user by username
