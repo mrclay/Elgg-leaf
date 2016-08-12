@@ -11,6 +11,16 @@ use Zend\Mail\Transport\InMemory as InMemoryTransport;
 abstract class TestCase extends \PHPUnit_Framework_TestCase {
 
 	/**
+	 * @var \Elgg\TestCase
+	 */
+	static $_instance;
+
+	/**
+	 * @var \Elgg\Mocks\Di\MockServiceProvider
+	 */
+	static $_mocks;
+
+	/**
 	 * Constructs a test case with the given name.
 	 * Boostraps testing environment
 	 * 
@@ -21,6 +31,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 	public function __construct($name = NULL, array $data = array(), $dataName = '') {
 		self::bootstrap();
 		parent::__construct($name, $data, $dataName);
+		self::$_instance = $this;
+	}
+
+	/**
+	 * Returns current test instance
+	 * @return \Elgg\TestCase
+	 */
+	public static function getInstance() {
+		if (!isset(self::$_instance)) {
+			new self();
+		}
+		return self::$_instance;
 	}
 
 	/**
@@ -107,6 +129,33 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase {
 			_elgg_services()->setValue('config', $config);
 		}
 		return _elgg_services()->config;
+	}
+
+	/**
+	 * Retuns mocking utility library
+	 *
+	 * @return \Elgg\TestCaseMocks
+	 */
+	public static function mocks() {
+		if (!isset(self::$_mocks)) {
+			self::$_mocks = new \Elgg\Mocks\Di\MockServiceProvider();
+		}
+		return self::$_mocks;
+	}
+
+	/**
+	 * Substitute default _elgg_service() values for database dependent serices
+	 * with their doubles
+	 * @return void
+	 */
+	public static function setupMockServices() {
+		_elgg_services()->setValue('db', self::mocks()->db);
+		_elgg_services()->setValue('entityTable', self::mocks()->entityTable);
+		_elgg_services()->setValue('metadataTable', self::mocks()->metadataTable);
+		_elgg_services()->setValue('annotations', self::mocks()->annotations);
+		_elgg_services()->setValue('relationshipsTable', self::mocks()->relationshipsTable);
+		_elgg_services()->setValue('accessCollections', self::mocks()->accessCollections);
+		_elgg_services()->setValue('subtypeTable', self::mocks()->subtypeTable);
 	}
 
 	/**
