@@ -147,16 +147,16 @@ class MetadataTable extends DbMetadataTabe {
 
 		// Return this metadata object when _elgg_get_metastring_based_objects() is called
 		$e_access_sql = _elgg_get_access_where_sql(array('table_alias' => 'e'));
-
+		
 		$dbprefix = elgg_get_config('dbprefix');
 		$sql = "SELECT DISTINCT  n_table.*, n.string as name, v.string as value
 			FROM {$dbprefix}metadata n_table
 				JOIN {$dbprefix}entities e ON n_table.entity_guid = e.guid
 				JOIN {$dbprefix}metastrings n on n_table.name_id = n.id
 				JOIN {$dbprefix}metastrings v on n_table.value_id = v.id
-				WHERE  n_table.id IN ({$row->id}) AND $e_access_sql
+				WHERE (n_table.id IN ({$row->id})) AND $e_access_sql
 				ORDER BY n_table.time_created ASC, n_table.id ASC, n_table.id";
-
+		
 		$this->query_specs[$row->id][] = $this->db->addQuerySpec([
 			'sql' => $sql,
 			'results' => function() use ($row) {
