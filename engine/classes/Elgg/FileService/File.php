@@ -2,6 +2,8 @@
 
 namespace Elgg\FileService;
 
+use Elgg\Security\Base64Url;
+
 /**
  * File service
  * 
@@ -106,6 +108,12 @@ class File {
 			return false;
 		}
 
+		if (preg_match('~[^\w\./ ]~', $relative_path)) {
+			// Filenames may contain special characters that result in malformatted URLs
+			// and/or HMAC mismatches. We want to avoid that by encoding the path.
+			$relative_path = ':' . Base64Url::encode($relative_path);
+		}
+		
 		$data = array(
 			'expires' => isset($this->expires) ? $this->expires : 0,
 			'last_updated' => filemtime($this->file->getFilenameOnFilestore()),
