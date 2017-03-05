@@ -5,7 +5,12 @@ $params['name'] = 'sandbox_page';
 $params['menu'] = array();
 $params['menu']['default'] = array();
 for ($i = 1; $i <= 5; $i++) {
-	$params['menu']['default'][] = new ElggMenuItem($i, "Page $i", "#");
+	$params['menu']['default'][] = ElggMenuItem::factory([
+			'name' => $i,
+			'text' => "Page $i",
+			'href' => "#",
+			'icon' => 'file-text',
+	]);
 }
 $params['menu']['default'][2]->setSelected(true);
 

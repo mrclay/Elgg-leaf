@@ -242,6 +242,7 @@ Removed JavaScript APIs
  * ``elgg.autocomplete`` is no longer defined.
  * ``elgg.messageboard`` is no longer defined.
  * ``jQuery.fn.friendsPicker``
+ * ``elgg.ui.toggleMenu`` is no longer defined
 
 Removed hooks/events
 --------------------
