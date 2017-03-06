@@ -32,14 +32,6 @@ if (isset($vars['selected_item'])) {
 }
 
 foreach ($vars['menu'] as $section => $menu_items) {
-	foreach ($menu_items as &$menu_item) {
-		if ($menu_item instanceof ElggMenuItem) {
-			$child_menu_vars = $menu_item->getChildMenuOptions();
-			$child_menu_vars['display'] = 'toggle';
-			$menu_item->setChildMenuOptions($child_menu_vars);
-		}
-	}
-	
 	echo elgg_view('navigation/menu/elements/section', array(
 		'items' => $menu_items,
 		'class' => "$class elgg-menu-page-$section",
