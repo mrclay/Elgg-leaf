@@ -44,6 +44,9 @@ class Hooks {
 			return;
 		}
 
+		$output = str_replace('elgg-menu-item-has-toggle', '', $output);
+		$output = str_replace('elgg-menu-closed', '', $output);
+
 		if (false === strpos($params['vars']['class'], 'elgg-child-menu')) {
 			return "<section>$output</section>";
 		}
