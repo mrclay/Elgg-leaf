@@ -24,6 +24,15 @@ class Hooks {
 		}
 
 		$value['class'] = preg_replace('~(^|\\s)elgg-menu-page($|\\s)~', '$1elgg-menu-gear$2', $value['class']);
+
+		// remove the display options
+		foreach ($value['items'] as $item) {
+			/* @var \ElggMenuItem $item  */
+			$child_opts = $item->getChildMenuOptions();
+			unset($child_opts['display']);
+			$item->setChildMenuOptions($child_opts);
+		}
+
 		return $value;
 	}
 
@@ -43,9 +52,6 @@ class Hooks {
 		if (!elgg_in_context('developers_gear')) {
 			return;
 		}
-
-		$output = str_replace('elgg-menu-item-has-toggle', '', $output);
-		$output = str_replace('elgg-menu-closed', '', $output);
 
 		if (false === strpos($params['vars']['class'], 'elgg-child-menu')) {
 			return "<section>$output</section>";
