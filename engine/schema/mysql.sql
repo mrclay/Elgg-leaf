@@ -2,12 +2,17 @@
 -- Elgg database schema
 --
 
+-- Note, when a complete index is needed on a VARCHAR column, the size limit is
+-- 191 due to utf8mb4 storage. Rather than limit the length of keys, we set
+-- those columns to be stored as utf8, since they are unlikely to contain 4-byte
+-- characters like emoji.
+
 -- record membership in an access collection
 CREATE TABLE `prefix_access_collection_membership` (
   `user_guid` bigint(20) unsigned NOT NULL,
   `access_collection_id` int(11) NOT NULL,
   PRIMARY KEY (`user_guid`,`access_collection_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- define an access collection
 CREATE TABLE `prefix_access_collections` (
@@ -18,7 +23,7 @@ CREATE TABLE `prefix_access_collections` (
   PRIMARY KEY (`id`),
   KEY `owner_guid` (`owner_guid`),
   KEY `site_guid` (`site_guid`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4;
 
 -- store an annotation on an entity
 CREATE TABLE `prefix_annotations` (
@@ -37,7 +42,7 @@ CREATE TABLE `prefix_annotations` (
   KEY `value_id` (`value_id`),
   KEY `owner_guid` (`owner_guid`),
   KEY `access_id` (`access_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- api keys for old web services
 CREATE TABLE `prefix_api_users` (
@@ -48,7 +53,7 @@ CREATE TABLE `prefix_api_users` (
   `active` int(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `api_key` (`api_key`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- site specific configuration
 CREATE TABLE `prefix_config` (
@@ -56,14 +61,14 @@ CREATE TABLE `prefix_config` (
   `value` text NOT NULL,
   `site_guid` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`name`,`site_guid`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- application specific configuration
 CREATE TABLE `prefix_datalists` (
   `name` varchar(255) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- primary entity table
 CREATE TABLE `prefix_entities` (
@@ -87,7 +92,7 @@ CREATE TABLE `prefix_entities` (
   KEY `access_id` (`access_id`),
   KEY `time_created` (`time_created`),
   KEY `time_updated` (`time_updated`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- relationships between entities
 CREATE TABLE `prefix_entity_relationships` (
@@ -100,7 +105,7 @@ CREATE TABLE `prefix_entity_relationships` (
   UNIQUE KEY `guid_one` (`guid_one`,`relationship`,`guid_two`),
   KEY `relationship` (`relationship`),
   KEY `guid_two` (`guid_two`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- entity type/subtype pairs
 CREATE TABLE `prefix_entity_subtypes` (
@@ -110,7 +115,7 @@ CREATE TABLE `prefix_entity_subtypes` (
   `class` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`),
   UNIQUE KEY `type` (`type`,`subtype`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- cache lookups of latitude and longitude for place names
 CREATE TABLE `prefix_geocode_cache` (
@@ -120,26 +125,26 @@ CREATE TABLE `prefix_geocode_cache` (
   `long` varchar(20) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `location` (`location`)
-) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4;
 
 -- secondary table for group entities
 CREATE TABLE `prefix_groups_entity` (
   `guid` bigint(20) unsigned NOT NULL,
   `name` text NOT NULL,
-  `description` text NOT NULL,
+  `description` LONGTEXT NOT NULL,
   PRIMARY KEY (`guid`),
   KEY `name` (`name`(50)),
   KEY `description` (`description`(50)),
   FULLTEXT KEY `name_2` (`name`,`description`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- cache for hmac signatures for old web services
 CREATE TABLE `prefix_hmac_cache` (
-  `hmac` varchar(255) NOT NULL,
+  `hmac` varchar(255) CHARACTER SET utf8 NOT NULL,
   `ts` int(11) NOT NULL,
   PRIMARY KEY (`hmac`),
   KEY `ts` (`ts`)
-) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4;
 
 -- metadata that describes an entity
 CREATE TABLE `prefix_metadata` (
@@ -158,7 +163,7 @@ CREATE TABLE `prefix_metadata` (
   KEY `value_id` (`value_id`),
   KEY `owner_guid` (`owner_guid`),
   KEY `access_id` (`access_id`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- string normalization table for metadata and annotations
 CREATE TABLE `prefix_metastrings` (
@@ -166,7 +171,7 @@ CREATE TABLE `prefix_metastrings` (
   `string` text NOT NULL,
   PRIMARY KEY (`id`),
   KEY `string` (`string`(50))
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- secondary table for object entities
 CREATE TABLE `prefix_objects_entity` (
@@ -175,31 +180,31 @@ CREATE TABLE `prefix_objects_entity` (
   `description` text NOT NULL,
   PRIMARY KEY (`guid`),
   FULLTEXT KEY `title` (`title`,`description`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- settings for an entity
 CREATE TABLE `prefix_private_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `entity_guid` bigint(20) unsigned NOT NULL,
   `name` varchar(128) NOT NULL,
-  `value` text NOT NULL,
+  `value` LONGTEXT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `entity_guid` (`entity_guid`,`name`),
   KEY `name` (`name`),
   KEY `value` (`value`(50))
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- queue for asynchronous operations
 CREATE TABLE `prefix_queue` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
+  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
   `data` mediumblob NOT NULL,
   `timestamp` int(11) NOT NULL,
   `worker` varchar(32) NULL,
   PRIMARY KEY (`id`),
   KEY `name` (`name`),
   KEY `retrieve` (`timestamp`,`worker`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- activity stream
 CREATE TABLE `prefix_river` (
@@ -224,18 +229,18 @@ CREATE TABLE `prefix_river` (
   KEY `target_guid` (`target_guid`),
   KEY `annotation_id` (`annotation_id`),
   KEY `posted` (`posted`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- secondary table for site entities
 CREATE TABLE `prefix_sites_entity` (
   `guid` bigint(20) unsigned NOT NULL,
   `name` text NOT NULL,
-  `description` text NOT NULL,
-  `url` varchar(255) NOT NULL,
+  `description` LONGTEXT NOT NULL,
+  `url` varchar(255) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`guid`),
   UNIQUE KEY `url` (`url`),
   FULLTEXT KEY `name` (`name`,`description`,`url`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- log activity for the admin
 CREATE TABLE `prefix_system_log` (
@@ -261,7 +266,7 @@ CREATE TABLE `prefix_system_log` (
   KEY `access_id` (`access_id`),
   KEY `time_created` (`time_created`),
   KEY `river_key` (`object_type`,`object_subtype`,`event`)
-) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- session table for old web services
 CREATE TABLE `prefix_users_apisessions` (
@@ -273,7 +278,7 @@ CREATE TABLE `prefix_users_apisessions` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `user_guid` (`user_guid`,`site_guid`),
   KEY `token` (`token`)
-) ENGINE=MEMORY DEFAULT CHARSET=utf8;
+) ENGINE=MEMORY DEFAULT CHARSET=utf8mb4;
 
 -- secondary table for user entities
 CREATE TABLE `prefix_users_entity` (
@@ -301,7 +306,7 @@ CREATE TABLE `prefix_users_entity` (
   KEY `admin` (`admin`),
   FULLTEXT KEY `name` (`name`),
   FULLTEXT KEY `name_2` (`name`,`username`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- user remember me cookies
 CREATE TABLE `prefix_users_remember_me_cookies` (
@@ -310,13 +315,13 @@ CREATE TABLE `prefix_users_remember_me_cookies` (
   `timestamp` int(11) unsigned NOT NULL,
   PRIMARY KEY (`code`),
   KEY `timestamp` (`timestamp`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- user sessions
 CREATE TABLE `prefix_users_sessions` (
-  `session` varchar(255) NOT NULL,
+  `session` varchar(255) CHARACTER SET utf8 NOT NULL,
   `ts` int(11) unsigned NOT NULL DEFAULT '0',
   `data` mediumblob,
   PRIMARY KEY (`session`),
   KEY `ts` (`ts`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;

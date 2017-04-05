@@ -864,6 +864,9 @@ class ElggInstaller {
 	protected function bootstrapConfig() {
 		$this->CONFIG->installer_running = true;
 
+		if (empty($this->CONFIG->dbencoding)) {
+			$this->CONFIG->dbencoding = 'utf8mb4';
+		}
 		$this->CONFIG->wwwroot = $this->getBaseUrl();
 		$this->CONFIG->url = $this->CONFIG->wwwroot;
 		$this->CONFIG->path = \Elgg\Application::elggDir()->getPath() . "/";
@@ -1256,6 +1259,7 @@ class ElggInstaller {
 			'dbuser' => $user,
 			'dbpass' => $password,
 			'dbname' => $dbname,
+			'dbencoding' => 'utf8mb4',
 		]);
 		$db = new \Elgg\Database($config);
 
@@ -1270,13 +1274,11 @@ class ElggInstaller {
 			return FALSE;
 		}
 
-		// check MySQL version - must be 5.0 or >
+		// check MySQL version
 		$version = $db->getServerVersion(\Elgg\Database\Config::READ_WRITE);
-		$required_version = 5.0;
-		$points = explode('.', $version);
-		if ($points[0] < $required_version) {
-			register_error(_elgg_services()->translator->translate('install:error:oldmysql', array($version)));
-			return FALSE;
+		if (version_compare($version, '5.5.3', '<')) {
+			register_error(_elgg_services()->translator->translate('install:error:oldmysql2', [$version]));
+			return false;
 		}
 
 		return TRUE;
