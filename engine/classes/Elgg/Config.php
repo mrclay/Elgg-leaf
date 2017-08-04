@@ -1,6 +1,7 @@
 <?php
 namespace Elgg;
 
+use Elgg\Config\SettingsMigrator;
 use Elgg\Filesystem\Directory;
 use Elgg\Database\ConfigTable;
 
@@ -251,8 +252,7 @@ class Config implements Services\Config {
 		}
 
 		if (!is_readable($path)) {
-			echo "The Elgg settings file exists but the web server doesn't have read permission to it.";
-			exit;
+			throw new \RuntimeException("The Elgg settings file exists but the web server doesn't have read permission to it.");
 		}
 
 		// we assume settings is going to write to CONFIG, but we may need to copy its values
@@ -263,8 +263,14 @@ class Config implements Services\Config {
 		require_once $path;
 
 		if (empty($CONFIG->dataroot)) {
-			echo 'The Elgg settings file is missing $CONFIG->dataroot.';
-			exit;
+			// try to migrate settings to the file
+			$db_conf = new \Elgg\Database\Config($CONFIG);
+			$db = new Database($db_conf);
+			(new SettingsMigrator())->migrate($db, $path, $CONFIG);
+
+			if (empty($CONFIG->dataroot)) {
+				throw new \RuntimeException('The Elgg settings file is missing $CONFIG->dataroot.');
+			}
 		}
 
 		// normalize commonly needed values
