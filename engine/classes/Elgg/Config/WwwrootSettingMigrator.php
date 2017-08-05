@@ -32,7 +32,7 @@ class WwwrootSettingMigrator extends SettingsMigrator {
 					" *",
 					" * @global string \$CONFIG->wwwroot",
 					" */",
-					"\$CONFIG->dataroot = '{$row->url}';",
+					"\$CONFIG->wwwroot = '{$row->url}';",
 					""
 				];
 				$bytes = implode(PHP_EOL, $lines);
