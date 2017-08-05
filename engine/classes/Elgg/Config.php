@@ -1,7 +1,9 @@
 <?php
 namespace Elgg;
 
+use Elgg\Config\DatarootSettingMigrator;
 use Elgg\Config\SettingsMigrator;
+use Elgg\Config\WwwrootSettingMigrator;
 use Elgg\Filesystem\Directory;
 use Elgg\Database\ConfigTable;
 
@@ -262,19 +264,30 @@ class Config implements Services\Config {
 
 		require_once $path;
 
-		if (empty($CONFIG->dataroot)) {
+		$get_db = function() use ($CONFIG) {
 			// try to migrate settings to the file
 			$db_conf = new \Elgg\Database\Config($CONFIG);
-			$db = new Database($db_conf);
-			(new SettingsMigrator())->migrate($db, $path, $CONFIG);
+			return new Database($db_conf);
+		};
 
-			if (empty($CONFIG->dataroot)) {
+		if (empty($CONFIG->dataroot)) {
+			$dataroot = (new DatarootSettingMigrator($get_db(), $path))->migrate();
+			if (isset($dataroot)) {
+				$CONFIG->dataroot = $dataroot;
+			} else {
 				throw new \RuntimeException('The Elgg settings file is missing $CONFIG->dataroot.');
 			}
 		}
 
 		// normalize commonly needed values
 		$CONFIG->dataroot = rtrim($CONFIG->dataroot, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
+		if (!isset($CONFIG->wwwroot)) {
+			$wwwroot = (new WwwrootSettingMigrator($get_db(), $path))->migrate();
+			if (isset($wwwroot)) {
+				$CONFIG->wwwroot = $wwwroot;
+			}
+		}
 
 		$GLOBALS['_ELGG']->simplecache_enabled_in_settings = isset($CONFIG->simplecache_enabled);
 
