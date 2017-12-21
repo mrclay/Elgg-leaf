@@ -20,93 +20,93 @@ The global ``$CONFIG`` is now a proxy for Elgg's configuration container, and mo
 Removed views
 -------------
 
- * ``forms/admin/site/advanced/system``
- * ``resources/file/download``
- * ``output/checkboxes``: use ``output/tags`` if you want the same behaviour
- * ``input/write_access``: mod/pages now uses the **access:collections:write** plugin hook.
- * ``invitefriends/form``
- * ``page/layouts/content``: use ``page/layouts/default``
- * ``page/layouts/one_column``: use ``page/layouts/default``
- * ``page/layouts/one_sidebar``: use ``page/layouts/default``
- * ``page/layouts/two_sidebar``: use ``page/layouts/default``
- * ``page/layouts/walled_garden``: use ``page/layouts/default``
- * ``page/layouts/walled_garden/cancel_button``
- * ``page/layouts/two_column_left_sidebar``
- * ``page/layouts/widgets/add_panel``
- * ``page/elements/topbar_wrapper``: update your use of ``page/elements/topbar`` to include a check for a logged in user
- * ``pages/icon``
- * ``groups/group_sort_menu``: use ``register, filter:menu:groups/all`` plugin hook
- * ``groups/my_status``
- * ``subscriptions/form/additions``: extend ``notifications/settings/other`` instead
- * ``likes/count``: modifications can now be done to the ``likes_count`` menu item
- * ``likes/css``: likes now uses ``elgg/likes.css``
- * ``resources/members/index``
- * ``messageboard/css``
- * ``notifications/subscriptions/personal``
- * ``notifications/subscriptions/collections``
- * ``notifications/subscriptions/form``
- * ``notifications/subscriptions/jsfuncs``
- * ``notifications/subscriptions/forminternals``
- * ``notifications/css``
- * ``pages/input/parent``
- * ``river/item``: use elgg_view_river_item() to render river items
- * ``river/user/default/profileupdate``
- * ``admin.js``
- * ``aalborg_theme/homepage.png``
  * ``aalborg_theme/css``
- * ``resources/avatar/view``: Use entity icon API
+ * ``aalborg_theme/homepage.png``
+ * ``admin.js``
+ * ``ajax/discussion/reply/edit``: See :ref:`upgrade-discussion-replies`
  * ``ajax_loader.gif``
+ * ``ajax_loader_bw.gif``: use ``graphics/ajax_loader_bw.gif``
  * ``button_background.gif``
  * ``button_graduation.png``
- * ``elgg_toolbar_logo.gif``
- * ``header_shadow.png``
- * ``powered_by_elgg_badge_drk_bckgnd.gif``
- * ``powered_by_elgg_badge_light_bckgnd.gif``
- * ``sidebar_background.gif``
- * ``spacer.gif``
- * ``toptoolbar_background.gif``
- * ``two_sidebar_background.gif``
- * ``ajax_loader_bw.gif``: use ``graphics/ajax_loader_bw.gif``
+ * ``core/friends/collection``
+ * ``core/friends/collections``
+ * ``core/friends/collectiontabs``
+ * ``core/friends/tablelist``
+ * ``core/friends/talbelistcountupdate``
+ * ``discussion/replies``: See :ref:`upgrade-discussion-replies`
  * ``elgg_logo.png``: use ``graphics/elgg_logo.png``
+ * ``elgg_toolbar_logo.gif``
  * ``favicon-128.png``: use ``graphics/favicon-128.png``
  * ``favicon-16.png``: use ``graphics/favicon-16.png``
  * ``favicon-32.png``: use ``graphics/favicon-32.png``
  * ``favicon-64.png``: use ``graphics/favicon-64.png``
  * ``favicon.ico``: use ``graphics/favicon.ico``
  * ``favicon.svg``: use ``graphics/favicon.svg``
+ * ``forms/admin/site/advanced/security``: the site secret information has been moved to ``forms/admin/security/settings``
+ * ``forms/admin/site/advanced/system``
  * ``friendspicker.png``: use ``graphics/friendspicker.png``
- * ``walled_garden.jpg``: use ``graphics/walled_garden.jpg``
- * ``core/friends/collection``
- * ``core/friends/collections``
- * ``core/friends/collectiontabs``
- * ``core/friends/tablelist``
- * ``core/friends/talbelistcountupdate``
+ * ``groups/group_sort_menu``: use ``register, filter:menu:groups/all`` plugin hook
+ * ``groups/my_status``
+ * ``header_shadow.png``
+ * ``input/write_access``: mod/pages now uses the **access:collections:write** plugin hook.
+ * ``invitefriends/form``
  * ``lightbox/elgg-colorbox-theme/colorbox-images/*```
+ * ``likes/count``: modifications can now be done to the ``likes_count`` menu item
+ * ``likes/css``: likes now uses ``elgg/likes.css``
+ * ``messageboard/css``
  * ``navigation/menu/page``: now uses ``navigation/menu/default`` and a prepare hook
  * ``navigation/menu/site``: now uses default view
+ * ``notifications/css``
+ * ``notifications/subscriptions/collections``
+ * ``notifications/subscriptions/form``
+ * ``notifications/subscriptions/forminternals``
+ * ``notifications/subscriptions/jsfuncs``
+ * ``notifications/subscriptions/personal``
+ * ``object/discussion_reply``: See :ref:`upgrade-discussion-replies`
+ * ``object/page_top``: use ``object/page``
+ * ``output/checkboxes``: use ``output/tags`` if you want the same behaviour
  * ``page/elements/by_line``: Use ``object/elements/imprint``
- * ``forms/admin/site/advanced/security``: the site secret information has been moved to ``forms/admin/security/settings``
+ * ``page/elements/topbar_wrapper``: update your use of ``page/elements/topbar`` to include a check for a logged in user
+ * ``page/layouts/content``: use ``page/layouts/default``
+ * ``page/layouts/one_column``: use ``page/layouts/default``
+ * ``page/layouts/one_sidebar``: use ``page/layouts/default``
+ * ``page/layouts/two_column_left_sidebar``
+ * ``page/layouts/two_sidebar``: use ``page/layouts/default``
+ * ``page/layouts/walled_garden/cancel_button``
+ * ``page/layouts/walled_garden``: use ``page/layouts/default``
+ * ``page/layouts/widgets/add_panel``
+ * ``pages/icon``
+ * ``pages/input/parent``
+ * ``powered_by_elgg_badge_drk_bckgnd.gif``
+ * ``powered_by_elgg_badge_light_bckgnd.gif``
+ * ``resources/avatar/view``: Use entity icon API
+ * ``resources/discussion/reply/edit``: See :ref:`upgrade-discussion-replies`
+ * ``resources/elements/discussion_replies``: See :ref:`upgrade-discussion-replies`
+ * ``resources/file/download``
+ * ``resources/members/index``
+ * ``river/elements/discussion_replies``: See :ref:`upgrade-discussion-replies`
+ * ``river/item``: use elgg_view_river_item() to render river items
+ * ``river/object/discussion/create``
+ * ``river/object/discussion_reply/create``: See :ref:`upgrade-discussion-replies`
  * ``river/object/file/create``: check :doc:`/guides/river`
  * ``river/object/page/create``: check :doc:`/guides/river`
  * ``river/object/page_top/create``: check :doc:`/guides/river`
  * ``river/relationship/member``: check :doc:`/guides/river`
- * ``object/page_top``: use ``object/page``
- * ``ajax/discussion/reply/edit``: See :ref:`upgrade-discussion-replies`
- * ``discussion/replies``: See :ref:`upgrade-discussion-replies`
- * ``object/discussion_reply``: See :ref:`upgrade-discussion-replies`
- * ``resources/discussion/reply/edit``: See :ref:`upgrade-discussion-replies`
- * ``resources/elements/discussion_replies``: See :ref:`upgrade-discussion-replies`
- * ``river/elements/discussion_replies``: See :ref:`upgrade-discussion-replies`
- * ``river/object/discussion/create``
- * ``river/object/discussion_reply/create``: See :ref:`upgrade-discussion-replies`
- * ``search/object/discussion_reply/entity``: See :ref:`upgrade-discussion-replies`
+ * ``river/user/default/profileupdate``
  * ``rss/discussion/replies``: See :ref:`upgrade-discussion-replies`
+ * ``search/css``: Moved to ``search/search.css``
  * ``search/header``
  * ``search/layout`` in both ``default`` and ``rss`` viewtypes
  * ``search/no_results``
  * ``search/object/comment/entity``
- * ``search/css``: Moved to ``search/search.css``
+ * ``search/object/discussion_reply/entity``: See :ref:`upgrade-discussion-replies`
  * ``search/startblurb``
+ * ``sidebar_background.gif``
+ * ``spacer.gif``
+ * ``subscriptions/form/additions``: extend ``notifications/settings/other`` instead
+ * ``toptoolbar_background.gif``
+ * ``two_sidebar_background.gif``
+ * ``walled_garden.jpg``: use ``graphics/walled_garden.jpg``
 
 
 Removed functions/methods
@@ -115,6 +115,49 @@ Removed functions/methods
 All the functions in ``engine/lib/deprecated-1.9.php`` were removed. See https://github.com/Elgg/Elgg/blob/2.0/engine/lib/deprecated-1.9.php for these functions. Each ``@deprecated`` declaration includes instructions on what to use instead.
 All the functions in ``engine/lib/deprecated-1.10.php`` were removed. See https://github.com/Elgg/Elgg/blob/2.0/engine/lib/deprecated-1.10.php for these functions. Each ``@deprecated`` declaration includes instructions on what to use instead.
 
+ * ``Application::loadSettings``
+ * ``AttributeLoader`` became obsolete and was removed
+ * ``ElggData::getClassName``: Use ``get_class()``
+ * ``ElggData::get``: Usually can be replaced by property read
+ * ``ElggData::set``: Usually can be replaced by property write
+ * ``ElggDiskFilestore::makeFileMatrix``: Use ``Elgg\EntityDirLocator``
+ * ``ElggEntity::addToSite``
+ * ``ElggEntity::clearAllFiles``
+ * ``ElggEntity::disableMetadata``
+ * ``ElggEntity::enableMetadata``
+ * ``ElggEntity::getSites``
+ * ``ElggEntity::isFullyLoaded``
+ * ``ElggEntity::removeFromSite``
+ * ``ElggEntity::setURL``: See ``getURL`` for details on the plugin hook
+ * ``ElggFile::setFilestore``: ElggFile objects can no longer use custom filestores.
+ * ``ElggFile::size``: Use ``getSize``
+ * ``ElggMenuBuilder::compareByWeight``: Use ``compareByPriority``
+ * ``ElggMenuItem::getContent``: Use ``elgg_view_menu_item()``
+ * ``ElggMenuItem::getWeight``: Use ``getPriority``
+ * ``ElggMenuItem::setWeight``: Use ``setPriority``
+ * ``ElggPlugin::getFriendlyName``: Use ``ElggPlugin::getDisplayName()``
+ * ``ElggPlugin::setID``
+ * ``ElggPlugin::unsetAllUsersSettings``
+ * ``ElggRiverItem::getPostedTime``: Use ``getTimePosted``
+ * ``ElggSession::get_ignore_access``: Use ``getIgnoreAccess``
+ * ``ElggSession::set_ignore_access``: Use ``setIgnoreAccess``
+ * ``ElggSession`` has removed all deprecated methods
+ * ``ElggSite::addEntity``
+ * ``ElggSite::addObject``
+ * ``ElggSite::addUser``
+ * ``ElggSite::checkWalledGarden``: Logic moved to the router and should not be accessed directly
+ * ``ElggSite::getEntities``: Use ``elgg_get_entities()``
+ * ``ElggSite::getExportableValues``: Use ``toObject``
+ * ``ElggSite::getMembers``: Use ``elgg_get_entities()``
+ * ``ElggSite::getObjects``: Use ``elgg_get_entities()``
+ * ``ElggSite::isPublicPage``: Logic moved to the router and should not be accessed directly
+ * ``ElggSite::listMembers``: Use ``elgg_list_entities()``
+ * ``ElggSite::removeEntity``
+ * ``ElggSite::removeObject``
+ * ``ElggSite::removeUser``
+ * ``ElggUser::countObjects``: Use ``elgg_get_entities()``
+ * ``Elgg\Application\Database::getTablePrefix``: Read the ``prefix`` property
+ * ``Logger::getClassName``: Use ``get_class()``
  * ``activity_profile_menu``
  * ``can_write_to_container``: Use ``ElggEntity->canWriteToContainer()``
  * ``create_metadata_from_array``
@@ -122,194 +165,151 @@ All the functions in ``engine/lib/deprecated-1.10.php`` were removed. See https:
  * ``datalist_set``
  * ``detect_extender_valuetype``
  * ``developers_setup_menu``
+ * ``discussion_add_to_river_menu``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_can_edit_reply``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_comment_override``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_ecml_views_hook``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_prepare_reply_notification``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_redirect_to_reply``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_reply_container_logic_override``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_reply_container_permissions_override``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_reply_menu_setup``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_search_discussion``: See :ref:`upgrade-discussion-replies`
+ * ``discussion_update_reply_access_ids``: See :ref:`upgrade-discussion-replies`
+ * ``elgg_check_access_overrides``
  * ``elgg_disable_metadata``
  * ``elgg_enable_metadata``
+ * ``elgg_format_url``: Use elgg_format_element() or the "output/text" view for HTML escaping.
  * ``elgg_get_class_loader``
  * ``elgg_get_metastring_id``
  * ``elgg_get_metastring_map``
+ * ``elgg_is_registered_viewtype``
+ * ``elgg_override_permissions``: No longer used as handler for ``permissions_check`` and ``container_permissions_check`` hooks
  * ``elgg_register_class``
  * ``elgg_register_classes``
  * ``elgg_register_viewtype``
- * ``elgg_is_registered_viewtype``
+ * ``elgg_view_access_collections()``
  * ``file_delete``: Use ``ElggFile->deleteIcon()``
  * ``file_get_type_cloud``
  * ``file_type_cloud_get_url``
+ * ``garbagecollector_orphaned_metastrings``
+ * ``generate_user_password``: Use ``ElggUser::setPassword``
  * ``get_default_filestore``
- * ``get_site_entity_as_row``
  * ``get_group_entity_as_row``
  * ``get_object_entity_as_row``
+ * ``get_site_by_url``
+ * ``get_site_entity_as_row``
  * ``get_user_entity_as_row``
- * ``garbagecollector_orphaned_metastrings``
  * ``groups_access_collection_override``
  * ``groups_get_group_tool_options``: Use ``elgg_get_group_tool_options``
  * ``groups_join_group``: Use ``ElggGroup::join``
- * ``groups_setup_sidebar_menus``
  * ``groups_set_icon_url``
  * ``groups_setup_sidebar_menus``
- * ``messages_notification_msg``
- * ``set_default_filestore``
- * ``generate_user_password``: Use ``ElggUser::setPassword``
- * ``row_to_elggrelationship``
- * ``run_function_once``: Use ``Elgg\Upgrade\Batch`` interface
- * ``system_messages``
- * ``notifications_plugin_pagesetup``
- * ``elgg_format_url``: Use elgg_format_element() or the "output/text" view for HTML escaping.
- * ``get_site_by_url``
- * ``elgg_override_permissions``: No longer used as handler for ``permissions_check`` and ``container_permissions_check`` hooks
- * ``elgg_check_access_overrides``
- * ``AttributeLoader`` became obsolete and was removed
- * ``Application::loadSettings``
- * ``ElggEntity::addToSite``
- * ``ElggEntity::disableMetadata``
- * ``ElggEntity::enableMetadata``
- * ``ElggEntity::getSites``
- * ``ElggEntity::removeFromSite``
- * ``ElggEntity::isFullyLoaded``
- * ``ElggEntity::clearAllFiles``
- * ``ElggPlugin::getFriendlyName``: Use ``ElggPlugin::getDisplayName()``
- * ``ElggPlugin::setID``
- * ``ElggPlugin::unsetAllUsersSettings``
- * ``ElggFile::setFilestore``: ElggFile objects can no longer use custom filestores.
- * ``ElggFile::size``: Use ``getSize``
- * ``ElggDiskFilestore::makeFileMatrix``: Use ``Elgg\EntityDirLocator``
- * ``ElggData::get``: Usually can be replaced by property read
- * ``ElggData::getClassName``: Use ``get_class()``
- * ``ElggData::set``: Usually can be replaced by property write
- * ``ElggEntity::setURL``: See ``getURL`` for details on the plugin hook
- * ``ElggMenuBuilder::compareByWeight``: Use ``compareByPriority``
- * ``ElggMenuItem::getWeight``: Use ``getPriority``
- * ``ElggMenuItem::getContent``: Use ``elgg_view_menu_item()``
- * ``ElggMenuItem::setWeight``: Use ``setPriority``
- * ``ElggRiverItem::getPostedTime``: Use ``getTimePosted``
- * ``ElggSession`` has removed all deprecated methods
- * ``ElggSite::addEntity``
- * ``ElggSite::addObject``
- * ``ElggSite::addUser``
- * ``ElggSite::getEntities``: Use ``elgg_get_entities()``
- * ``ElggSite::getExportableValues``: Use ``toObject``
- * ``ElggSite::getMembers``: Use ``elgg_get_entities()``
- * ``ElggSite::getObjects``: Use ``elgg_get_entities()``
- * ``ElggSite::listMembers``: Use ``elgg_list_entities()``
- * ``ElggSite::removeEntity``
- * ``ElggSite::removeObject``
- * ``ElggSite::removeUser``
- * ``ElggSite::isPublicPage``: Logic moved to the router and should not be accessed directly
- * ``ElggSite::checkWalledGarden``: Logic moved to the router and should not be accessed directly
- * ``ElggUser::countObjects``: Use ``elgg_get_entities()``
- * ``Logger::getClassName``: Use ``get_class()``
- * ``Elgg\Application\Database::getTablePrefix``: Read the ``prefix`` property
- * ``elgg_view_access_collections()``
- * ``ElggSession::get_ignore_access``: Use ``getIgnoreAccess``
- * ``ElggSession::set_ignore_access``: Use ``setIgnoreAccess``
- * ``profile_pagesetup``
- * ``pages_can_delete_page``: Use ``$entity->canDelete()``
- * ``pages_search_pages``
- * ``pages_is_page``: use ``$entity instanceof ElggPage``
- * ``discussion_comment_override``: See :ref:`upgrade-discussion-replies`
- * ``discussion_can_edit_reply``: See :ref:`upgrade-discussion-replies`
- * ``discussion_reply_menu_setup``: See :ref:`upgrade-discussion-replies`
- * ``discussion_reply_container_logic_override``: See :ref:`upgrade-discussion-replies`
- * ``discussion_reply_container_permissions_override``: See :ref:`upgrade-discussion-replies`
- * ``discussion_update_reply_access_ids``: See :ref:`upgrade-discussion-replies`
- * ``discussion_search_discussion``: See :ref:`upgrade-discussion-replies`
- * ``discussion_add_to_river_menu``: See :ref:`upgrade-discussion-replies`
- * ``discussion_prepare_reply_notification``: See :ref:`upgrade-discussion-replies`
- * ``discussion_redirect_to_reply``: See :ref:`upgrade-discussion-replies`
- * ``discussion_ecml_views_hook``: See :ref:`upgrade-discussion-replies`
- * ``search_get_where_sql``
- * ``search_get_ft_min_max``
- * ``search_get_order_by_sql``
- * ``search_consolidate_substrings``
- * ``search_remove_ignored_words``
- * ``search_get_highlighted_relevant_substrings``
- * ``search_highlight_words``
- * ``search_get_search_view``
- * ``search_custom_types_tags_hook``
- * ``search_tags_hook``
- * ``search_users_hook``
- * ``search_groups_hook``
- * ``search_objects_hook``
- * ``members_list_popular``
+ * ``groups_setup_sidebar_menus``
+ * ``members_list_alpha``
  * ``members_list_newest``
  * ``members_list_online``
- * ``members_list_alpha``
- * ``members_nav_popular``
+ * ``members_list_popular``
+ * ``members_nav_alpha``
  * ``members_nav_newest``
  * ``members_nav_online``
- * ``members_nav_alpha``
+ * ``members_nav_popular``
+ * ``messages_notification_msg``
+ * ``notifications_plugin_pagesetup``
+ * ``pages_can_delete_page``: Use ``$entity->canDelete()``
+ * ``pages_is_page``: use ``$entity instanceof ElggPage``
+ * ``pages_search_pages``
+ * ``profile_pagesetup``
+ * ``row_to_elggrelationship``
+ * ``run_function_once``: Use ``Elgg\Upgrade\Batch`` interface
+ * ``search_consolidate_substrings``
+ * ``search_custom_types_tags_hook``
+ * ``search_get_ft_min_max``
+ * ``search_get_highlighted_relevant_substrings``
+ * ``search_get_order_by_sql``
+ * ``search_get_search_view``
+ * ``search_get_where_sql``
+ * ``search_groups_hook``
+ * ``search_highlight_words``
+ * ``search_objects_hook``
+ * ``search_remove_ignored_words``
+ * ``search_tags_hook``
+ * ``search_users_hook``
+ * ``set_default_filestore``
+ * ``system_messages``
 
 All functions around entity subtypes table:
  * ``add_subtype``: Use ``elgg_set_entity_class`` at runtime
- * ``update_subtype``: Use ``elgg_set_entity_class`` at runtime
- * ``remove_subtype``
- * ``get_subtype_id``
- * ``get_subtype_from_id``
- * ``get_subtype_class``: Use ``elgg_get_entity_class``
  * ``get_subtype_class_from_id``
+ * ``get_subtype_class``: Use ``elgg_get_entity_class``
+ * ``get_subtype_from_id``
+ * ``get_subtype_id``
+ * ``remove_subtype``
+ * ``update_subtype``: Use ``elgg_set_entity_class`` at runtime
 
 All caches have been consolidated into a single API layer. The following functions and methods have been removed:
- * ``is_memcache_available``
+ * ``ElggFileCache``
+ * ``ElggMemcache``
+ * ``ElggSharedMemoryCache``
+ * ``ElggStaticVariableCache``
+ * ``Elgg\Cache\Pool`` interface and all extending classes
  * ``_elgg_get_memcache``
  * ``_elgg_invalidate_memcache_for_entity``
- * ``ElggMemcache``
- * ``ElggFileCache``
- * ``ElggStaticVariableCache``
- * ``ElggSharedMemoryCache``
- * ``Elgg\Cache\Pool`` interface and all extending classes
+ * ``is_memcache_available``
 
 Deprecated APIs
 ---------------
 
+ * ``Elgg\Project\Paths::sanitize``: Use ``Elgg\Project\Paths::sanitize()``
  * ``ban_user``: Use ``ElggUser->ban()``
- * ``create_metadata``: Use ``ElggEntity`` setter or ``ElggEntity->setMetadata()``
- * ``update_metadata``: Use ``ElggMetadata->save()``
- * ``get_metadata_url``
  * ``create_annotation``: Use ``ElggEntity->annotate()``
- * ``update_metadata``: Use ``ElggAnnotation->save()``
+ * ``create_metadata``: Use ``ElggEntity`` setter or ``ElggEntity->setMetadata()``
+ * ``elgg_batch_delete_callback``
+ * ``elgg_get_entities_from_access_id``: Use ``elgg_get_entities()``
+ * ``elgg_get_entities_from_attributes``: Use ``elgg_get_entities()``
+ * ``elgg_get_entities_from_metadata``: Use ``elgg_get_entities()``
+ * ``elgg_get_entities_from_private_settings``: Use ``elgg_get_entities()``
+ * ``elgg_get_entities_from_relationship``: Use ``elgg_get_entities()``
  * ``elgg_get_user_validation_status``: Use ``ElggUser->isValidated()``
+ * ``elgg_list_entities_from_access_id``: Use ``elgg_list_entities()``
+ * ``elgg_list_entities_from_metadata``: Use ``elgg_list_entities()``
+ * ``elgg_list_entities_from_private_settings``: Use ``elgg_list_entities()``
+ * ``elgg_list_entities_from_relationship``: Use ``elgg_list_entities()``
+ * ``get_metadata_url``
  * ``make_user_admin``: Use ``ElggUser->makeAdmin()``
  * ``remove_user_admin``: Use ``ElggUser->removeAdmin()``
  * ``unban_user``: Use ``ElggUser->unban()``
- * ``elgg_get_entities_from_attributes``: Use ``elgg_get_entities()``
- * ``elgg_get_entities_from_metadata``: Use ``elgg_get_entities()``
- * ``elgg_get_entities_from_relationship``: Use ``elgg_get_entities()``
- * ``elgg_get_entities_from_private_settings``: Use ``elgg_get_entities()``
- * ``elgg_get_entities_from_access_id``: Use ``elgg_get_entities()``
- * ``elgg_list_entities_from_metadata``: Use ``elgg_list_entities()``
- * ``elgg_list_entities_from_relationship``: Use ``elgg_list_entities()``
- * ``elgg_list_entities_from_private_settings``: Use ``elgg_list_entities()``
- * ``elgg_list_entities_from_access_id``: Use ``elgg_list_entities()``
- * ``elgg_batch_delete_callback``
- * ``\Elgg\Project\Paths::sanitize``: Use ``\Elgg\Project\Paths::sanitize()``
+ * ``update_metadata``: Use ``ElggAnnotation->save()``
+ * ``update_metadata``: Use ``ElggMetadata->save()``
 
 Removed global vars
 -------------------
 
+ * ``$CONFIG->input``: Use ``set_input`` and ``get_input``
+ * ``$CONFIG->search_info``
+ * ``$CONFIG->site_id``: Use ``1``
  * ``$CURRENT_SYSTEM_VIEWTYPE``
  * ``$DEFAULT_FILE_STORE``
  * ``$ENTITY_CACHE``
  * ``$SESSION``: Use the API provided by ``elgg_get_session()``
- * ``$CONFIG->site_id``: Use ``1``
- * ``$CONFIG->search_info``
- * ``$CONFIG->input``: Use ``set_input`` and ``get_input``
 
 Removed classes/interfaces
 --------------------------
 
- * ``FilePluginFile``: replace with ``ElggFile`` (or load with ``get_entity()``)
- * ``Elgg_Notifications_Notification``
+ * ``ElggDiscussionReply``: user ``ElggComment`` see :ref:`upgrade-discussion-replies`
  * ``Elgg\Database\EntityTable\UserFetchResultException.php``
  * ``Elgg\Database\MetastringsTable``
  * ``Elgg\Database\SubtypeTable``
- * ``Exportable`` and its methods ``export`` and ``getExportableValues``: Use ``toObject``
+ * ``Elgg\Mail\Address``: use ``Elgg\Email\Address``
+ * ``Elgg_Notifications_Event``: Use ``\Elgg\Notifications\Event``
+ * ``Elgg_Notifications_Notification``
  * ``ExportException``
- * ``Importable`` and its method ``import``.
+ * ``Exportable`` and its methods ``export`` and ``getExportableValues``: Use ``toObject``
+ * ``FilePluginFile``: replace with ``ElggFile`` (or load with ``get_entity()``)
  * ``ImportException``
+ * ``Importable`` and its method ``import``.
  * ``ODD`` and all classes beginning with ``ODD*``.
  * ``XmlElement``
- * ``Elgg_Notifications_Event``: Use ``\Elgg\Notifications\Event``
- * ``Elgg\Mail\Address``: use ``Elgg\Email\Address``
- * ``ElggDiscussionReply``: user ``ElggComment`` see :ref:`upgrade-discussion-replies`
 
 Schema changes
 --------------
@@ -493,20 +493,20 @@ Removed libraries
 Removed pagehandling
 --------------------
 
+ * ``collections/pickercallback``
+ * ``discussion/reply``: See :ref:`upgrade-discussion-replies`
  * ``file/download``
  * ``file/search``
  * ``groupicon``
  * ``twitterservice``
- * ``collections/pickercallback``
- * ``discussion/reply``: See :ref:`upgrade-discussion-replies`
 
 Removed actions
 ---------------
 
+ * ``discussion/reply/delete``: See :ref:`upgrade-discussion-replies`
+ * ``discussion/reply/save``: See :ref:`upgrade-discussion-replies`
  * ``file/download``: Use ``elgg_get_inline_url`` or ``elgg_get_download_url``
  * ``import/opendd``
- * ``discussion/reply/save``: See :ref:`upgrade-discussion-replies`
- * ``discussion/reply/delete``: See :ref:`upgrade-discussion-replies`
  
 Inheritance changes
 -------------------
@@ -522,55 +522,55 @@ Removed JavaScript APIs
 -----------------------
 
  * ``admin.js``
- * ``elgg.widgets``: Use the ``elgg/widgets`` module. The "widgets" layouts do this module automatically
- * ``lightbox.js``: Use the ``elgg/lightbox`` module as needed
- * ``lightbox/settings.js``: Use the ``getOptions, ui.lightbox`` JS hook or the ``data-colorbox-opts`` attribute
- * ``elgg.ui.popupClose``: Use the ``elgg/popup`` module
- * ``elgg.ui.popupOpen``: Use the ``elgg/popup`` module
+ * ``discussion.js``: See :ref:`upgrade-discussion-replies`
+ * ``elgg.autocomplete`` is no longer defined.
+ * ``elgg.discussion``: Use the ``elgg/discussion`` module
+ * ``elgg.embed``: Use the ``elgg/embed`` module
+ * ``elgg.messageboard`` is no longer defined.
  * ``elgg.ui.initAccessInputs``
- * ``elgg.ui.river``
  * ``elgg.ui.initDatePicker``: Use the ``input/date`` module
  * ``elgg.ui.likesPopupHandler``
- * ``elgg.embed``: Use the ``elgg/embed`` module
- * ``elgg.discussion``: Use the ``elgg/discussion`` module
- * ``embed/custom_insert_js``: Use the ``embed, editor`` JS hook
+ * ``elgg.ui.popupClose``: Use the ``elgg/popup`` module
+ * ``elgg.ui.popupOpen``: Use the ``elgg/popup`` module
+ * ``elgg.ui.river``
+ * ``elgg.ui.toggleMenuItems``: Use ``data-toggle`` attribute when registering toggleable menu items
+ * ``elgg.ui.toggleMenu`` is no longer defined
+ * ``elgg.widgets``: Use the ``elgg/widgets`` module. The "widgets" layouts do this module automatically
  * ``elgg/ckeditor.js``: replaced by ``elgg-ckeditor.js``
- * ``elgg/ckeditor/set-basepath.js``
  * ``elgg/ckeditor/insert.js``
+ * ``elgg/ckeditor/set-basepath.js``
+ * ``embed/custom_insert_js``: Use the ``embed, editor`` JS hook
  * ``jQuery.cookie``: Use ``elgg.session.cookie``
+ * ``jQuery.fn.friendsPicker``
  * ``jquery.jeditable``
+ * ``lightbox.js``: Use the ``elgg/lightbox`` module as needed
+ * ``lightbox/settings.js``: Use the ``getOptions, ui.lightbox`` JS hook or the ``data-colorbox-opts`` attribute
  * ``likes.js``: The ``elgg/likes`` module is loaded automatically
  * ``messageboard.js``
- * ``elgg.autocomplete`` is no longer defined.
- * ``elgg.messageboard`` is no longer defined.
- * ``jQuery.fn.friendsPicker``
- * ``elgg.ui.toggleMenu`` is no longer defined
- * ``elgg.ui.toggleMenuItems``: Use ``data-toggle`` attribute when registering toggleable menu items
  * ``uservalidationbyemail/js.php``: Use the ``elgg/uservalidationbyemail`` module
- * ``discussion.js``: See :ref:`upgrade-discussion-replies`
 
 Removed hooks/events
 --------------------
 
- * Event **login, user**: Use **login:before** or **login:after**. Note the user is not logged in during the **login:before** event
- * Event **delete, annotations**: Use **delete, annotation**
- * Event **pagesetup, system**: Use the menu or page shell hooks instead
- * Event **upgrade, upgrade**: Use **upgrade, system** instead
+ * Event **login, <page>**: Use **register, <page>**: Use your own pagehandler or route hook
+ * Hook **members:config, <type>**: Use the hook **send:before, annotation**
+ * Event **pagesetup, annotations**: Use **delete, layout**: Use **view, layout**: Use **view_vars, menu:filter:members**, notifications**
+ * Hook **output:before, page/layout/<layout_name>**
+ * Hook **email, page/layout/<layout_name>**
+ * Hook **output:after, system** instead
  * Hook **index, system**: Override the ``resources/index`` view
- * Hook **object:notifications, <type>**: Use the hook **send:before, notifications**
- * Hook **output:before, layout**: Use **view_vars, page/layout/<layout_name>**
- * Hook **output:after, layout**: Use **view, page/layout/<layout_name>**
- * Hook **email, system**: Use more granular **<hook>, system:email** hooks
- * Hook **email:message, system**: Use **zend:message, system:email** hook
- * Hook **members:list, <page>**: Use your own pagehandler or route hook
- * Hook **members:config, <page>**: Use **register, menu:filter:members**
+ * Hook **object:notifications, system**: Use **zend:message, system**: Use more granular **<hook>, system**: Use the menu or page shell hooks instead
+ * Event **upgrade, system:email** hook
+ * Hook **members:list, system:email** hooks
+ * Hook **email:message, upgrade**: Use **upgrade, user**: Use **login:before** or **login:after**. Note the user is not logged in during the **login:before** event
+ * Event **delete
 
 Removed forms/actions
 ---------------------
 
- * ``notificationsettings/save`` form and action
- * ``notificationsettings/groupsave`` form and action
  * ``discussion/reply/save`` form and action
+ * ``notificationsettings/groupsave`` form and action
+ * ``notificationsettings/save`` form and action
 
 APIs that now accept only an ``$options`` array
 -----------------------------------------------
@@ -578,25 +578,25 @@ APIs that now accept only an ``$options`` array
  * ``ElggEntity::getAnnotations``
  * ``ElggEntity::getEntitiesFromRelationship``
  * ``ElggGroup::getMembers``
- * ``ElggUser::getGroups``
- * ``ElggUser::getFriends`` (as part of ``Friendable``)
- * ``ElggUser::getFriendsOf`` (as part of ``Friendable``)
  * ``ElggUser::getFriendsObjects`` (as part of ``Friendable``)
+ * ``ElggUser::getFriendsOf`` (as part of ``Friendable``)
+ * ``ElggUser::getFriends`` (as part of ``Friendable``)
+ * ``ElggUser::getGroups``
  * ``ElggUser::getObjects`` (as part of ``Friendable``)
- * ``find_active_users``
  * ``elgg_get_admin_notices``
+ * ``find_active_users``
 
 Plugin functions that now require an explicit ``$plugin_id``
 ------------------------------------------------------------
 
  * ``elgg_get_all_plugin_user_settings``
- * ``elgg_set_plugin_user_setting``
- * ``elgg_unset_plugin_user_setting``
+ * ``elgg_get_plugin_setting``
  * ``elgg_get_plugin_user_setting``
  * ``elgg_set_plugin_setting``
- * ``elgg_get_plugin_setting``
- * ``elgg_unset_plugin_setting``
+ * ``elgg_set_plugin_user_setting``
  * ``elgg_unset_all_plugin_settings``
+ * ``elgg_unset_plugin_setting``
+ * ``elgg_unset_plugin_user_setting``
 
 Class constructors that now accept only a ``stdClass`` object or ``null``
 -------------------------------------------------------------------------
@@ -605,10 +605,10 @@ Class constructors that now accept only a ``stdClass`` object or ``null``
  * ``ElggGroup``: No longer accepts a GUID
  * ``ElggMetadata``: No longer accepts a metadata ID
  * ``ElggObject``: No longer accepts a GUID
+ * ``ElggPlugin``: No longer accepts a GUID or path. Use ``ElggPlugin::fromId`` to construct a plugin from its path
  * ``ElggRelationship``: No longer accepts a relationship ID or ``null``
  * ``ElggSite``: No longer accepts a GUID or URL
  * ``ElggUser``: No longer accepts a GUID or username
- * ``ElggPlugin``: No longer accepts a GUID or path. Use ``ElggPlugin::fromId`` to construct a plugin from its path
 
 Miscellaneous API changes
 -------------------------
