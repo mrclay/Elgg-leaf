@@ -15,15 +15,16 @@ if (!elgg_is_xhr()) {
 
 foreach ($vars['data'] as $name => $info) {
 	$info['name'] = $name;
-	
-	$echo_vars = ($name === 'show_gear') ? [elgg_view_icon('settings-alt')] : [];
-	if (empty($echo_vars)) {
-		$info['#label'] = elgg_echo("developers:label:$name");
-	} else {
-		$info['#label'] = elgg_echo("developers:label:$name", $echo_vars);
+
+	$echo_vars = [];
+	if (isset($info['_label_icon'])) {
+		$echo_vars[] = elgg_view_icon($info['_label_icon']);
 	}
-	
+	unset($info['_label_icon']);
+	$info['#label'] = elgg_echo("developers:label:$name", $echo_vars);
+
 	$info['#help'] = elgg_echo("developers:help:$name");
+
 	echo elgg_view_field($info);
 }
 

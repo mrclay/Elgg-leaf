@@ -27,6 +27,8 @@ function developers_init() {
 
 	elgg_register_ajax_view('forms/developers/ajax_demo');
 	elgg_register_ajax_view('theme_sandbox/components/tabs/ajax');
+
+	elgg_register_simplecache_view('elgg/dev.html');
 }
 
 /**
@@ -72,10 +74,13 @@ function developers_process_settings() {
 		elgg_register_plugin_hook_handler('all', 'all', 'developers_log_events', 1);
 	}
 
+	if (!empty($settings['show_flush']) && elgg_is_admin_logged_in() && !elgg_in_context('admin')) {
+		elgg_require_js('elgg/dev/flush');
+	}
+
 	if (!empty($settings['show_gear']) && elgg_is_admin_logged_in() && !elgg_in_context('admin')) {
 		elgg_require_js('elgg/dev/gear');
 		elgg_register_ajax_view('developers/gear_popup');
-		elgg_register_simplecache_view('elgg/dev/gear.html');
 
 		$handler = [Hooks::class, 'alterMenuSectionVars'];
 		elgg_register_plugin_hook_handler('view_vars', 'navigation/menu/elements/section', $handler);

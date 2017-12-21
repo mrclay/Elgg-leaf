@@ -35,6 +35,7 @@ $simple_settings = [
 	'wrap_views',
 	'log_events',
 	'show_gear',
+	'show_flush',
 	'show_modules',
 	'block_email',
 	'forward_email',

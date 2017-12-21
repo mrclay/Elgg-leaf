@@ -75,8 +75,17 @@ $data = [
 
 	'show_gear' => [
 		'#type' => 'checkbox',
+		'_label_icon' => 'settings-alt',
 		'value' => 1,
 		'checked' => elgg_get_plugin_setting('show_gear', 'developers') == 1,
+		'switch' => true,
+	],
+
+	'show_flush' => [
+		'#type' => 'checkbox',
+		'_label_icon' => 'refresh',
+		'value' => 1,
+		'checked' => elgg_get_plugin_setting('show_flush', 'developers') == 1,
 		'switch' => true,
 	],
 	

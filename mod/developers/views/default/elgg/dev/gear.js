@@ -1,20 +1,14 @@
-/**
- * Note, depends on $.colorbox!
- */
 define(function (require) {
+	require('elgg/dev');
 	var $ = require('jquery');
-	var elgg = require('elgg');
 	var spinner = require('elgg/spinner');
-	var gear_html = require('text!elgg/dev/gear.html');
 	var lightbox = require('elgg/lightbox');
 
-	$(gear_html)
-		.appendTo('body')
-		.find('.elgg-icon')
-		.prop('title', elgg.echo('admin:developers:settings'))
+	$('.developers-gear .elgg-icon-settings-alt')
+		.prop('hidden', false)
 		.on('click', function () {
 			lightbox.open({
-				href: elgg.get_site_url() + 'ajax/view/developers/gear_popup',
+				href: $(this).data('href'),
 				initialWidth: '90%',
 				maxWidth: false,
 				width: '90%',
@@ -24,21 +18,21 @@ define(function (require) {
 						.on('submit', spinner.start)
 						.find('fieldset > div')
 						.each(function () {
-							var $help = $('span.elgg-text-help', this),
-								$label = $('label', this);
+							var $help = $('span.elgg-text-help', this);
+							var $label = $('label', this);
 
 							if ($help.length != 1 || $label.length != 1) {
 								return;
 							}
 
-							var $icon = $('<span class="elgg-icon-info elgg-icon" />'),
-								$both = $([$icon[0], $help[0]])
-									.appendTo($label)
-									.on('click', function () {
-										$both.toggle();
-										$.colorbox.resize();
-										return false;
-									});
+							var $icon = $('<span class="elgg-icon-info elgg-icon" />');
+							var $both = $([$icon[0], $help[0]])
+								.appendTo($label)
+								.on('click', function () {
+									$both.toggle();
+									$.colorbox.resize();
+									return false;
+								});
 						});
 					lightbox.resize();
 				}

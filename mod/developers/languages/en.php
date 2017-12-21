@@ -33,6 +33,8 @@ return [
 	'developers:help:log_events' => "Write events and plugin hooks to the log. Warning: there are many of these per page.",
 	'developers:label:show_gear' => "Use %s outside admin area",
 	'developers:help:show_gear' => "An icon on the bottom right of the viewport that gives admins access to developer settings and links.",
+	'developers:label:show_flush' => "Use %s outside admin area",
+	'developers:help:show_flush' => "An icon on the bottom right of the viewport that flushes the cache.",
 	'developers:label:block_email' => "Block all outgoing e-mails",
 	'developers:help:block_email' => "You can block outgoing e-mail to regular users or to all users",
 	'developers:label:forward_email' => "Forward all outgoing e-mails to one address",
