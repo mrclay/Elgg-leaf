@@ -50,7 +50,7 @@ class HandlersService {
 				} else if ($object === 'event') {
 					$object = new Event(elgg(), $args[0], $args[1], $args[2]);
 				} else if ($object === 'action') {
-					$object = new Action(elgg(), $args[0], $args[1]);
+					$object = new Action(elgg(), $args[0], $args[1], elgg_is_xhr());
 				}
 			}
 

@@ -40,16 +40,27 @@ interface Action {
 	/**
 	 * Gets the "entity" key from the params if it holds an Elgg entity
 	 *
+	 * @param string $key Input key to pull entity GUID from
+	 *
 	 * @return \ElggEntity|null
 	 */
-	public function getEntityParam();
+	public function getEntityParam($key = 'guid');
 
 	/**
 	 * Gets the "user" key from the params if it holds an Elgg user
 	 *
+	 * @param string $key Input key to pull user GUID from, or "username" for a username.
+	 *
 	 * @return \ElggUser|null
 	 */
-	public function getUserParam();
+	public function getUserParam($key = 'user_guid');
+
+	/**
+	 * Is the request from Ajax?
+	 *
+	 * @return bool
+	 */
+	public function isXhr();
 
 	/**
 	 * Get the Elgg application

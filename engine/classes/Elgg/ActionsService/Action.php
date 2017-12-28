@@ -30,16 +30,23 @@ class Action implements \Elgg\Action {
 	protected $input;
 
 	/**
+	 * @var bool
+	 */
+	protected $is_xhr;
+
+	/**
 	 * Constructor
 	 *
-	 * @param Application $elgg  Elgg application
-	 * @param string      $name  Hook name
-	 * @param Input       $input Input service
+	 * @param Application $elgg   Elgg application
+	 * @param string      $name   Hook name
+	 * @param Input       $input  Input service
+	 * @param bool        $is_xhr Is the request from Ajax?
 	 */
-	public function __construct(Application $elgg, string $name, Input $input) {
+	public function __construct(Application $elgg, string $name, Input $input, bool $is_xhr) {
 		$this->elgg = $elgg;
 		$this->name = $name;
 		$this->input = $input;
+		$this->is_xhr = $is_xhr;
 	}
 
 	/**
@@ -66,8 +73,8 @@ class Action implements \Elgg\Action {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getEntityParam() {
-		$guid = $this->input->get('guid');
+	public function getEntityParam($key = 'guid') {
+		$guid = $this->input->get($key);
 		if ($guid) {
 			$entity = get_entity($guid);
 			if ($entity instanceof \ElggEntity) {
@@ -81,8 +88,13 @@ class Action implements \Elgg\Action {
 	/**
 	 * {@inheritdoc}
 	 */
-	public function getUserParam() {
-		$guid = $this->input->get('user_guid');
+	public function getUserParam($key = 'user_guid') {
+		if ($key === 'username') {
+			$entity = get_user_by_username($this->input->get($key));
+			return $entity ?: null;
+		}
+
+		$guid = $this->input->get($key);
 		if ($guid) {
 			$entity = get_entity($guid);
 			if ($entity instanceof \ElggUser) {
@@ -91,6 +103,13 @@ class Action implements \Elgg\Action {
 		}
 
 		return null;
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function isXhr() {
+		return $this->is_xhr;
 	}
 
 	/**

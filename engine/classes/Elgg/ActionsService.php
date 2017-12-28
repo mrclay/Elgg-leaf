@@ -188,9 +188,21 @@ class ActionsService {
 
 		$callback = $this->actions[$action]['callback'];
 		if ($callback) {
+			$handler = $this->handlers->resolveCallable($callback);
+			if (!is_callable($handler)) {
+				elgg_log("Handler $callback for action $action is not callable", 'ERROR');
+				return $forward('', ELGG_HTTP_INTERNAL_SERVER_ERROR);
+			}
+
 			list($success, $result, $object) = $this->handlers->call($callback, 'action', [$action, $this->input]);
 		} else {
-			$result = Includer::includeFile($this->actions[$action]['file']);
+			$file = $this->actions[$action]['file'];
+			if (!is_file($file) || !is_readable($file)) {
+				elgg_log("File $file for action $action is not readable", 'ERROR');
+				return $forward('', ELGG_HTTP_INTERNAL_SERVER_ERROR);
+			}
+
+			$result = Includer::includeFile($file);
 		}
 
 		if ($result instanceof ResponseBuilder) {
@@ -229,17 +241,8 @@ class ActionsService {
 		$callback = false;
 
 		if (is_string($handler) && substr($handler, -4, 4) === '.php') {
-			if (!is_file($handler) || !is_readable($handler)) {
-				elgg_log("File $handler for action $action is not readable", 'ERROR');
-				return false;
-			}
 			$file = $handler;
 		} else {
-			$handler = $this->handlers->resolveCallable($handler);
-			if (!is_callable($handler)) {
-				elgg_log("Handler $handler for action $action is not callable", 'ERROR');
-				return false;
-			}
 			$callback = $handler;
 		}
 
