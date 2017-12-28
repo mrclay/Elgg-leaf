@@ -24,33 +24,33 @@ To register an action using a callable that accepts an instance of ``\Elgg\Actio
 
 .. code-block:: php
 
-   elgg_register_action("example", MyActionHandler::class);
+	elgg_register_action("example", MyActionHandler::class);
 
-   class MyActionHandler {
+	class MyActionHandler {
 
-      public function __invoke(\Elgg\Action $action) {
+		public function __invoke(\Elgg\Action $action) {
 
-         $entity = $action->getEntityParam();
-         $entity->name = $action->getParam('name');
+			$entity = $action->getEntityParam();
+			$entity->name = $action->getParam('name');
 
-         return elgg_ok_response('', 'Name has been updated successfully', $entity->getURL());
-      }
-   }
+			return elgg_ok_response('', 'Name has been updated successfully', $entity->getURL());
+		}
+	}
 
 
 To register an action using legacy approach (with action files):
 
 .. code-block:: php
 
-   elgg_register_action("example", __DIR__ . "/actions/example.php");
+	elgg_register_action("example", __DIR__ . "/actions/example.php");
 
-   // in /my_plugin/actions/example.php
-   $guid = get_input('guid');
-   $entity = get_entity($guid);
+	// in /my_plugin/actions/example.php
+	$guid = get_input('guid');
+	$entity = get_entity($guid);
 
-   $name = get_input('name');
+	$name = get_input('name');
 
-   return elgg_ok_response('', 'Name has been updated successfully', $entity->getURL());
+	return elgg_ok_response('', 'Name has been updated successfully', $entity->getURL());
 
 
 .. warning:: A stumbling point for many new developers is the URL for actions. The URL always uses ``/action/`` (singular) and never ``/actions/`` (plural).
@@ -58,24 +58,22 @@ However, action script files are usually saved under the directory ``/actions/``
 
 Registering actions using plugin config file
 --------------------------------------------
-You can also register actions via the :doc:`elgg-plugin</guides/plugins>` config file. 
-To do this you need to provide an action section in the config file. 
+You can also register actions via the :doc:`elgg-plugin</guides/plugins>` config file.
+To do this you need to provide an action section in the config file.
 The location of the action files are assumed to be in the plugin folder  ``/actions``.
 
 .. code-block:: php
 
-	<?php
-
 	return [
 		'actions' => [
-		    'blog/save' => [], // all defaults
-		    'blog/delete' => [ // all custom
-		          'access' => 'admin',
-		          'filename' => __DIR__ . 'actions/blog/remove.php',
-		    ],
-            'blog/update' => [
-                  'callback' => \Elgg\Blog\Actions\UpdateAction::class,
-            ],
+			'blog/save' => [], // all defaults
+			'blog/delete' => [ // all custom
+				'access' => 'admin',
+				'filename' => __DIR__ . 'actions/blog/remove.php',
+			],
+			'blog/update' => [
+				'callback' => \Elgg\Blog\Actions\UpdateAction::class,
+			],
 		],
 	];
 
@@ -87,13 +85,13 @@ To make an action available to logged out users, pass ``"public"`` as the third 
 
 .. code-block:: php
 
-   elgg_register_action("example", $filepath, "public");
+	elgg_register_action("example", $filepath, "public");
 
 To restrict an action to only administrators, pass ``"admin"`` for the last parameter:
 
 .. code-block:: php
 
-   elgg_register_action("example", $filepath, "admin");
+	elgg_register_action("example", $filepath, "admin");
 
 
 Writing action files
@@ -103,7 +101,7 @@ Use the ``get_input`` function to get access to request parameters:
 
 .. code-block:: php
 
-   $field = get_input('input_field_name', 'default_value');
+	$field = get_input('input_field_name', 'default_value');
 
 You can then use the :doc:`database` api to load entities and perform actions on them accordingly.
 
@@ -112,35 +110,34 @@ to the client for XHR calls (this data will be ignored for non-XHR calls)
 
 .. code-block:: php
 
-   $user = get_entity($guid);
-   // do something
+	$user = get_entity($guid);
+	// do something
 
-   $action_data = [
-      'entity' => $user,
-      'stats' => [
-          'friends' => $user->getFriends(['count' => true]);
-      ],
-   ];
+	$action_data = [
+		'entity' => $user,
+		'stats' => [
+			'friends' => $user->getFriends(['count' => true]),
+		],
+	];
 
-   return elgg_ok_response($action_data, 'Action was successful', 'url/to/forward/to');
-
+	return elgg_ok_response($action_data, 'Action was successful', 'url/to/forward/to');
 
 To indicate an error, use ``elgg_error_response()``
 
 .. code-block:: php
 
-   $user = elgg_get_logged_in_user_entity();
-   if (!$user) {
-      // show an error and forward the user to the referring page
-      // send 404 error code on AJAX calls
-      return elgg_error_response('User not found', REFERRER, ELGG_HTTP_NOT_FOUND);
-   }
+	$user = elgg_get_logged_in_user_entity();
+	if (!$user) {
+		// show an error and forward the user to the referring page
+		// send 404 error code on AJAX calls
+		return elgg_error_response('User not found', REFERRER, ELGG_HTTP_NOT_FOUND);
+	}
 
-   if (!$user->canEdit()) {
-      // show an error and forward to user's profile
-      // send 403 error code on AJAX calls
-      return elgg_error_response('You are not allowed to perform this action', $user->getURL(), ELGG_HTTP_FORBIDDEN);
-   }
+	if (!$user->canEdit()) {
+		// show an error and forward to user's profile
+		// send 403 error code on AJAX calls
+		return elgg_error_response('You are not allowed to perform this action', $user->getURL(), ELGG_HTTP_FORBIDDEN);
+	}
 
 
 Customizing actions
@@ -150,7 +147,7 @@ Before executing any action, Elgg triggers a hook:
 
 .. code-block:: php
 
-   $result = elgg_trigger_plugin_hook('action', $action, null, true);
+	$result = elgg_trigger_plugin_hook('action', $action, null, true);
 
 Where ``$action`` is the action being called. If the hook returns ``false`` then the action will not be executed.
 
@@ -163,23 +160,23 @@ This is done as follows:
 
 .. code-block:: php
 
-   elgg_register_plugin_hook_handler("action", "register", "captcha_verify_action_hook");
-   elgg_register_plugin_hook_handler("action", "user/requestnewpassword", "captcha_verify_action_hook");
+	elgg_register_plugin_hook_handler("action", "register", "captcha_verify_action_hook");
+	elgg_register_plugin_hook_handler("action", "user/requestnewpassword", "captcha_verify_action_hook");
 
-   ...
+	//...
 
-   function captcha_verify_action_hook($hook, $entity_type, $returnvalue, $params) {
-     $token = get_input('captcha_token');
-     $input = get_input('captcha_input');
+	function captcha_verify_action_hook($hook, $entity_type, $returnvalue, $params) {
+		$token = get_input('captcha_token');
+		$input = get_input('captcha_input');
 
-     if (($token) && (captcha_verify_captcha($input, $token))) {
-       return true;
-     }
-  
-     register_error(elgg_echo('captcha:captchafail'));
+		if (($token) && (captcha_verify_captcha($input, $token))) {
+			return true;
+		}
 
-     return false;
-   }
+		register_error(elgg_echo('captcha:captchafail'));
+
+		return false;
+	}
 
 This lets a plugin extend an existing action without the need to replace the whole action. In the case of the captcha plugin it allows the plugin to provide captcha support in a very loosely coupled way.
 
@@ -188,32 +185,36 @@ Actions available in core
 =========================
 
 ``entity/delete``
--------------------
+-----------------
 
 If your plugin does not implement any custom logic when deleting an entity, you can use bundled delete action
 
 .. code-block:: php
 
-   $guid = 123;
-   // You can provide optional forward path as a URL query parameter
-   $forward_url = 'path/to/forward/to';
-   echo elgg_view('output/url', array(
-      'text' => elgg_echo('delete'),
-      'href' => "action/entity/delete?guid=$guid&forward_url=$forward_url",
-      'confirm' => true,
-   ));
+	$guid = 123;
+	// You can provide optional forward path as a URL query parameter
+	$forward_url = 'path/to/forward/to';
+
+	echo elgg_view('output/url', [
+		'text' => elgg_echo('delete'),
+		'href' => "action/entity/delete?" . http_build_query([
+			'guid' => $guid,
+			'forward_url' => $forward_url,
+		]),
+		'confirm' => true,
+	]);
 
 
 You can customize the success message keys for your entity type and subtype, using ``"entity:delete:$type:$subtype:success"`` and ``"entity:delete:$type:success"`` keys.
 
 .. code-block:: php
 
-   // to add a custom message when a blog post or file is deleted
-   // add the translations keys in your language files
-   return array(
-      'entity:delete:object:blog:success' => 'Blog post has been deleted,
-      'entity:delete:object:file:success' => 'File titled %s has been deleted',
-   );
+	// to add a custom message when a blog post or file is deleted
+	// add the translations keys in your language files
+	return [
+		'entity:delete:object:blog:success' => 'Blog post has been deleted',
+		'entity:delete:object:file:success' => 'File titled %s has been deleted',
+	];
 
 
 Forms
@@ -222,19 +223,19 @@ Forms
 To output a form, use the elgg_view_form function like so:
 
 .. code-block:: php
-   
-   echo elgg_view_form('example');
+
+	echo elgg_view_form('example');
 
 Doing this generates something like the following markup:
 
 .. code-block:: html
 
-   <form action="http://localhost/elgg/action/example">
-     <fieldset>
-       <input type="hidden" name="__elgg_ts" value="1234567890" />
-       <input type="hidden" name="__elgg_token" value="3874acfc283d90e34" />
-     </fieldset>
-   </form>
+	<form action="http://localhost/elgg/action/example">
+		<fieldset>
+			<input type="hidden" name="__elgg_ts" value="1234567890" />
+			<input type="hidden" name="__elgg_token" value="3874acfc283d90e34" />
+		</fieldset>
+	</form>
 
 Elgg does some things automatically for you when you generate forms this way:
 
@@ -246,28 +247,28 @@ Put the content of your form in your plugin’s ``forms/example`` view:
 
 .. code-block:: php
 
-   // /mod/example/views/default/forms/example.php
-   echo elgg_view('input/text', array('name' => 'example'));
+	// /mod/example/views/default/forms/example.php
+	echo elgg_view('input/text', ['name' => 'example']);
 
-   // defer form footer rendering
-   // this will allow other plugins to extend forms/example view
-   elgg_set_form_footer(elgg_view('input/submit'));
+	// defer form footer rendering
+	// this will allow other plugins to extend forms/example view
+	elgg_set_form_footer(elgg_view('input/submit'));
 
 Now when you call ``elgg_view_form('example')``, Elgg will produce:
 
 .. code-block:: html
 
-   <form action="http://localhost/elgg/action/example">
-     <fieldset>
-       <input type="hidden" name="__elgg_ts" value="...">
-       <input type="hidden" name="__elgg_token" value="...">
- 
-       <input type="text" class="elgg-input-text" name="example">
-       <div class="elgg-foot elgg-form-footer">
-           <input type="submit" class="elgg-button elgg-button-submit" value="Submit">
-       </div>
-     </fieldset>
-   </form>
+	<form action="http://localhost/elgg/action/example">
+		<fieldset>
+			<input type="hidden" name="__elgg_ts" value="...">
+			<input type="hidden" name="__elgg_token" value="...">
+
+			<input type="text" class="elgg-input-text" name="example">
+			<div class="elgg-foot elgg-form-footer">
+				<input type="submit" class="elgg-button elgg-button-submit" value="Submit">
+			</div>
+		</fieldset>
+	</form>
 
 
 Inputs
@@ -278,26 +279,26 @@ HTML input elements. See individual view files for a list of accepted parameters
 
 .. code-block:: php
 
-   echo elgg_view('input/select', array(
-      'required' => true,
-      'name' => 'status',
-      'options_values' => array(
-         'draft' => elgg_echo('status:draft'),
-         'published' => elgg_echo('status:published'),
-      ),
-      // most input views will render additional parameters passed to the view
-      // as tag attributes
-      'data-rel' => 'blog',
-   ));
+	echo elgg_view('input/select', [
+		'required' => true,
+		'name' => 'status',
+		'options_values' => [
+			'draft' => elgg_echo('status:draft'),
+			'published' => elgg_echo('status:published'),
+		],
+		// most input views will render additional parameters passed to the view
+		// as tag attributes
+		'data-rel' => 'blog',
+	]);
 
 The above example will render a dropdown select input:
 
 .. code-block:: html
 
-   <select required="required" name="status" data-rel="blog" class="elgg-input-select">
-      <option value="draft">Draft</option>
-      <option value="published">Published</option>
-   </select>
+	<select required="required" name="status" data-rel="blog" class="elgg-input-select">
+		<option value="draft">Draft</option>
+		<option value="published">Published</option>
+	</select>
 
 To ensure consistency in field markup, use ``elgg_view_field()``, which accepts
 all the parameters of the input being rendered, as well as ``#label`` and ``#help``
@@ -305,35 +306,35 @@ parameters (both of which are optional and accept HTML or text).
 
 .. code-block:: php
 
-   echo elgg_view_field(array(
-      '#type' => 'select',
-      '#label' => elgg_echo('blog:status:label'),
-      '#help' => elgg_view_icon('help') . elgg_echo('blog:status:help'),
-      'required' => true,
-      'name' => 'status',
-      'options_values' => array(
-         'draft' => elgg_echo('status:draft'),
-         'published' => elgg_echo('status:published'),
-      ),
-      'data-rel' => 'blog',
-   ));
+	echo elgg_view_field([
+		'#type' => 'select',
+		'#label' => elgg_echo('blog:status:label'),
+		'#help' => elgg_view_icon('help') . elgg_echo('blog:status:help'),
+		'required' => true,
+		'name' => 'status',
+		'options_values' => [
+			'draft' => elgg_echo('status:draft'),
+			'published' => elgg_echo('status:published'),
+		],
+		'data-rel' => 'blog',
+	]);
 
 The above will generate the following markup:
 
 .. code-block:: html
 
-   <div class="elgg-field elgg-field-required">
-      <label for="elgg-field-1" class="elgg-field-label">Blog status<span title="Required" class="elgg-required-indicator">*</span></label>
-      <div class="elgg-field-input">
-      	 <select required="required" name="status" data-rel="blog" id="elgg-field-1" class="elgg-input-select">
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-         </select>
-      </div>
-      <div class="elgg-field-help elgg-text-help">
-         <span class="elgg-icon-help elgg-icon"></span>This indicates whether or not the blog is visible in the feed
-      </div>
-   </div>
+	<div class="elgg-field elgg-field-required">
+		<label for="elgg-field-1" class="elgg-field-label">Blog status<span title="Required" class="elgg-required-indicator">*</span></label>
+		<div class="elgg-field-input">
+			<select required="required" name="status" data-rel="blog" id="elgg-field-1" class="elgg-input-select">
+				<option value="draft">Draft</option>
+				<option value="published">Published</option>
+			</select>
+		</div>
+		<div class="elgg-field-help elgg-text-help">
+			<span class="elgg-icon-help elgg-icon"></span>This indicates whether or not the blog is visible in the feed
+		</div>
+	</div>
 
 
 Input types
@@ -374,22 +375,22 @@ Use the input/file view in your form’s content view.
 
 .. code-block:: php
 
-   // /mod/example/views/default/forms/example.php
-   echo elgg_view('input/file', array('name' => 'icon'));
+	// /mod/example/views/default/forms/example.php
+	echo elgg_view('input/file', ['name' => 'icon']);
 
 Set the enctype of the form to multipart/form-data:
 
 .. code-block:: php
 
-   echo elgg_view_form('example', array(
-     'enctype' => 'multipart/form-data'
-   ));
+	echo elgg_view_form('example', [
+		'enctype' => 'multipart/form-data'
+	]);
 
 In your action file, use the ``$_FILES`` global to access the uploaded file:
 
 .. code-block:: php
 
-   $icon = $_FILES['icon']
+	$icon = $_FILES['icon']
 
 Sticky forms
 ============
@@ -430,32 +431,32 @@ The registration form view first sets default values for inputs, then checks if 
 
 .. code-block:: php
 
-   // views/default/forms/register.php
-   $password = $password2 = '';
-   $username = get_input('u');
-   $email = get_input('e');
-   $name = get_input('n');
- 
-   if (elgg_is_sticky_form('register')) {
-	extract(elgg_get_sticky_values('register'));
-	elgg_clear_sticky_form('register');
-   }
+	// views/default/forms/register.php
+	$password = $password2 = '';
+	$username = get_input('u');
+	$email = get_input('e');
+	$name = get_input('n');
+
+	if (elgg_is_sticky_form('register')) {
+		extract(elgg_get_sticky_values('register'));
+		elgg_clear_sticky_form('register');
+	}
 
 The registration action sets creates the sticky form and clears it once the action is completed:
 
 .. code-block:: php
 
-   // actions/register.php
-   elgg_make_sticky_form('register');
- 
-   ...
- 
-   $guid = register_user($username, $password, $name, $email, false, $friend_guid, $invitecode);
- 
-   if ($guid) {
-	elgg_clear_sticky_form('register');
-	....
-   }
+	// actions/register.php
+	elgg_make_sticky_form('register');
+
+	...
+
+	$guid = register_user($username, $password, $name, $email, false, $friend_guid, $invitecode);
+
+	if ($guid) {
+		elgg_clear_sticky_form('register');
+		....
+	}
 
 Example: Bookmarks
 ------------------
@@ -466,92 +467,92 @@ The form view for the save bookmark action uses ``elgg_extract()`` to pull value
 
 .. code-block:: php
 
-   // mod/bookmarks/views/default/forms/bookmarks/save.php
-   $title = elgg_extract('title', $vars, '');
-   $desc = elgg_extract('description', $vars, '');
-   $address = elgg_extract('address', $vars, '');
-   $tags = elgg_extract('tags', $vars, '');
-   $access_id = elgg_extract('access_id', $vars, ACCESS_DEFAULT);
-   $container_guid = elgg_extract('container_guid', $vars);
-   $guid = elgg_extract('guid', $vars, null);
-   $shares = elgg_extract('shares', $vars, array());
+	// mod/bookmarks/views/default/forms/bookmarks/save.php
+	$title = elgg_extract('title', $vars, '');
+	$desc = elgg_extract('description', $vars, '');
+	$address = elgg_extract('address', $vars, '');
+	$tags = elgg_extract('tags', $vars, '');
+	$access_id = elgg_extract('access_id', $vars, ACCESS_DEFAULT);
+	$container_guid = elgg_extract('container_guid', $vars);
+	$guid = elgg_extract('guid', $vars, null);
+	$shares = elgg_extract('shares', $vars, []);
 
 The page handler scripts prepares the form variables and calls ``elgg_view_form()`` passing the correct values:
 
 .. code-block:: php
 
-   // mod/bookmarks/pages/add.php
-   $vars = bookmarks_prepare_form_vars();
-   $content = elgg_view_form('bookmarks/save', array(), $vars);
-   
+	// mod/bookmarks/pages/add.php
+	$vars = bookmarks_prepare_form_vars();
+	$content = elgg_view_form('bookmarks/save', [], $vars);
+
 Similarly, ``mod/bookmarks/pages/edit.php`` uses the same function, but passes the entity that is being edited as an argument:
 
 .. code-block:: php
 
-   $bookmark_guid = get_input('guid');
-   $bookmark = get_entity($bookmark_guid);
+	$bookmark_guid = get_input('guid');
+	$bookmark = get_entity($bookmark_guid);
 
-   ...
- 
-   $vars = bookmarks_prepare_form_vars($bookmark);
-   $content = elgg_view_form('bookmarks/save', array(), $vars);
+	...
+
+	$vars = bookmarks_prepare_form_vars($bookmark);
+	$content = elgg_view_form('bookmarks/save', [], $vars);
 
 The library file defines ``bookmarks_prepare_form_vars()``. This function accepts an ``ElggEntity`` as an argument and does 3 things:
 
  1. Defines the input names and default values for form inputs.
- 2. Extracts the values from a bookmark object if it's passed. 
+ 2. Extracts the values from a bookmark object if it's passed.
  3. Extracts the values from a sticky form if it exists.
 
 TODO: Include directly from lib/bookmarks.php
 
 .. code-block:: php
 
-   // mod/bookmarks/lib/bookmarks.php
-   function bookmarks_prepare_form_vars($bookmark = null) {
-   	// input names => defaults
-     $values = array(
-       'title' => get_input('title', ''), // bookmarklet support
-       'address' => get_input('address', ''),
-       'description' => '',
-       'access_id' => ACCESS_DEFAULT,
-       'tags' => '',
-       'shares' => array(),
-       'container_guid' => elgg_get_page_owner_guid(),
-       'guid' => null,
-       'entity' => $bookmark,
-     );
- 
-     if ($bookmark) {
-	  foreach (array_keys($values) as $field) {
-          if (isset($bookmark->$field)) {
-            $values[$field] = $bookmark->$field;
-          }
-       }
-     }
+	// mod/bookmarks/lib/bookmarks.php
+	function bookmarks_prepare_form_vars($bookmark = null) {
+		// input names => defaults
+		$values = [
+			'title' => get_input('title', ''), // bookmarklet support
+			'address' => get_input('address', ''),
+			'description' => '',
+			'access_id' => ACCESS_DEFAULT,
+			'tags' => '',
+			'shares' => [],
+			'container_guid' => elgg_get_page_owner_guid(),
+			'guid' => null,
+			'entity' => $bookmark,
+		];
 
-     if (elgg_is_sticky_form('bookmarks')) {
-	  $sticky_values = elgg_get_sticky_values('bookmarks');
-	  foreach ($sticky_values as $key => $value) {
-         $values[$key] = $value;
-       }
-     }
+		if ($bookmark) {
+			foreach (array_keys($values) as $field) {
+				if (isset($bookmark->$field)) {
+					$values[$field] = $bookmark->$field;
+				}
+			}
+		}
 
-     elgg_clear_sticky_form('bookmarks');
- 
-     return $values;
-   }
+		if (elgg_is_sticky_form('bookmarks')) {
+			$sticky_values = elgg_get_sticky_values('bookmarks');
+			foreach ($sticky_values as $key => $value) {
+				$values[$key] = $value;
+			}
+		}
+
+		elgg_clear_sticky_form('bookmarks');
+
+		return $values;
+	}
 
 The save action checks the input, then clears the sticky form upon success:
 
 .. code-block:: php
 
-   // mod/bookmarks/actions/bookmarks/save.php
-   elgg_make_sticky_form('bookmarks');
-   ...
- 
-   if ($bookmark->save()) {
-	elgg_clear_sticky_form('bookmarks');
-   }
+	// mod/bookmarks/actions/bookmarks/save.php
+	elgg_make_sticky_form('bookmarks');
+	...
+
+	if ($bookmark->save()) {
+		elgg_clear_sticky_form('bookmarks');
+	}
 
 
 Ajax
@@ -567,23 +568,23 @@ A few views and functions automatically generate security tokens:
 
 .. code-block:: php
 
-   elgg_view('output/url', array('is_action' => TRUE));
-   elgg_view('input/securitytoken');
-   $url = elgg_add_action_tokens_to_url("http://localhost/elgg/action/example");
+	elgg_view('output/url', ['is_action' => true]);
+	elgg_view('input/securitytoken');
+	$url = elgg_add_action_tokens_to_url("http://localhost/elgg/action/example");
 
 In rare cases, you may need to generate tokens manually:
 
 .. code-block:: php
 
-   $__elgg_ts = time();
-   $__elgg_token = generate_action_token($__elgg_ts);
+	$__elgg_ts = time();
+	$__elgg_token = generate_action_token($__elgg_ts);
 
 You can also access the tokens from javascript:
 
 .. code-block:: js
 
-   elgg.security.token.__elgg_ts;
-   elgg.security.token.__elgg_token;
+	elgg.security.token.__elgg_ts;
+	elgg.security.token.__elgg_token;
 
 These are refreshed periodically so should always be up-to-date.
 
@@ -600,37 +601,37 @@ without the site's private key.
 
 .. code-block:: php
 
-    // generate a querystring such that $a and $b can't be altered
-    $a = 1234;
-    $b = "hello";
-    $query = http_build_query([
-        'a' => $a,
-        'b' => $b,
-        'mac' => elgg_build_hmac([$a, $b])->getToken(),
-    ]);
-    $url = "action/foo?$query";
+	// generate a querystring such that $a and $b can't be altered
+	$a = 1234;
+	$b = "hello";
+	$query = http_build_query([
+		'a' => $a,
+		'b' => $b,
+		'mac' => elgg_build_hmac([$a, $b])->getToken(),
+	]);
+	$url = "action/foo?$query";
 
 
-    // validate the querystring
-    $a = (int) get_input('a', '', false);
-    $b = (string) get_input('b', '', false);
-    $mac = get_input('mac', '', false);
+	// validate the querystring
+	$a = (int) get_input('a', '', false);
+	$b = (string) get_input('b', '', false);
+	$mac = get_input('mac', '', false);
 
-    if (elgg_build_hmac([$a, $b])->matchesToken($mac)) {
-        // $a and $b have not been altered
-    }
+	if (elgg_build_hmac([$a, $b])->matchesToken($mac)) {
+		// $a and $b have not been altered
+	}
 
 Note: If you use a non-string as HMAC data, you must use types consistently. Consider the following:
 
 .. code-block:: php
 
-    $mac = elgg_build_hmac([123, 456])->getToken();
+	$mac = elgg_build_hmac([123, 456])->getToken();
 
-    // type of first array element differs
-    elgg_build_hmac(["123", 456])->matchesToken($mac); // false
+	// type of first array element differs
+	elgg_build_hmac(["123", 456])->matchesToken($mac); // false
 
-    // types identical to original
-    elgg_build_hmac([123, 456])->matchesToken($mac); // true
+	// types identical to original
+	elgg_build_hmac([123, 456])->matchesToken($mac); // true
 
 
 Signed URLs
@@ -642,15 +643,15 @@ URLs a signed with an unguessable SHA-256 HMAC key. See `Security Tokens`_ for m
 
 .. code-block:: php
 
-    $url = elgg_http_add_url_query_element(elgg_normalize_url('confirm'), [
-       'user_guid' => $user_guid,
-    ]);
+	$url = elgg_http_add_url_query_elements(elgg_normalize_url('confirm'), [
+		'user_guid' => $user_guid,
+	]);
 
-    $url = elgg_http_get_signed_url($url);
- 
-    notify_user($user_guid, $site->guid, 'Confirm', "Please confirm by clicking this link: $url");
+	$url = elgg_http_get_signed_url($url);
+
+	notify_user($user_guid, $site->guid, 'Confirm', "Please confirm by clicking this link: $url");
 
 
 .. warning::
 
-   Signed URLs do not offer CSRF protection and should not be used instead of action tokens.
+	Signed URLs do not offer CSRF protection and should not be used instead of action tokens.
