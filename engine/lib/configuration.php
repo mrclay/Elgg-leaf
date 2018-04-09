@@ -95,6 +95,12 @@ function elgg_get_config($name, $default = null) {
 		elgg_deprecated_notice($msg, '2.2');
 	}
 
+	if ($name === 'input') {
+		$msg = 'The config value "input" is deprecated. Use elgg_get_request_data()';
+		elgg_deprecated_notice($msg, '3.0');
+		return elgg_get_request_data();
+	}
+
 	if (!_elgg_config()->hasValue($name)) {
 		elgg_log("Config value for '$name' is not set'", 'INFO');
 		return $default;

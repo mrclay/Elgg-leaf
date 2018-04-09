@@ -86,7 +86,7 @@ elgg.ui.toggles = function(event) {
  */
 elgg.ui.initPopupContent = function(parent) {
 	require(['elgg/popup', 'elgg/Ajax'], function (popup, Ajax) {
-		var ajax = new Ajax();
+		var ajax = new Ajax(false);
 
 		function load_popup($trigger) {
 			var data = $trigger.data('ajaxPopup');
@@ -95,16 +95,18 @@ elgg.ui.initPopupContent = function(parent) {
 			if (!$popup.length) {
 				$popup = $('<div />').attr({
 					id: id,
-					'class': ['elgg-ajax-loader', 'elgg-menu-hover', 'elgg-ajax-popup-' + data.t].join(' '),
+					'class': ['elgg-popup', 'elgg-ajax-popup-' + data.t].join(' '),
 					style: 'display:none'
 				});
+				$popup.append($('<div />').addClass('elgg-ajax-loader'));
+
 				$popup.appendTo('body');
 
 				ajax.view('elgg/ajax_popup', {
 					data: data,
 					success: function(output) {
 						if (output) {
-							$popup.removeClass('elgg-ajax-loader').html(output);
+							$popup.html(output);
 						}
 					}
 				});

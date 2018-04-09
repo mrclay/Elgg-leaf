@@ -10,10 +10,10 @@ define(function (require) {
 		elgg.ajax('ajax/view/developers/ajax', {
 			beforeSend: function () {
 				$trigger.addClass('elgg-state-disabled').prop('disabled', true);
-				$module.html('').addClass('elgg-ajax-loader');
+				$module.html($('<div class="elgg-ajax-loader" />'));
 			},
 			success: function (output) {
-				$module.removeClass('elgg-ajax-loader').html(output);
+				$module.html(output);
 			}
 		});
 	}).on('close', function () {

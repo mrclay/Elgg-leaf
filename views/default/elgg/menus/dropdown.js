@@ -38,7 +38,7 @@ define(function (require) {
 
 				e.preventDefault();
 
-				$target.addClass('elgg-menu-hover');
+				$target.addClass('elgg-popup elgg-menu-hover');
 				var position = $target.data('position') || {
 					at: 'center bottom',
 					my: 'center top',

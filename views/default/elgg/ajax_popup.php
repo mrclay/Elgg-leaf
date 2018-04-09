@@ -3,7 +3,7 @@
 // capture global state necessary for menus
 $state = [
 	'contexts' => elgg_get_context_stack(),
-	'input' => elgg_get_config("input"),
+	'input' => elgg_get_request_data(),
 	'page_owner_guid' => elgg_get_page_owner_guid(),
 ];
 

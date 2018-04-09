@@ -25,6 +25,7 @@
 	z-index: 50;
 }
 
+.elgg-popup,
 .elgg-module-popup,
 .elgg-module-dropdown {
 	z-index: 60;

@@ -1649,7 +1649,7 @@ function autoregister_views($view_base, $folder, $ignored, $viewtype) {
 function elgg_add_ajax_popup_attributes($type, array $ajax_data = [], array $attrs = []) {
 	$page_owner_guid = (int) elgg_get_page_owner_guid();
 	$contexts = elgg_get_context_stack();
-	$input = (array) elgg_get_config("input");
+	$input = elgg_get_request_data();
 
 	// generate MAC so we don't have to trust the client's choice of contexts
 	$serialized = serialize([$type, $ajax_data, $page_owner_guid, $contexts, $input]);
